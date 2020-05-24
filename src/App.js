@@ -37,11 +37,18 @@ class App extends Component {
         }, {
           id: 3,
           folder: 'nabor-privychek',
-          name: 'Не жаловаться на жизнь'
+          name: 'Есть фрукты и овощи'
         }
       ],
+      trackEntries: [
+        {timeBucket: '2020-05-02', item: 2},
+        {timeBucket: '2020-05-04', item: 3},
+        {timeBucket: '2020-05-05', item: 2},
+        {timeBucket: '2020-05-01', item: 2}
+      ],
       createFolder: this.createFolder,
-      createElement: this.createElement
+      createElement: this.createElement,
+      addTrackEntry: this.addTrackEntry
     };
   }
 
@@ -71,6 +78,19 @@ class App extends Component {
         name: name
       },
       ...this.state.trackedItems
+    ]});
+  }
+
+  addTrackEntry = (itemId) => {
+    const now = new Date()
+    const month = now.getMonth()+1
+    const timeBucket = `${now.getFullYear()}-${month < 10? '0' + month : month}-${now.getDate()}`
+    this.setState({trackEntries: [
+      {
+        timeBucket: timeBucket, 
+        item: itemId
+      },
+      ...this.state.trackEntries
     ]});
   }
 
