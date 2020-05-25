@@ -88,7 +88,7 @@ class App extends Component {
     this.setState({trackEntries: [
       {
         timeBucket: timeBucket, 
-        item: itemId
+        item: parseInt(itemId, 10)
       },
       ...this.state.trackEntries
     ]});
