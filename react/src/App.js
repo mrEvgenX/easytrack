@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import slug from 'slug';
+import base64 from 'base-64';
 import './App.css';
 import HeaderBlock from './components/HeaderBlock';
 import Main from './components/Main';
@@ -10,88 +10,98 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      folders: [
-        {
-          user: 0,
-          slug: 'odezhda',
-          name: 'Одежда'
-        }, {
-          user: 0,
-          slug: 'nabor-privychek',
-          name: 'Набор привычек'
-        }
-      ],
-      trackedItems: [
-        {
-          id: 0,
-          folder: 'odezhda',
-          name: 'Майка'
-        }, {
-          id: 1,
-          folder: 'odezhda',
-          name: 'Джинсы'
-        }, {
-          id: 2,
-          folder: 'nabor-privychek',
-          name: 'Медитировать по утрам'
-        }, {
-          id: 3,
-          folder: 'nabor-privychek',
-          name: 'Есть фрукты и овощи'
-        }
-      ],
-      trackEntries: [
-        {timeBucket: '2020-05-02', item: 2},
-        {timeBucket: '2020-05-04', item: 3},
-        {timeBucket: '2020-05-05', item: 2},
-        {timeBucket: '2020-05-01', item: 2}
-      ],
+      folders: [],
+      trackedItems: [],
+      trackEntries: [],
       createFolder: this.createFolder,
       createElement: this.createElement,
       addTrackEntry: this.addTrackEntry
     };
+    fetch('http://localhost:8000/api/v1/folders')
+      .then(response => response.json())
+      .then(folders => {
+        this.setState({folders});
+        fetch('http://localhost:8000/api/v1/items')
+        .then(response => response.json())
+        .then(trackedItems => {
+          this.setState({trackedItems});
+          fetch('http://localhost:8000/api/v1/entries')
+            .then(response => response.json())
+            .then(trackEntries => {
+              this.setState({trackEntries});
+            })
+        })
+      })
   }
 
   createFolder = (name) => {
-    this.setState({folders: [
+    // TODO потом прикрутится авторизация и будет круто
+    const username = 'admin'
+    const password = 'password1234'
+    fetch(
+      'http://localhost:8000/api/v1/folders',
       {
-        user: 0,
-        slug: slug(name),
-        name: name
-      },
-      ...this.state.folders
-    ]});
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json;charset=utf-8',
+          'Authorization': 'Basic ' + base64.encode(username + ":" + password)
+        },
+        body: JSON.stringify({name})
+      }
+      )
+      .then(response => response.json())
+      .then(data => {
+        this.setState({folders: [...this.state.folders, data]})
+      });
   }
 
   createElement = (name, folder) => {
-    let nextId = 0;
-    this.state.trackedItems.forEach(item => {
-      if (item.id > nextId) {
-        nextId = item.id;
-      }
-    })
-    nextId++;
-    this.setState({trackedItems: [
+    // TODO потом прикрутится авторизация и будет круто
+    const username = 'admin'
+    const password = 'password1234'
+    fetch(
+      'http://localhost:8000/api/v1/items',
       {
-        id: nextId,
-        folder: folder,
-        name: name
-      },
-      ...this.state.trackedItems
-    ]});
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json;charset=utf-8',
+          'Authorization': 'Basic ' + base64.encode(username + ":" + password)
+        },
+        body: JSON.stringify({folder, name})
+      }
+      )
+      .then(response => response.json())
+      .then(data => {
+        this.setState({trackedItems: [...this.state.trackedItems, data]})
+      });
   }
 
   addTrackEntry = (itemId) => {
+    // TODO потом прикрутится авторизация и будет круто
+    const username = 'admin'
+    const password = 'password1234'
+
     const now = new Date()
     const month = now.getMonth()+1
     const timeBucket = `${now.getFullYear()}-${month < 10? '0' + month : month}-${now.getDate()}`
-    this.setState({trackEntries: [
+    fetch(
+      'http://localhost:8000/api/v1/entries',
       {
-        timeBucket: timeBucket, 
-        item: parseInt(itemId, 10)
-      },
-      ...this.state.trackEntries
-    ]});
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json;charset=utf-8',
+          'Authorization': 'Basic ' + base64.encode(username + ":" + password)
+        },
+        body: JSON.stringify({timeBucket, item: itemId})
+      }
+      )
+      .then(response => response.json())
+      .then(data => {
+        this.setState({trackEntries: [...this.state.trackEntries, data]})
+      })
+      .catch(error => {
+        console.log(error);
+      });
   }
 
   render() {
