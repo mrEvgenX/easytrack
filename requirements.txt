@@ -1,2 +1,4 @@
 django==3.0.6
-django-rest-framework==0.1.0
+django-cors-headers==3.3.0
+djangorestframework==3.11.0
+unidecode==1.1.1
