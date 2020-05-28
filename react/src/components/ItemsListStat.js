@@ -66,10 +66,10 @@ export default class ItemsListStat extends Component {
 
     render() {
         const {folders, trackedItems, trackEntries, match: {params: {folderSlug}}} = this.props;
-        let currentFolder = undefined;
+        let currentFolderName = undefined;  // TODO implement something like "please wait..."
         for (let folder of folders) {
             if (folder.slug === folderSlug) {
-                currentFolder = folder;
+                currentFolderName = folder.name;
                 break;
             }
         }
@@ -96,7 +96,7 @@ export default class ItemsListStat extends Component {
 
         return (
             <>
-                <h3>Статистика по элементам папки "{currentFolder.name}"</h3>
+                <h3>Статистика по элементам папки "{currentFolderName}"</h3>
                 <p><Link to={'/folder/' + folderSlug}>Назад</Link></p>
                 <input type="text" value={this.state.newElementName} onChange={this.handleNewElementNameInputChange} />
                 <button onClick={this.handleClick}>Создать элемент</button>

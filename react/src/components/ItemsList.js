@@ -32,17 +32,17 @@ export default class ItemsList extends Component {
 
     render() {
         const {folders, trackedItems, match: {params: {folderSlug}}} = this.props;
-        let currentFolder = undefined;
+        let currentFolderName = 'SOME DEFAULT';  // TODO implement something like "please wait..."
         for (let folder of folders) {
             if (folder.slug === folderSlug) {
-                currentFolder = folder;
+                currentFolderName = folder.name;
                 break;
             }
         }
         const itemsInCurrentFolder = trackedItems.filter(item => item.folder === folderSlug);
         return (
             <>
-                <h3>Элементы папки "{currentFolder.name}"</h3>
+                <h3>Элементы папки "{currentFolderName}"</h3>
                 <p><Link to={'/folder/' + folderSlug + '/statistics'}>Отчет</Link></p>
                 <input type="text" value={this.state.newElementName} onChange={this.handleChange} />
                 <button onClick={this.handleElementCreation}>Создать элемент</button>
