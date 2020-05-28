@@ -29,19 +29,6 @@ export default class ItemsListStat extends Component {
         };
     }
 
-    handleClick = (e) => {
-        const {createElement, match: {params: {folderSlug}}} = this.props;
-        e.preventDefault();
-        if (this.state.newElementName !== '') {
-            createElement(this.state.newElementName, folderSlug);
-            this.setState({newElementName: ''});
-        }
-    }    
-
-    handleNewElementNameInputChange = (e) => {
-        this.setState({newElementName: e.target.value});
-    }
-
     handleFromDateChange = date => {
         this.setState({
             fromDate: date
@@ -98,8 +85,6 @@ export default class ItemsListStat extends Component {
             <>
                 <h3>Статистика по элементам папки "{currentFolderName}"</h3>
                 <p><Link to={'/folder/' + folderSlug}>Назад</Link></p>
-                <input type="text" value={this.state.newElementName} onChange={this.handleNewElementNameInputChange} />
-                <button onClick={this.handleClick}>Создать элемент</button>
                 <div>
                     С <DatePicker selected={this.state.fromDate} onChange={this.handleFromDateChange} /> 
                     по <DatePicker selected={this.state.toDate} onChange={this.handleToDateChange} />
