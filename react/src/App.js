@@ -5,6 +5,27 @@ import HeaderBlock from './components/HeaderBlock';
 import Main from './components/Main';
 
 
+function populateState() {
+  return new Promise((resolve, _) => {
+    Promise.all([
+      'http://localhost:8000/api/v1/folders',
+      'http://localhost:8000/api/v1/items',
+      'http://localhost:8000/api/v1/entries'
+    ].map(url => fetch(url)))
+      .then(responses => {
+        Promise.all(responses.map(response => response.json()))
+          .then(data => {
+            resolve({
+              folders: data[0],
+              trackedItems: data[1], 
+              trackEntries: data[2]
+            });
+          });
+      });
+  });
+}
+
+
 class App extends Component {
 
   constructor(props) {
@@ -17,21 +38,7 @@ class App extends Component {
       createElement: this.createElement,
       addTrackEntry: this.addTrackEntry
     };
-    fetch('http://localhost:8000/api/v1/folders')
-      .then(response => response.json())
-      .then(folders => {
-        this.setState({folders});
-        fetch('http://localhost:8000/api/v1/items')
-        .then(response => response.json())
-        .then(trackedItems => {
-          this.setState({trackedItems});
-          fetch('http://localhost:8000/api/v1/entries')
-            .then(response => response.json())
-            .then(trackEntries => {
-              this.setState({trackEntries});
-            })
-        })
-      })
+    populateState().then(data => {this.setState(data)});
   }
 
   createFolder = (name) => {
