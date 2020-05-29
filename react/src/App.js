@@ -5,7 +5,10 @@ import Main from './components/Main';
 
 
 function populateState(accessToken) {
-  return new Promise((resolve, _) => {
+  return new Promise((resolve, reject) => {
+    if (accessToken === null) {
+      reject(new Error('Access token not provided'));
+    }
     Promise.all([
       'http://localhost:8000/api/v1/folders',
       'http://localhost:8000/api/v1/items',
@@ -20,17 +23,21 @@ function populateState(accessToken) {
       }
     )))
       .then(responses => {
+        if (responses.some(response => !response.ok)) {
+          reject(new Error('Access token expired'));
+        }
+        return responses;
+      })
+      .then(responses => {
         Promise.all(responses.map(response => response.json()))
           .then(data => {
-            console.log(accessToken);
-            console.log(data)
             resolve({
               folders: data[0],
               trackedItems: data[1],
               trackEntries: data[2]
             });
           });
-      });
+      })
   });
 }
 
@@ -42,8 +49,8 @@ class App extends Component {
     this.state = {
       // TODO store it to local storage
       auth: {
-        refresh: undefined,
-        access: undefined,
+        refresh: localStorage.getItem('refreshToken'),
+        access: localStorage.getItem('accessToken'),
       },
       folders: [],
       trackedItems: [],
@@ -53,33 +60,17 @@ class App extends Component {
       addTrackEntry: this.addTrackEntry,
       authenticate: this.authenticate
     };
-    fetch(
-      'http://localhost:8000/api/v1/auth/token/refresh/',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json;charset=utf-8',
-        },
-        body: JSON.stringify({ refresh: this.state.auth.refresh })
-      }
-    )
-      .then(response => {
-        if (!response.ok)
-          throw new Error(response.status);
-        return response;
-      })
-      .then(response => response.json())
-      .catch(error => {
-        console.log('error', error);
-      })
-      .then(data => {
-        console.log(data)
-        this.setState({ auth: { ...this.state.auth, access: data['access'] } });
-        populateState(this.state.auth.access).then(data => { this.setState(data) });
-      })
-      .catch(error => {
-        console.log(error);
-      })
+    populateState(this.state.auth.access)
+      .then(data => { this.setState(data) })
+      .catch(_ => {
+        this.refreshAccess(this.state.auth.refresh)
+        .then(data => {
+          this.setState({ auth: { ...this.state.auth, access: data.access } });
+          populateState(this.state.auth.access).then(data => { this.setState(data) });
+        }).catch(error => {
+          console.log(error);
+        });
+      });
   }
 
   authenticate = (username, password) => {
@@ -102,11 +93,55 @@ class App extends Component {
         this.setState({
           auth: { ...data } 
         });
+        localStorage.setItem('refreshToken', data.refresh);
+        localStorage.setItem('accessToken', data.access);
         populateState(this.state.auth.access).then(data => { this.setState(data) });
       })
       .catch(error => {
         console.log(error);
       });
+  }
+
+  refreshAccess = (refreshToken) => {
+    return new Promise((resolve, reject) => {
+      fetch(
+        'http://localhost:8000/api/v1/auth/token/refresh/',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json;charset=utf-8',
+          },
+          body: JSON.stringify({ refresh: refreshToken })
+        }
+      )
+        .then(response => {
+          if (!response.ok)
+            throw new Error(response.status);
+          return response;
+        })
+        .then(response => response.json())
+        .then(data => {
+          localStorage.setItem('accessToken', data.access);
+          resolve(data);
+        })
+        .catch(error => {
+          reject(error);
+        });
+    });
+  }
+
+  logout = () => {
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('accessToken');
+    this.setState({
+      auth: {
+        refresh: null,
+        access: null,
+      },
+      folders: [],
+      trackedItems: [],
+      trackEntries: [],
+    });
   }
 
   createFolder = (name) => {
@@ -172,7 +207,7 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <HeaderBlock />
+        <HeaderBlock logout={this.logout} />
         <Main globalState={this.state} />
       </div>
     );

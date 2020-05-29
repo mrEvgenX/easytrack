@@ -22,7 +22,6 @@ export default class Login extends Component {
     handleLoginClick = e => {
         e.preventDefault();
         const { authenticate } = this.props;
-        console.log(this.state.login, this.state.password);
         authenticate(this.state.login, this.state.password);
     }
 
