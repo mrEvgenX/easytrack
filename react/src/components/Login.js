@@ -8,23 +8,25 @@ export default class Login extends Component {
         super(props)
         this.state = {
             login: '',
-            password: ''
+            password: '',
+            requiredFieldsNotFilled: false
         }
     }
 
-    handleLoginChange = e => {
-        this.setState({login: e.target.value});
-    }
-
-    handlePasswordChange = e => {
-        this.setState({password: e.target.value});
+    handleInputChange = e => {
+        this.setState({[e.target.name]: e.target.value});
     }
 
     handleLoginClick = e => {
+        console.log('HELLO!!!!!');
         e.preventDefault();
         const { authenticate } = this.props;
-        authenticate(this.state.login, this.state.password);
-        this.setState({login: '', password: ''});
+        if (this.state.login === '' || this.state.password === '') {
+            this.setState({ requiredFieldsNotFilled: true });
+        } else {
+            this.setState({login: '', password: '', requiredFieldsNotFilled: false });
+            authenticate(this.state.login, this.state.password);
+        }
     }
 
     render() {
@@ -36,12 +38,14 @@ export default class Login extends Component {
                 <h2>Вход на сайт</h2>
                 <form>
                     <div>
-                        <input type='text' name='login' placeholder='E-mail' onChange={this.handleLoginChange} />
+                        <input type='text' name='login' placeholder='E-mail' onChange={this.handleInputChange} />
                     </div>
                     <div>
-                        <input type='password' name='password' placeholder='Пароль' onChange={this.handlePasswordChange} />
+                        <input type='password' name='password' placeholder='Пароль' onChange={this.handleInputChange} />
                     </div>
                     <div>
+                        { this.state.requiredFieldsNotFilled? <p>Все поля обязательны</p>: null }
+                        { this.props.authenticationAttemptFailed? <p>Неправильный логин или пароль</p>: null }
                         <input type='submit' value='Войти' onClick={this.handleLoginClick} />
                     </div>
                 </form>

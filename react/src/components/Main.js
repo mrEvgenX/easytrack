@@ -7,7 +7,10 @@ import Login from './Login';
 import Register from './Register';
 
 export default function Main(props) {
-    const { globalState: { folders, trackedItems, trackEntries, createFolder, createElement, addTrackEntry, authenticate, auth: { isAuthenticated } } } = props;
+    const { globalState: { 
+        folders, trackedItems, trackEntries, createFolder, createElement, addTrackEntry, 
+        authenticate, register, auth: { isAuthenticated, authenticationAttemptFailed } 
+    } } = props;
     return (
         <Switch>
             <Route exact path="/" 
@@ -29,8 +32,8 @@ export default function Main(props) {
                                 render={props => <ItemsList {...props} folders={folders} trackedItems={trackedItems} createElement={createElement} addTrackEntry={addTrackEntry} />} />
                         </Switch>)
                    }} />
-            <Route exact path="/login" render={() => <Login isAuthenticated={isAuthenticated} authenticate={authenticate} />} />
-            <Route exact path="/register" component={Register} />
+            <Route exact path="/login" render={() => <Login authenticationAttemptFailed={authenticationAttemptFailed} isAuthenticated={isAuthenticated} authenticate={authenticate} />} />
+            <Route exact path="/register" render={() => <Register register={register} />} />
             <Route render={() => <h1>Такой страницы нет</h1>} />
         </Switch>
     );

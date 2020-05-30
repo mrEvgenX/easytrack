@@ -51,7 +51,8 @@ class App extends Component {
       auth: {
         refresh: localStorage.getItem('refreshToken'),
         access: localStorage.getItem('accessToken'),
-        isAuthenticated: localStorage.getItem('refreshToken') !== null
+        isAuthenticated: localStorage.getItem('refreshToken') !== null,
+        authenticationAttemptFailed: false
       },
       folders: [],
       trackedItems: [],
@@ -59,7 +60,8 @@ class App extends Component {
       createFolder: this.createFolder,
       createElement: this.createElement,
       addTrackEntry: this.addTrackEntry,
-      authenticate: this.authenticate
+      authenticate: this.authenticate,
+      register: this.register
     };
     populateState(this.state.auth.access)
       .then(data => {
@@ -101,6 +103,7 @@ class App extends Component {
         populateState(this.state.auth.access).then(data => { this.setState(data) });
       })
       .catch(error => {
+        this.setState({auth: { ...this.state.auth, authenticationAttemptFailed: true }});
         console.log(error);
       });
   }
@@ -146,6 +149,10 @@ class App extends Component {
       trackedItems: [],
       trackEntries: [],
     });
+  }
+
+  register = (login, password) => {
+    console.log('register new user with credentials', login, password);
   }
 
   createFolder = (name) => {
