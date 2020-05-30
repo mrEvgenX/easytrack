@@ -51,6 +51,7 @@ class App extends Component {
       auth: {
         refresh: localStorage.getItem('refreshToken'),
         access: localStorage.getItem('accessToken'),
+        isAuthenticated: localStorage.getItem('refreshToken') !== null
       },
       folders: [],
       trackedItems: [],
@@ -61,7 +62,9 @@ class App extends Component {
       authenticate: this.authenticate
     };
     populateState(this.state.auth.access)
-      .then(data => { this.setState(data) })
+      .then(data => {
+        this.setState(data)
+      })
       .catch(_ => {
         this.refreshAccess(this.state.auth.refresh)
         .then(data => {
@@ -91,7 +94,7 @@ class App extends Component {
       .then(response => response.json())
       .then(data => {
         this.setState({
-          auth: { ...data } 
+          auth: { ...data, isAuthenticated: true } 
         });
         localStorage.setItem('refreshToken', data.refresh);
         localStorage.setItem('accessToken', data.access);
@@ -137,6 +140,7 @@ class App extends Component {
       auth: {
         refresh: null,
         access: null,
+        isAuthenticated: false
       },
       folders: [],
       trackedItems: [],
@@ -207,7 +211,7 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <HeaderBlock logout={this.logout} />
+        <HeaderBlock isAuthenticated={this.state.auth.isAuthenticated} logout={this.logout} />
         <Main globalState={this.state} />
       </div>
     );
