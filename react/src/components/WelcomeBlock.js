@@ -16,7 +16,7 @@ export default function WelcomeBlock() {
             <h2>Организуйте</h2>
             <p>Сами привычки будут собраны в тематические папки, например: "Личная эффективность", "Гармония в семье"...</p>
             <h1><Link to='/register'>Создать профиль</Link></h1>
-            <p><Link to='/register'>Войти</Link></p>
+            <p><Link to='/login'>Войти</Link></p>
         </>
     );
 }

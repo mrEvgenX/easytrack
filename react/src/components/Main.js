@@ -10,7 +10,7 @@ import WelcomeBlock from './WelcomeBlock';
 export default function Main(props) {
     const { globalState: { 
         folders, trackedItems, trackEntries, createFolder, createElement, addTrackEntry, 
-        authenticate, register, auth: { isAuthenticated, authenticationAttemptFailed } 
+        authenticate, register, auth: { isAuthenticated, authenticationAttemptFailed, registrationFailed } 
     } } = props;
     return (
         <Switch>
@@ -35,7 +35,7 @@ export default function Main(props) {
                         </Switch>)
                    }} />
             <Route exact path="/login" render={() => <Login authenticationAttemptFailed={authenticationAttemptFailed} isAuthenticated={isAuthenticated} authenticate={authenticate} />} />
-            <Route exact path="/register" render={() => <Register register={register} />} />
+            <Route exact path="/register" render={() => <Register registrationFailed={registrationFailed} register={register} />} />
             <Route render={() => <h1>Такой страницы нет</h1>} />
         </Switch>
     );

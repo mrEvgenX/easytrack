@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Redirect } from 'react-router-dom';
 
 
 export default class Register extends Component {
@@ -35,9 +36,15 @@ export default class Register extends Component {
     }
 
     render() {
+        if (this.props.isAuthenticated) {
+            return <Redirect to="/" />;
+        }
+        if (this.props.registrationFailed !== null && !this.props.registrationFailed ) {
+            return <Redirect to="/login" />;
+        }
         return (
             <>
-                <h2>Вход на сайт</h2>
+                <h2>Создание нового профиля</h2>
                 <form>
                     <div>
                         <input type='text' name='login' placeholder='E-mail' onChange={this.handleInputChange} />
@@ -51,6 +58,7 @@ export default class Register extends Component {
                     <div>
                         { this.state.requiredFieldsNotFilled? <p>Все поля обязательны</p> : null }
                         { this.state.passwordsMatchFailed? <p>Пароли не совпадают</p> : null }
+                        { this.props.registrationFailed? <p>Некорректный email, либо такой пользователь уже существует</p> : null }
                         <input type='submit' value='Зарегистрироваться' onClick={this.handleRegisterClick} />
                     </div>
                 </form>

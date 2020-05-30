@@ -52,7 +52,8 @@ class App extends Component {
         refresh: localStorage.getItem('refreshToken'),
         access: localStorage.getItem('accessToken'),
         isAuthenticated: localStorage.getItem('refreshToken') !== null,
-        authenticationAttemptFailed: false
+        authenticationAttemptFailed: false,
+        registrationFailed: null
       },
       folders: [],
       trackedItems: [],
@@ -80,7 +81,7 @@ class App extends Component {
 
   authenticate = (username, password) => {
     fetch(
-      'http://localhost:8000/api/v1/auth/token/obtain/', 
+      'http://localhost:8000/api/v1/auth/token/obtain', 
       {
         method: 'POST',
         headers: {
@@ -103,7 +104,7 @@ class App extends Component {
         populateState(this.state.auth.access).then(data => { this.setState(data) });
       })
       .catch(error => {
-        this.setState({auth: { ...this.state.auth, authenticationAttemptFailed: true }});
+        this.setState({auth: { ...this.state.auth, authenticationAttemptFailed: true, registrationFailed: null }});
         console.log(error);
       });
   }
@@ -111,7 +112,7 @@ class App extends Component {
   refreshAccess = (refreshToken) => {
     return new Promise((resolve, reject) => {
       fetch(
-        'http://localhost:8000/api/v1/auth/token/refresh/',
+        'http://localhost:8000/api/v1/auth/token/refresh',
         {
           method: 'POST',
           headers: {
@@ -141,9 +142,11 @@ class App extends Component {
     localStorage.removeItem('accessToken');
     this.setState({
       auth: {
+        ...this.state.auth,
         refresh: null,
         access: null,
-        isAuthenticated: false
+        isAuthenticated: false,
+        registrationFailed: null
       },
       folders: [],
       trackedItems: [],
@@ -152,7 +155,30 @@ class App extends Component {
   }
 
   register = (login, password) => {
-    console.log('register new user with credentials', login, password);
+    fetch(
+      'http://localhost:8000/api/v1/auth/register',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json;charset=utf-8',
+        },
+        body: JSON.stringify({ email: login, password })
+      }
+    )
+      .then(response => {
+        if (!response.ok)
+          throw new Error(response.status);
+        return response;
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data);
+        this.setState({auth: { ...this.state.auth, registrationFailed: false }});
+      })
+      .catch(error => {
+        console.log(error);
+        this.setState({auth: { ...this.state.auth, registrationFailed: true }});
+      });
   }
 
   createFolder = (name) => {

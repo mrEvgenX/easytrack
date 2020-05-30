@@ -9,8 +9,10 @@ from django.utils.text import slugify
 
 
 class ListCreateFolders(generics.ListCreateAPIView):
-    queryset = Folder.objects.all()
     serializer_class = FolderSerializer
+
+    def get_queryset(self, *args, **kwargs):
+        return Folder.objects.filter(owner=self.request.user.pk)
 
     def get_serializer(self, *args, **kwargs):
         data = kwargs.get('data')
@@ -24,10 +26,14 @@ class ListCreateFolders(generics.ListCreateAPIView):
 
 
 class ListCreateItems(generics.ListCreateAPIView):
-    queryset = Item.objects.all()
     serializer_class = ItemSerializer
+
+    def get_queryset(self, *args, **kwargs):
+        return Item.objects.filter(folder__in=Folder.objects.filter(owner=self.request.user.pk))
 
 
 class ListCreateEntries(generics.ListCreateAPIView):
-    queryset = Entry.objects.all()
     serializer_class = EntrySerializer
+
+    def get_queryset(self, *args, **kwargs):
+        return Entry.objects.filter(item__in=Item.objects.filter(folder__in=Folder.objects.filter(owner=self.request.user.pk)))

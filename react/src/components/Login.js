@@ -18,7 +18,6 @@ export default class Login extends Component {
     }
 
     handleLoginClick = e => {
-        console.log('HELLO!!!!!');
         e.preventDefault();
         const { authenticate } = this.props;
         if (this.state.login === '' || this.state.password === '') {
@@ -31,7 +30,7 @@ export default class Login extends Component {
 
     render() {
         if (this.props.isAuthenticated) {
-            return <Redirect to="/" />
+            return <Redirect to="/" />;
         }
         return (
             <>
