@@ -5,6 +5,7 @@ import ItemsList from './ItemsList';
 import ItemsListStat from './ItemsListStat';
 import Login from './Login';
 import Register from './Register';
+import WelcomeBlock from './WelcomeBlock';
 
 export default function Main(props) {
     const { globalState: { 
@@ -16,10 +17,11 @@ export default function Main(props) {
             <Route exact path="/" 
                    render={() => {
                         if (!isAuthenticated) {
-                            return <Redirect to="/login" />
+                            return <Redirect to="/welcome" />
                         }
                         return <FoldersList folders={folders} createFolder={createFolder} />
                    }} />
+            <Route exact path="/welcome" component={ WelcomeBlock } />
             <Route path="/folder/" 
                    render={() => {
                         if (!isAuthenticated) {
