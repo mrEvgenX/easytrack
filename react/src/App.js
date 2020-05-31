@@ -1,7 +1,15 @@
 import React, { Component } from 'react';
 import './App.css';
-import HeaderBlock from './components/HeaderBlock';
-import Main from './components/Main';
+import HeaderBlock from './components/header/HeaderBlock';
+import HeaderMenu from './components/header/HeaderMenu';
+import HeaderMenuUnlogged from './components/header/HeaderMenuUnlogged';
+import {Switch, Route, Redirect} from 'react-router-dom';
+import FoldersList from './components/FoldersList';
+import ItemsList from './components/ItemsList';
+import ItemsListStat from './components/ItemsListStat';
+import Login from './components/auth/Login';
+import Register from './components/Register';
+import WelcomeBlock from './components/WelcomeBlock';
 
 
 function populateState(accessToken) {
@@ -42,7 +50,7 @@ function populateState(accessToken) {
 }
 
 
-class App extends Component {
+export default class App extends Component {
 
   constructor(props) {
     super(props);
@@ -58,11 +66,6 @@ class App extends Component {
       folders: [],
       trackedItems: [],
       trackEntries: [],
-      createFolder: this.createFolder,
-      createElement: this.createElement,
-      addTrackEntry: this.addTrackEntry,
-      authenticate: this.authenticate,
-      register: this.register
     };
     populateState(this.state.auth.access)
       .then(data => {
@@ -79,7 +82,7 @@ class App extends Component {
       });
   }
 
-  authenticate = (username, password) => {
+  onLogin = (username, password) => {
     fetch(
       'http://localhost:8000/api/v1/auth/token/obtain', 
       {
@@ -137,7 +140,7 @@ class App extends Component {
     });
   }
 
-  logout = () => {
+  onLogout = () => {
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('accessToken');
     this.setState({
@@ -154,7 +157,7 @@ class App extends Component {
     });
   }
 
-  register = (login, password) => {
+  onRegister = (login, password) => {
     fetch(
       'http://localhost:8000/api/v1/auth/register',
       {
@@ -242,14 +245,60 @@ class App extends Component {
   }
 
   render() {
+    const { 
+      folders, trackedItems, trackEntries, auth: { isAuthenticated, authenticationAttemptFailed, registrationFailed } 
+    } = this.state;
+    let headerMenu;
+    if (isAuthenticated) {
+      headerMenu = <HeaderMenu onLogout={this.onLogout} />;
+    } else {
+      headerMenu = <HeaderMenuUnlogged />;
+    }
     return (
       <div className="App">
-        <HeaderBlock isAuthenticated={this.state.auth.isAuthenticated} logout={this.logout} />
-        <Main globalState={this.state} />
+        <HeaderBlock>
+          { headerMenu }
+        </HeaderBlock>
+        <Switch>
+            <Route exact path="/" 
+                   render={() => {
+                        if (!isAuthenticated) {
+                            return <Redirect to="/welcome" />
+                        }
+                        return <FoldersList folders={folders} createFolder={this.createFolder} />
+                   }} />
+            <Route exact path="/welcome" component={ WelcomeBlock } />
+            <Route path="/folder/" 
+                   render={() => {
+                        if (!isAuthenticated) {
+                            return <Redirect to="/login" />
+                        }
+                        return (<Switch>
+                            <Route path="/folder/:folderSlug/statistics" 
+                                render={props => <ItemsListStat {...props} folders={folders} trackedItems={trackedItems} trackEntries={trackEntries} createElement={this.createElement} />} />
+                            <Route path="/folder/:folderSlug" 
+                                render={props => <ItemsList {...props} folders={folders} trackedItems={trackedItems} createElement={this.createElement} addTrackEntry={this.addTrackEntry} />} />
+                        </Switch>)
+                   }} />
+            <Route exact path="/login" render={() => {
+              if (isAuthenticated) {
+                return <Redirect to="/" />;
+              }
+              return <Login authenticationAttemptFailed={authenticationAttemptFailed} isAuthenticated={isAuthenticated} onLogin={this.onLogin} />
+            }} />
+            <Route exact path="/register" render={() => {
+              if (isAuthenticated) {
+                  return <Redirect to="/" />;
+              }
+              if (registrationFailed !== null && !registrationFailed ) {
+                  return <Redirect to="/login" />;
+              }
+              return <Register registrationFailed={registrationFailed} onRegister={this.onRegister} />
+            }} />
+            <Route render={() => <h1>Такой страницы нет</h1>} />
+        </Switch>
       </div>
     );
   }
 
 }
-
-export default App;

@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { Redirect } from 'react-router-dom';
 
 
 export default class Register extends Component {
@@ -21,7 +20,7 @@ export default class Register extends Component {
 
     handleRegisterClick = e => {
         e.preventDefault();
-        const { register } = this.props;
+        const { onRegister } = this.props;
         const { login, password, passwordRepeat } = this.state;
         if (login === '' || password === '' || passwordRepeat === '') {
             this.setState({ requiredFieldsNotFilled: true, passwordsMatchFailed: false  });
@@ -30,18 +29,12 @@ export default class Register extends Component {
                 this.setState({ requiredFieldsNotFilled: false, passwordsMatchFailed: true  });
             } else {
                 this.setState({ requiredFieldsNotFilled: false, passwordsMatchFailed: false });
-                register(login, password);
+                onRegister(login, password);
             }
         }
     }
 
     render() {
-        if (this.props.isAuthenticated) {
-            return <Redirect to="/" />;
-        }
-        if (this.props.registrationFailed !== null && !this.props.registrationFailed ) {
-            return <Redirect to="/login" />;
-        }
         return (
             <>
                 <h2>Создание нового профиля</h2>
@@ -58,6 +51,7 @@ export default class Register extends Component {
                     <div>
                         { this.state.requiredFieldsNotFilled? <p>Все поля обязательны</p> : null }
                         { this.state.passwordsMatchFailed? <p>Пароли не совпадают</p> : null }
+                        {/* TODO определять конкретно, что за ошибка */} 
                         { this.props.registrationFailed? <p>Некорректный email, либо такой пользователь уже существует</p> : null }
                         <input type='submit' value='Зарегистрироваться' onClick={this.handleRegisterClick} />
                     </div>
