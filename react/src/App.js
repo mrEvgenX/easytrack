@@ -2,6 +2,10 @@ import React, {
     Component
 } from 'react';
 import './App.css';
+import { 
+    populateState, refreshAccess, createNewUser, requestAndStoreCredentials, clearCredentialsFromStore,
+    createFolder, createElement, addTrackEntry
+} from './asyncOperations';
 import HeaderBlock from './components/header/HeaderBlock';
 import HeaderMenu from './components/header/HeaderMenu';
 import HeaderMenuUnlogged from './components/header/HeaderMenuUnlogged';
@@ -18,50 +22,13 @@ import Register from './components/Register';
 import WelcomeBlock from './components/WelcomeBlock';
 
 
-function populateState(accessToken) {
-    return new Promise((resolve, reject) => {
-        if (accessToken === null) {
-            reject(new Error('Access token not provided'));
-        }
-        Promise.all([
-            'http://localhost:8000/api/v1/folders',
-            'http://localhost:8000/api/v1/items',
-            'http://localhost:8000/api/v1/entries'
-        ].map(url => fetch(
-            url, {
-            headers: {
-                'Content-Type': 'application/json;charset=utf-8',
-                'Authorization': `Bearer ${accessToken}`
-            }
-        }
-        )))
-            .then(responses => {
-                if (responses.some(response => !response.ok)) {
-                    reject(new Error('Access token expired'));
-                }
-                return responses;
-            })
-            .then(responses => {
-                Promise.all(responses.map(response => response.json()))
-                    .then(data => {
-                        resolve({
-                            folders: data[0],
-                            trackedItems: data[1],
-                            trackEntries: data[2]
-                        });
-                    });
-            })
-    });
-}
-
-
 export default class App extends Component {
 
     constructor(props) {
         super(props);
         this.state = {
-            // TODO store it to local storage
             auth: {
+                // TODO Incapsulate every call to localstorage
                 refresh: localStorage.getItem('refreshToken'),
                 access: localStorage.getItem('accessToken'),
                 isAuthenticated: localStorage.getItem('refreshToken') !== null,
@@ -77,7 +44,7 @@ export default class App extends Component {
                 this.setState(data)
             })
             .catch(_ => {
-                this.refreshAccess(this.state.auth.refresh)
+                refreshAccess(this.state.auth.refresh)
                     .then(data => {
                         this.setState({
                             auth: {
@@ -95,23 +62,7 @@ export default class App extends Component {
     }
 
     onLogin = (username, password) => {
-        fetch(
-            'http://localhost:8000/api/v1/auth/token/obtain', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json;charset=utf-8',
-            },
-            body: JSON.stringify({
-                username,
-                password
-            })
-        })
-            .then(response => {
-                if (!response.ok)
-                    throw new Error(response.status);
-                return response;
-            })
-            .then(response => response.json())
+        requestAndStoreCredentials(username, password)
             .then(data => {
                 this.setState({
                     auth: {
@@ -119,9 +70,7 @@ export default class App extends Component {
                         isAuthenticated: true
                     }
                 });
-                localStorage.setItem('refreshToken', data.refresh);
-                localStorage.setItem('accessToken', data.access);
-                populateState(this.state.auth.access).then(data => {
+                populateState(data.auth.access).then(data => {
                     this.setState(data)
                 });
             })
@@ -137,38 +86,8 @@ export default class App extends Component {
             });
     }
 
-    refreshAccess = (refreshToken) => {
-        return new Promise((resolve, reject) => {
-            fetch(
-                'http://localhost:8000/api/v1/auth/token/refresh', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json;charset=utf-8',
-                },
-                body: JSON.stringify({
-                    refresh: refreshToken
-                })
-            }
-            )
-                .then(response => {
-                    if (!response.ok)
-                        throw new Error(response.status);
-                    return response;
-                })
-                .then(response => response.json())
-                .then(data => {
-                    localStorage.setItem('accessToken', data.access);
-                    resolve(data);
-                })
-                .catch(error => {
-                    reject(error);
-                });
-        });
-    }
-
     onLogout = () => {
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('accessToken');
+        clearCredentialsFromStore();
         this.setState({
             auth: {
                 ...this.state.auth,
@@ -184,24 +103,7 @@ export default class App extends Component {
     }
 
     onRegister = (login, password) => {
-        fetch(
-            'http://localhost:8000/api/v1/auth/register', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json;charset=utf-8',
-            },
-            body: JSON.stringify({
-                email: login,
-                password
-            })
-        }
-        )
-            .then(response => {
-                if (!response.ok)
-                    throw new Error(response.status);
-                return response;
-            })
-            .then(response => response.json())
+        createNewUser(login, password)
             .then(data => {
                 console.log(data);
                 this.setState({
@@ -222,20 +124,8 @@ export default class App extends Component {
             });
     }
 
-    createFolder = (name) => {
-        fetch(
-            'http://localhost:8000/api/v1/folders', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json;charset=utf-8',
-                'Authorization': `Bearer ${this.state.auth.access}`
-            },
-            body: JSON.stringify({
-                name
-            })
-        }
-        )
-            .then(response => response.json())
+    onFolderCreation = (name) => {
+        createFolder(this.state.auth.access, name)
             .then(data => {
                 this.setState({
                     folders: [...this.state.folders, data]
@@ -243,21 +133,8 @@ export default class App extends Component {
             });
     }
 
-    createElement = (name, folder) => {
-        fetch(
-            'http://localhost:8000/api/v1/items', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json;charset=utf-8',
-                'Authorization': `Bearer ${this.state.auth.access}`
-            },
-            body: JSON.stringify({
-                folder,
-                name
-            })
-        }
-        )
-            .then(response => response.json())
+    onElementCreation = (name, folder) => {
+        createElement(this.state.auth.access, folder, name)
             .then(data => {
                 this.setState({
                     trackedItems: [...this.state.trackedItems, data]
@@ -265,24 +142,11 @@ export default class App extends Component {
             });
     }
 
-    addTrackEntry = (itemId) => {
+    onTrackEntryAddition = (itemId) => {
         const now = new Date()
         const month = now.getMonth() + 1
         const timeBucket = `${now.getFullYear()}-${month < 10 ? '0' + month : month}-${now.getDate()}`
-        fetch(
-            'http://localhost:8000/api/v1/entries', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json;charset=utf-8',
-                'Authorization': `Bearer ${this.state.auth.access}`
-            },
-            body: JSON.stringify({
-                timeBucket,
-                item: itemId
-            })
-        }
-        )
-            .then(response => response.json())
+        addTrackEntry(this.state.auth.access, timeBucket, itemId)
             .then(data => {
                 this.setState({
                     trackEntries: [...this.state.trackEntries, data]
@@ -322,7 +186,7 @@ export default class App extends Component {
                                 if (!isAuthenticated) {
                                     return <Redirect to="/welcome" />
                                 }
-                                return <FoldersList folders={folders} createFolder={this.createFolder} />
+                                return <FoldersList folders={folders} createFolder={this.onFolderCreation} />
                             }
                         } />
                     <Route exact path="/welcome" component={WelcomeBlock} />
@@ -339,16 +203,15 @@ export default class App extends Component {
                                                 props => < ItemsListStat {...props}
                                                     folders={folders}
                                                     trackedItems={trackedItems}
-                                                    trackEntries={trackEntries}
-                                                    createElement={this.createElement}
-                                                />} />
+                                                    trackEntries={trackEntries} />
+                                            } />
                                         <Route path="/folder/:folderSlug"
                                             render={
                                                 props => < ItemsList {...props}
                                                     folders={folders}
                                                     trackedItems={trackedItems}
-                                                    createElement={this.createElement}
-                                                    addTrackEntry={this.addTrackEntry} />
+                                                    createElement={this.onElementCreation}
+                                                    addTrackEntry={this.onTrackEntryAddition} />
                                             } />
                                     </Switch>
                                 )
