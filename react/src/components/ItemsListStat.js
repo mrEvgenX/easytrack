@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
 import StatTable from './StatTable';
 import StatTableRow from './StatTableRow';
 import StatTableHeader from './StatTableHeader';
@@ -52,18 +51,10 @@ export default class ItemsListStat extends Component {
     }
 
     render() {
-        const {folders, trackedItems, trackEntries, match: {params: {folderSlug}}} = this.props;
-        let currentFolderName = undefined;  // TODO implement something like "please wait..."
-        for (let folder of folders) {
-            if (folder.slug === folderSlug) {
-                currentFolderName = folder.name;
-                break;
-            }
-        }
+        const {trackedItems, trackEntries} = this.props;
         const dates = [...this.iterateDaysBetweenDates()];
-        const itemsInCurrentFolder = trackedItems.filter(item => item.folder === folderSlug);
         let content = new Map()
-        itemsInCurrentFolder.forEach(({id, name}) => {
+        trackedItems.forEach(({id, name}) => {
             content.set(id, {
                 name: name,
                 checks: new Set()
@@ -83,8 +74,6 @@ export default class ItemsListStat extends Component {
 
         return (
             <>
-                <h3>Статистика по элементам папки "{currentFolderName}"</h3>
-                <p><Link to={'/folder/' + folderSlug}>Назад</Link></p>
                 <div>
                     С <DatePicker selected={this.state.fromDate} onChange={this.handleFromDateChange} /> 
                     по <DatePicker selected={this.state.toDate} onChange={this.handleToDateChange} />

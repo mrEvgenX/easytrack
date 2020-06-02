@@ -186,34 +186,25 @@ export default class App extends Component {
                                 if (!isAuthenticated) {
                                     return <Redirect to="/welcome" />
                                 }
-                                return <FoldersList folders={folders} createFolder={this.onFolderCreation} />
+                                return (<>
+                                    <FoldersList folders={folders} createFolder={this.onFolderCreation} />
+                                    <ItemsList 
+                                        trackedItems={trackedItems}
+                                        createElement={this.onElementCreation} 
+                                        addTrackEntry={this.onTrackEntryAddition} />
+                                </>)
                             }
                         } />
                     <Route exact path="/welcome" component={WelcomeBlock} />
-                    <Route path="/folder/"
+                    <Route exact path="/statistics"
                         render={
                             () => {
                                 if (!isAuthenticated) {
                                     return <Redirect to="/login" />
                                 }
                                 return (
-                                    < Switch >
-                                        <Route path="/folder/:folderSlug/statistics"
-                                            render={
-                                                props => < ItemsListStat {...props}
-                                                    folders={folders}
-                                                    trackedItems={trackedItems}
-                                                    trackEntries={trackEntries} />
-                                            } />
-                                        <Route path="/folder/:folderSlug"
-                                            render={
-                                                props => < ItemsList {...props}
-                                                    folders={folders}
-                                                    trackedItems={trackedItems}
-                                                    createElement={this.onElementCreation}
-                                                    addTrackEntry={this.onTrackEntryAddition} />
-                                            } />
-                                    </Switch>
+                                    <ItemsListStat trackedItems={trackedItems}
+                                                   trackEntries={trackEntries} />
                                 )
                             }
                         }
@@ -240,7 +231,10 @@ export default class App extends Component {
                                 if (registrationFailed !== null && !registrationFailed) {
                                     return <Redirect to="/login" />;
                                 }
-                                return <Register registrationFailed={registrationFailed} onRegister={this.onRegister} />;
+                                return (<>
+                                    <h3>Статистика по элементам</h3>
+                                    <Register registrationFailed={registrationFailed} onRegister={this.onRegister} />
+                                </>)
                             }
                         } />
                     <Route render={() => <h1>Такой страницы нет</h1>} />

@@ -153,6 +153,17 @@ export function createFolder(accessToken, name) {
 }
 
 export function createElement(accessToken, folder, name) {
+    let request_body = null
+    if (folder === null) {
+        request_body = {
+            name
+        }
+    } else {
+        request_body = {
+            folder,
+            name
+        }
+    }
     return new Promise((resolve, reject) => {
         fetch(
             baseAPIUrl + 'items', {
@@ -161,10 +172,7 @@ export function createElement(accessToken, folder, name) {
                 'Content-Type': 'application/json;charset=utf-8',
                 'Authorization': `Bearer ${accessToken}`
             },
-            body: JSON.stringify({
-                folder,
-                name
-            })
+            body: JSON.stringify(request_body)
         }
         )
             .then(response => response.json())

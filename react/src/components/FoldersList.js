@@ -27,14 +27,13 @@ export default class FoldersList extends Component {
     render() {
         const { folders } = this.props;
         return (
-            <>
-                <h3>Папки</h3>
-                <input type="text" value={this.state.newFolderName} onChange={this.handleChange} />
-                <button onClick={this.handleClick}>Создать папку</button>
-                <ul>
-                    { folders.map( item => <li key={ item.slug }><Link to={ '/folder/' + item.slug }>{ item.name }</Link></li>) }
-                </ul>
-            </>
+            <ul>
+                { folders.map( item => <li key={ item.slug }><Link to={ '/folder/' + item.slug }>{ item.name }</Link></li>) }
+                <li>
+                    <input type="text" value={this.state.newFolderName} onChange={this.handleChange} />
+                    <button onClick={this.handleClick}>Создать папку</button>
+                </li>
+            </ul>
         );
     }
 }

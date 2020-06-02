@@ -10,8 +10,11 @@ export default function HeaderMenu(props) {
     }
     return (
         <>
-            <p><Link to='/'>Папки</Link></p>
-            <p><a href='/' onClick={handleClick}>Выход</a></p>
+            
+            <p><Link to='/'>Главная</Link></p>
+            <p><Link to='/statistics'>Статистика</Link></p>
+            {/* TODO сделать button и прописать стили */}
+            <p><a href='#' onClick={handleClick}>Выход</a></p>
         </>
     );
 }

@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from .models import Folder, Item, Entry
 
@@ -13,12 +14,16 @@ class FolderSerializer(serializers.ModelSerializer):
 
 
 class ItemSerializer(serializers.ModelSerializer):
-    folder = serializers.SlugRelatedField(slug_field='slug', queryset=Folder.objects.all())
+    owner = serializers.PrimaryKeyRelatedField(allow_null=False, queryset=get_user_model().objects.all(), required=True, write_only=True)
+    folder = serializers.SlugRelatedField(slug_field='slug', queryset=Folder.objects.all(), required=False, allow_null=True)
 
     class Meta:
         model = Item
-        fields = ['id', 'folder', 'name']
+        fields = ['id', 'owner', 'folder', 'name']
         read_only_fields = ['id']
+        extra_kwargs = {
+            'owner': {'write_only': True},
+        }
 
 
 class EntrySerializer(serializers.ModelSerializer):

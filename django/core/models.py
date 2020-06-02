@@ -16,14 +16,17 @@ class Folder(models.Model):
 
 
 class Item(models.Model):
-    folder = models.ForeignKey(to=Folder, on_delete=models.CASCADE)
+    owner = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=False)
+    folder = models.ForeignKey(to=Folder, on_delete=models.CASCADE, null=True, blank=True)
     name = models.CharField(max_length=140)
 
     def __str__(self):
-        return '{} ({}) / {}'.format(self.folder.name, self.folder.owner.username, self.name)
+        if self.folder:
+            return '{}: {} / {}'.format(self.owner.username, self.folder.name, self.name)
+        return '{}: {}'.format(self.owner.username, self.name)
 
     class Meta:
-        unique_together = (('folder', 'name'),)
+        unique_together = (('owner', 'name'),)
 
 
 class Entry(models.Model):
@@ -32,3 +35,8 @@ class Entry(models.Model):
 
     class Meta:
         unique_together = (('timeBucket', 'item'),)
+
+# TODO data migration
+# >>> for item in Item.objects.all():
+# ...   item.owner = item.folder.owner
+# ...   item.save()

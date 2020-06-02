@@ -29,11 +29,20 @@ class ListCreateItems(generics.ListCreateAPIView):
     serializer_class = ItemSerializer
 
     def get_queryset(self, *args, **kwargs):
-        return Item.objects.filter(folder__in=Folder.objects.filter(owner=self.request.user.pk))
+        return Item.objects.filter(owner=self.request.user.pk)
+
+    def get_serializer(self, *args, **kwargs):
+        data = kwargs.get('data')
+        if data:
+            data.update({
+                'owner': self.request.user.pk
+            })
+            kwargs['data'] = data
+        return super().get_serializer(*args, **kwargs)
 
 
 class ListCreateEntries(generics.ListCreateAPIView):
     serializer_class = EntrySerializer
 
     def get_queryset(self, *args, **kwargs):
-        return Entry.objects.filter(item__in=Item.objects.filter(folder__in=Folder.objects.filter(owner=self.request.user.pk)))
+        return Entry.objects.filter(item__owner=self.request.user.pk)

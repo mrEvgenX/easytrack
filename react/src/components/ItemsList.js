@@ -12,10 +12,10 @@ export default class ItemsList extends Component {
     }
 
     handleElementCreation = (e) => {
-        const {createElement, match: {params: {folderSlug}}} = this.props;
+        const {createElement} = this.props;
         e.preventDefault();
         if (this.state.newElementName !== '') {
-            createElement(this.state.newElementName, folderSlug);
+            createElement(this.state.newElementName, null);
             this.setState({newElementName: ''});
         }
     }    
@@ -31,23 +31,15 @@ export default class ItemsList extends Component {
     }
 
     render() {
-        const {folders, trackedItems, match: {params: {folderSlug}}} = this.props;
-        let currentFolderName = 'SOME DEFAULT';  // TODO implement something like "please wait..."
-        for (let folder of folders) {
-            if (folder.slug === folderSlug) {
-                currentFolderName = folder.name;
-                break;
-            }
-        }
-        const itemsInCurrentFolder = trackedItems.filter(item => item.folder === folderSlug);
+        const {trackedItems} = this.props;
         return (
             <>
-                <h3>Элементы папки "{currentFolderName}"</h3>
-                <p><Link to={'/folder/' + folderSlug + '/statistics'}>Отчет</Link></p>
-                <input type="text" value={this.state.newElementName} onChange={this.handleChange} />
-                <button onClick={this.handleElementCreation}>Создать элемент</button>
                 <ul>
-                    { itemsInCurrentFolder.map( item => <li key={ item.id }>{ item.name } <button data-item-id={item.id} onClick={this.handleElementTracking}>Засчитать</button></li>) }
+                    { trackedItems.map( item => <li key={ item.id }>{ item.name } <button data-item-id={item.id} onClick={this.handleElementTracking}>Засчитать</button></li>) }
+                    <li>
+                        <input type="text" value={this.state.newElementName} onChange={this.handleChange} />
+                        <button onClick={this.handleElementCreation}>Создать элемент</button>
+                    </li>
                 </ul>
             </>
         );
