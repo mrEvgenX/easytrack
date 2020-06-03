@@ -6,7 +6,6 @@ import {
     populateState, refreshAccess, createNewUser, requestAndStoreCredentials, clearCredentialsFromStore,
     createFolder, createElement, addTrackEntry, putElementInFolder, deleteElement, deleteFolder
 } from './asyncOperations';
-import changeFolderPopup from './components/ChangeFolderPopup'
 import HeaderBlock from './components/header/HeaderBlock';
 import HeaderMenu from './components/header/HeaderMenu';
 import HeaderMenuUnlogged from './components/header/HeaderMenuUnlogged';
@@ -15,14 +14,11 @@ import {
     Route,
     Redirect
 } from 'react-router-dom';
-import Folder from './components/Folder';
-import FoldersList from './components/FoldersList';
-import Item from './components/Item';
-import ItemsList from './components/ItemsList';
 import ItemsListStat from './components/ItemsListStat';
 import Login from './components/auth/Login';
 import Register from './components/Register';
 import WelcomeBlock from './components/WelcomeBlock';
+import Main from './components/Main';
 
 
 export default class App extends Component {
@@ -225,37 +221,19 @@ export default class App extends Component {
                     {headerMenu}
                 </HeaderBlock>
                 <Switch>
-                    <Route exact path="/"
-                        render={
-                            () => {
-                                if (!isAuthenticated) {
-                                    return <Redirect to="/welcome" />
-                                }
-                                let itemsToBeDisplayed = null;
-                                if (this.state.currentFilter !== '') {
-                                    itemsToBeDisplayed = trackedItems.filter(item => item.folder === this.state.currentFilter);
-                                } else {
-                                    itemsToBeDisplayed = trackedItems;
-                                }
-                                return (<>
-                                    <FoldersList createFolder={this.onFolderCreation}>
-                                        <Folder selected={'' === this.state.currentFilter} folder={null} onClick={this.changeFilter} />
-                                        {folders.map(folder =>
-                                            <Folder key={folder.slug} selected={folder.slug === this.state.currentFilter} folder={folder} onClick={this.changeFilter} onDelete={this.onFolderDelete} />
-                                        )}
-                                    </FoldersList>
-                                    <hr />
-                                    <ItemsList createElement={this.onElementCreation}>
-                                        {itemsToBeDisplayed.map(item =>
-                                            <Item key={item.id} item={item} onTrack={this.onTrackEntryAddition} onElementDelete={this.onElementDelete}>
-                                                {changeFolderPopup(item, folders, this.putItemInFolder)}
-                                            </Item>
-                                        )}
-                                    </ItemsList>
-                                </>)
-                            }
-                        } />
-                    <Route exact path="/welcome" component={WelcomeBlock} />
+                    <Route exact path="/" render={
+                        () => <Main folders={folders}
+                            trackedItems={trackedItems}
+                            isAuthenticated={this.state.auth.isAuthenticated}
+                            currentFilter={this.state.currentFilter}
+                            changeFilter={this.changeFilter}
+                            onFolderCreation={this.onFolderCreation}
+                            onFolderDelete={this.onFolderDelete}
+                            onElementCreation={this.onElementCreation}
+                            onTrackEntryAddition={this.onTrackEntryAddition}
+                            putItemInFolder={this.putItemInFolder}
+                            onElementDelete={this.onElementDelete} />
+                    } />
                     <Route exact path="/statistics"
                         render={
                             () => {
@@ -269,6 +247,7 @@ export default class App extends Component {
                             }
                         }
                     />
+                    <Route exact path="/welcome" component={WelcomeBlock} />
                     <Route exact path="/login"
                         render={
                             () => {
