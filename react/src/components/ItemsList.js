@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
 
 
 export default class ItemsList extends Component {
@@ -12,30 +11,24 @@ export default class ItemsList extends Component {
     }
 
     handleElementCreation = (e) => {
-        const {createElement} = this.props;
+        const { createElement } = this.props;
         e.preventDefault();
         if (this.state.newElementName !== '') {
             createElement(this.state.newElementName, null);
-            this.setState({newElementName: ''});
+            this.setState({ newElementName: '' });
         }
-    }    
-
-    handleElementTracking = (e) => {
-        const { addTrackEntry } = this.props;
-        e.preventDefault();
-        addTrackEntry(e.target.dataset.itemId)
     }
 
     handleChange = (e) => {
-        this.setState({newElementName: e.target.value});
+        this.setState({ newElementName: e.target.value });
     }
 
     render() {
-        const {trackedItems} = this.props;
+        const { children } = this.props;
         return (
             <>
                 <ul>
-                    { trackedItems.map( item => <li key={ item.id }>{ item.name } <button data-item-id={item.id} onClick={this.handleElementTracking}>Засчитать</button></li>) }
+                    {children}
                     <li>
                         <input type="text" value={this.state.newElementName} onChange={this.handleChange} />
                         <button onClick={this.handleElementCreation}>Создать элемент</button>

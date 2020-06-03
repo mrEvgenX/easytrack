@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
 
 
 export default class FoldersList extends Component {
@@ -25,10 +24,10 @@ export default class FoldersList extends Component {
     }
 
     render() {
-        const { folders } = this.props;
+        const { children } = this.props;
         return (
             <ul>
-                { folders.map( item => <li key={ item.slug }><Link to={ '/folder/' + item.slug }>{ item.name }</Link></li>) }
+                {children}
                 <li>
                     <input type="text" value={this.state.newFolderName} onChange={this.handleChange} />
                     <button onClick={this.handleClick}>Создать папку</button>

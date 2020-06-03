@@ -2,7 +2,7 @@ import React, {
     Component
 } from 'react';
 import './App.css';
-import { 
+import {
     populateState, refreshAccess, createNewUser, requestAndStoreCredentials, clearCredentialsFromStore,
     createFolder, createElement, addTrackEntry
 } from './asyncOperations';
@@ -12,9 +12,11 @@ import HeaderMenuUnlogged from './components/header/HeaderMenuUnlogged';
 import {
     Switch,
     Route,
+    Link,
     Redirect
 } from 'react-router-dom';
 import FoldersList from './components/FoldersList';
+import Item from './components/Item';
 import ItemsList from './components/ItemsList';
 import ItemsListStat from './components/ItemsListStat';
 import Login from './components/auth/Login';
@@ -187,11 +189,35 @@ export default class App extends Component {
                                     return <Redirect to="/welcome" />
                                 }
                                 return (<>
-                                    <FoldersList folders={folders} createFolder={this.onFolderCreation} />
-                                    <ItemsList 
-                                        trackedItems={trackedItems}
-                                        createElement={this.onElementCreation} 
-                                        addTrackEntry={this.onTrackEntryAddition} />
+                                    <FoldersList createFolder={this.onFolderCreation}>
+                                        {folders.map(item =>
+                                            <li key={item.slug}><Link to={'/folder/' + item.slug}>{item.name}</Link></li>
+                                        )}
+                                    </FoldersList>
+                                    <ItemsList createElement={this.onElementCreation}>
+                                        {trackedItems.map(item =>
+                                            <Item key={item.id} item={item} onTrack={this.onTrackEntryAddition}>
+                                                {close => (
+                                                    <div className="modal">
+                                                        <a className="close" onClick={close}>
+                                                            &times;
+                                                        </a>
+                                                        <ul>
+                                                            <li>
+                                                                <input name="folder" type="radio" value='' checked={item.folder === null} />Без папки
+                                                            </li>
+                                                            {folders.map(folder =>
+                                                                <li key={folder.slug}>
+                                                                    <input name="folder" type="radio" value={folder.slug} checked={folder.slug === item.folder} />{folder.name}
+                                                                </li>
+                                                            )}
+                                                        </ul>
+                                                        <button>Сохранить</button>
+                                                    </div>
+                                                )}
+                                            </Item>
+                                        )}
+                                    </ItemsList>
                                 </>)
                             }
                         } />
@@ -204,7 +230,7 @@ export default class App extends Component {
                                 }
                                 return (
                                     <ItemsListStat trackedItems={trackedItems}
-                                                   trackEntries={trackEntries} />
+                                        trackEntries={trackEntries} />
                                 )
                             }
                         }
