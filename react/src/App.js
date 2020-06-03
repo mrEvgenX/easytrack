@@ -41,6 +41,7 @@ export default class App extends Component {
             folders: [],
             trackedItems: [],
             trackEntries: [],
+            currentFilter: '',
         };
         populateState(this.state.auth.access)
             .then(data => {
@@ -137,6 +138,9 @@ export default class App extends Component {
     }
 
     onElementCreation = (name, folder) => {
+        if (folder === null && this.state.currentFilter !== '') {
+            folder = this.state.currentFilter;
+        }
         createElement(this.state.auth.access, folder, name)
             .then(data => {
                 this.setState({
@@ -171,6 +175,10 @@ export default class App extends Component {
             })
     }
 
+    changeFilter = e => {
+        this.setState({currentFilter: e.target.dataset.folderSlug});
+    }
+
     render() {
         const {
             folders,
@@ -200,14 +208,22 @@ export default class App extends Component {
                                 if (!isAuthenticated) {
                                     return <Redirect to="/welcome" />
                                 }
+                                let itemsToBeDisplayed = null;
+                                if (this.state.currentFilter !== '') {
+                                    itemsToBeDisplayed = trackedItems.filter(item => item.folder === this.state.currentFilter);
+                                } else {
+                                    itemsToBeDisplayed = trackedItems;
+                                }
                                 return (<>
                                     <FoldersList createFolder={this.onFolderCreation}>
+                                    <li><button className={'' === this.state.currentFilter? 'selectedFolder' : null} data-folder-slug='' onClick={this.changeFilter}>Все</button></li>
                                         {folders.map(item =>
-                                            <li key={item.slug}><Link to={'/folder/' + item.slug}>{item.name}</Link></li>
+                                            <li key={item.slug}><button className={item.slug === this.state.currentFilter? 'selectedFolder' : null} data-folder-slug={item.slug} onClick={this.changeFilter}>{item.name}</button></li>
                                         )}
                                     </FoldersList>
+                                    <hr />
                                     <ItemsList createElement={this.onElementCreation}>
-                                        {trackedItems.map(item =>
+                                        {itemsToBeDisplayed.map(item =>
                                             <Item key={item.id} item={item} onTrack={this.onTrackEntryAddition}>
                                                 {changeFolderPopup(item, folders, this.putItemInFolder)}
                                             </Item>

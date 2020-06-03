@@ -50,3 +50,7 @@
   border-radius: 18px;
   border: 1px solid #cfcece;
 }
+
+.selectedFolder {
+  font-weight: bold;
+}
