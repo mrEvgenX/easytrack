@@ -12,9 +12,9 @@ const ChangeFolderPopup = (props) => {
         setSelectedFolder(e.target.value);
     }
     return (<div className="modal">
-        <a className="close" onClick={closePopup}>
+        <button className="close" onClick={closePopup}>
             &times;
-        </a>
+        </button>
         <ul>
             <li>
                 <input name="folder" type="radio" value='' checked={selectedFolder === ''} onChange={onChange} />

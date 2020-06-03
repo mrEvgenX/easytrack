@@ -35,10 +35,9 @@ export default function Main(props) {
                 <Folder key={folder.slug} selected={folder.slug === currentFilter} folder={folder} onClick={changeFilter} onDelete={onFolderDelete} />
             )}
         </FoldersList>
-        <hr />
         <ItemsList createElement={onElementCreation}>
             {itemsToBeDisplayed.map(item =>
-                <Item key={item.id} item={item} onTrack={onTrackEntryAddition} onElementDelete={onElementDelete}>
+                <Item key={item.id} item={item} onTrack={onTrackEntryAddition} onDelete={onElementDelete}>
                     {changeFolderPopup(item, folders, putItemInFolder)}
                 </Item>
             )}

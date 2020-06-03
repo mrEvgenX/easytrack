@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-
+import './ItemsList.css';
 
 export default class ItemsList extends Component {
 
@@ -25,16 +25,12 @@ export default class ItemsList extends Component {
 
     render() {
         const { children } = this.props;
-        return (
-            <>
-                <ul>
-                    {children}
-                    <li>
-                        <input type="text" value={this.state.newElementName} onChange={this.handleChange} />
-                        <button onClick={this.handleElementCreation}>Создать элемент</button>
-                    </li>
-                </ul>
-            </>
-        );
+        return (<ul className="ItemsList">
+            {children}
+            <li>
+                <input type="text" value={this.state.newElementName} onChange={this.handleChange} />
+                <button onClick={this.handleElementCreation}>Создать элемент</button>
+            </li>
+        </ul>);
     }
 }

@@ -1,0 +1,9 @@
+.FoldersList {
+    display: flex;
+    flex-wrap: wrap;
+    list-style: none;
+}
+
+.FoldersList > li {
+    margin: 10px;
+}

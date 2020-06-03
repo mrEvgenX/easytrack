@@ -9,12 +9,10 @@ export default function HeaderMenu(props) {
         onLogout()
     }
     return (
-        <>
-            
-            <p><Link to='/'>Главная</Link></p>
-            <p><Link to='/statistics'>Статистика</Link></p>
-            {/* TODO сделать button и прописать стили */}
-            <p><a href='#' onClick={handleClick}>Выход</a></p>
-        </>
+        <ul>
+            <li><Link to='/'>Главная</Link></li>
+            <li><Link to='/statistics'>Статистика</Link></li>
+            <li><button onClick={handleClick}>Выход</button></li>
+        </ul>
     );
 }

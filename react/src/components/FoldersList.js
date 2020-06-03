@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-
+import './FoldersList.css';
 
 export default class FoldersList extends Component {
 
@@ -26,7 +26,7 @@ export default class FoldersList extends Component {
     render() {
         const { children } = this.props;
         return (
-            <ul>
+            <ul className="FoldersList">
                 {children}
                 <li>
                     <input type="text" value={this.state.newFolderName} onChange={this.handleChange} />
