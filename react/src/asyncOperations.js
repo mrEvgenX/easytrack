@@ -68,6 +68,7 @@ export function requestAndStoreCredentials(username, password) {
     });
 }
 
+
 export function refreshAccess(refreshToken) {
     return new Promise((resolve, reject) => {
         fetch(
@@ -97,10 +98,12 @@ export function refreshAccess(refreshToken) {
     });
 }
 
+
 export function clearCredentialsFromStore() {
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('accessToken');
 }
+
 
 export function createNewUser(login, password) {
     return new Promise((resolve, reject) => {
@@ -131,6 +134,7 @@ export function createNewUser(login, password) {
     });
 }
 
+
 export function createFolder(accessToken, name) {
     return new Promise((resolve, reject) => {
         fetch(
@@ -151,6 +155,7 @@ export function createFolder(accessToken, name) {
             });
     });
 }
+
 
 export function createElement(accessToken, folder, name) {
     let request_body = null
@@ -181,6 +186,30 @@ export function createElement(accessToken, folder, name) {
             });
     });
 }
+
+
+export function putElementInFolder(accessToken, itemId, folder) {
+    if (folder === '') {
+        folder = null;
+    }
+    return new Promise((resolve, reject) => {
+        fetch(
+            baseAPIUrl + 'items/' + itemId, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8',
+                'Authorization': `Bearer ${accessToken}`
+            },
+            body: JSON.stringify({folder})
+        }
+        )
+            .then(response => response.json())
+            .then(data => {
+                resolve(data);
+            });
+    });
+}
+
 
 export function addTrackEntry(accessToken, timeBucket, itemId) {
     return new Promise((resolve, reject) => {

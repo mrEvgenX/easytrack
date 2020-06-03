@@ -4,8 +4,8 @@ from django.conf import settings
 
 class Folder(models.Model):
     owner = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    slug = models.CharField(max_length=140, unique=True)
-    name = models.CharField(max_length=140)
+    slug = models.CharField(max_length=140, unique=True, blank=False)
+    name = models.CharField(max_length=140, blank=False)
 
     def __str__(self):
         return '{} ({})'.format(self.name, self.owner.username)
@@ -17,7 +17,7 @@ class Folder(models.Model):
 
 class Item(models.Model):
     owner = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=False)
-    folder = models.ForeignKey(to=Folder, on_delete=models.CASCADE, null=True, blank=True)
+    folder = models.ForeignKey(to=Folder, on_delete=models.SET_NULL, null=True, blank=True)
     name = models.CharField(max_length=140)
 
     def __str__(self):

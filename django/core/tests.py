@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from .models import Folder, Item, Entry
 from .serializers import FolderSerializer, ItemSerializer, EntrySerializer
-from .views import ListCreateFolders, ListCreateItems
+from .views import ListCreateFolders, ListCreateItems, RetrieveUpdateDestroyItem
 
 
 class SerializerTests(TestCase):
@@ -80,7 +80,7 @@ class AuthTests(TestCase):
         self.assertNotEqual(data.get('access', ''), '')
 
 
-class CoreTests(TestCase):
+class CoreFoldersTests(TestCase):
     
     def setUp(self):
         self.factory = RequestFactory()
@@ -107,6 +107,14 @@ class CoreTests(TestCase):
     def test_delete_folder(self):
         pass
 
+
+class CoreItemsTests(TestCase):
+
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.user1 = User.objects.create(username='user1@example.com')
+        self.user2 = User.objects.create(username='user2@example.com')
+
     def test_list_items(self):
         items_data = [
             Item.objects.create(owner=self.user1, name='Item1'),
@@ -128,7 +136,7 @@ class CoreTests(TestCase):
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.data, {'id': 1, 'folder': None, 'name': 'Без папки'})
 
-    def test_create_item(self):
+    def test_create_item_in_folder(self):
         Folder.objects.create(owner=self.user1, slug='folder', name='Folder')
         request = self.factory.post(
             '/api/v1/items', data={'folder': 'folder', 'name': 'Item1'}, content_type='application/json'
@@ -138,3 +146,29 @@ class CoreTests(TestCase):
         response = ListCreateItems.as_view()(request)
         self.assertEqual(response.status_code, 201, response.data)
         self.assertEqual(response.data, {'id': 1, 'folder': 'folder', 'name': 'Item1'})
+
+
+    def test_change_item_folder(self):
+        item = Item.objects.create(owner=self.user1, name='Item1')
+        folder = Folder.objects.create(owner=self.user1, slug='folder', name='Folder')
+        request = self.factory.patch(
+            '/api/v1/items/1', data={'folder': folder.slug}, content_type='application/json'
+        )
+        request._dont_enforce_csrf_checks = True
+        request.user = self.user1
+        response = RetrieveUpdateDestroyItem.as_view()(request, pk=item.pk)
+        self.assertEqual(response.status_code, 200, response.data)
+        self.assertEqual(response.data, {'id': 1, 'folder': 'folder', 'name': 'Item1'})
+
+    def test_delete_item(self):
+        item = Item.objects.create(owner=self.user1, name='Item1')
+        request = self.factory.delete(
+            '/api/v1/items/1', content_type='application/json'
+        )
+        request._dont_enforce_csrf_checks = True
+        request.user = self.user1
+        response = RetrieveUpdateDestroyItem.as_view()(request, pk=item.pk)
+        self.assertEqual(response.status_code, 204, response.data)
+        self.assertEqual(response.data, None)
+
+    # TODO проверить, что создание прямым запросом от имени другого пользователя не пройдет

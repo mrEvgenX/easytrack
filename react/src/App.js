@@ -4,8 +4,9 @@ import React, {
 import './App.css';
 import {
     populateState, refreshAccess, createNewUser, requestAndStoreCredentials, clearCredentialsFromStore,
-    createFolder, createElement, addTrackEntry
+    createFolder, createElement, addTrackEntry, putElementInFolder
 } from './asyncOperations';
+import changeFolderPopup from './components/ChangeFolderPopup'
 import HeaderBlock from './components/header/HeaderBlock';
 import HeaderMenu from './components/header/HeaderMenu';
 import HeaderMenuUnlogged from './components/header/HeaderMenuUnlogged';
@@ -159,6 +160,17 @@ export default class App extends Component {
             });
     }
 
+    putItemInFolder = (item, folder) => {
+        putElementInFolder(this.state.auth.access, item.id, folder)
+            .then(data => {
+                this.setState(prevState => {
+                    const itemPos = prevState.trackedItems.indexOf(item);
+                    prevState.trackedItems[itemPos].folder = data.folder;
+                    return prevState;
+                })
+            })
+    }
+
     render() {
         const {
             folders,
@@ -197,24 +209,7 @@ export default class App extends Component {
                                     <ItemsList createElement={this.onElementCreation}>
                                         {trackedItems.map(item =>
                                             <Item key={item.id} item={item} onTrack={this.onTrackEntryAddition}>
-                                                {close => (
-                                                    <div className="modal">
-                                                        <a className="close" onClick={close}>
-                                                            &times;
-                                                        </a>
-                                                        <ul>
-                                                            <li>
-                                                                <input name="folder" type="radio" value='' checked={item.folder === null} />Без папки
-                                                            </li>
-                                                            {folders.map(folder =>
-                                                                <li key={folder.slug}>
-                                                                    <input name="folder" type="radio" value={folder.slug} checked={folder.slug === item.folder} />{folder.name}
-                                                                </li>
-                                                            )}
-                                                        </ul>
-                                                        <button>Сохранить</button>
-                                                    </div>
-                                                )}
+                                                {changeFolderPopup(item, folders, this.putItemInFolder)}
                                             </Item>
                                         )}
                                     </ItemsList>
