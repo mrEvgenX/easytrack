@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from .models import Folder, Item, Entry
 from .serializers import FolderSerializer, ItemSerializer, EntrySerializer
-from .views import ListCreateFolders, ListCreateItems, RetrieveUpdateDestroyItem
+from .views import ListCreateFolders, DestroyFolder, ListCreateItems, RetrieveUpdateDestroyItem
 
 
 class SerializerTests(TestCase):
@@ -105,7 +105,29 @@ class CoreFoldersTests(TestCase):
         self.assertEqual(response.data, {'slug': 'papka', 'name': 'Папка'})
 
     def test_delete_folder(self):
-        pass
+        Folder.objects.create(owner=self.user1, slug='folder1', name='Folder1')
+        Folder.objects.create(owner=self.user2, slug='folder2', name='Folder2')
+        request = self.factory.delete(
+            '/api/v1/folders/folder', content_type='application/json'
+        )
+        request._dont_enforce_csrf_checks = True
+        request.user = self.user1
+        response = DestroyFolder.as_view()(request, slug='folder1')
+        self.assertEqual(response.status_code, 204, response.data)
+        self.assertEqual(response.data, None)
+        self.assertEqual(Folder.objects.count(), 1)
+
+    def test_delete_someones_other_folder(self):
+        Folder.objects.create(owner=self.user1, slug='folder1', name='Folder1')
+        Folder.objects.create(owner=self.user2, slug='folder2', name='Folder2')
+        request = self.factory.delete(
+            '/api/v1/folders/folder', content_type='application/json'
+        )
+        request._dont_enforce_csrf_checks = True
+        request.user = self.user2
+        response = DestroyFolder.as_view()(request, slug='folder1')
+        self.assertEqual(response.status_code, 404, response.data)
+        self.assertEqual(Folder.objects.count(), 2)
 
 
 class CoreItemsTests(TestCase):

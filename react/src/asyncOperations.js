@@ -156,6 +156,22 @@ export function createFolder(accessToken, name) {
     });
 }
 
+export function deleteFolder(accessToken, folderSlug) {
+    return new Promise((resolve, reject) => {
+        fetch(
+            baseAPIUrl + 'folders/' + folderSlug, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8',
+                'Authorization': `Bearer ${accessToken}`
+            },
+        }
+        )
+            .then(_ => {
+                resolve();
+            });
+    });
+}
 
 export function createElement(accessToken, folder, name) {
     let request_body = null
@@ -206,6 +222,24 @@ export function putElementInFolder(accessToken, itemId, folder) {
             .then(response => response.json())
             .then(data => {
                 resolve(data);
+            });
+    });
+}
+
+
+export function deleteElement(accessToken, itemId) {
+    return new Promise((resolve, reject) => {
+        fetch(
+            baseAPIUrl + 'items/' + itemId, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8',
+                'Authorization': `Bearer ${accessToken}`
+            },
+        }
+        )
+            .then(_ => {
+                resolve();
             });
     });
 }

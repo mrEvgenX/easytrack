@@ -4,7 +4,7 @@ import React, {
 import './App.css';
 import {
     populateState, refreshAccess, createNewUser, requestAndStoreCredentials, clearCredentialsFromStore,
-    createFolder, createElement, addTrackEntry, putElementInFolder
+    createFolder, createElement, addTrackEntry, putElementInFolder, deleteElement, deleteFolder
 } from './asyncOperations';
 import changeFolderPopup from './components/ChangeFolderPopup'
 import HeaderBlock from './components/header/HeaderBlock';
@@ -13,9 +13,9 @@ import HeaderMenuUnlogged from './components/header/HeaderMenuUnlogged';
 import {
     Switch,
     Route,
-    Link,
     Redirect
 } from 'react-router-dom';
+import Folder from './components/Folder';
 import FoldersList from './components/FoldersList';
 import Item from './components/Item';
 import ItemsList from './components/ItemsList';
@@ -137,6 +137,18 @@ export default class App extends Component {
             });
     }
 
+    onFolderDelete = folder => {
+        deleteFolder(this.state.auth.access, folder.slug)
+            .then(() => {
+                this.setState(prevState => {
+                    const folderPos = prevState.folders.indexOf(folder);
+                    prevState.folders.splice(folderPos, 1);
+                    return prevState;
+                })
+            });
+        console.log(`folder with #${folder.slug} will be deleted`);
+    }
+
     onElementCreation = (name, folder) => {
         if (folder === null && this.state.currentFilter !== '') {
             folder = this.state.currentFilter;
@@ -145,6 +157,17 @@ export default class App extends Component {
             .then(data => {
                 this.setState({
                     trackedItems: [...this.state.trackedItems, data]
+                })
+            });
+    }
+
+    onElementDelete = (item) => {
+        deleteElement(this.state.auth.access, item.id)
+            .then(() => {
+                this.setState(prevState => {
+                    const itemPos = prevState.trackedItems.indexOf(item);
+                    prevState.trackedItems.splice(itemPos, 1);
+                    return prevState;
                 })
             });
     }
@@ -175,8 +198,8 @@ export default class App extends Component {
             })
     }
 
-    changeFilter = e => {
-        this.setState({currentFilter: e.target.dataset.folderSlug});
+    changeFilter = folderSlug => {
+        this.setState({ currentFilter: folderSlug });
     }
 
     render() {
@@ -216,15 +239,15 @@ export default class App extends Component {
                                 }
                                 return (<>
                                     <FoldersList createFolder={this.onFolderCreation}>
-                                    <li><button className={'' === this.state.currentFilter? 'selectedFolder' : null} data-folder-slug='' onClick={this.changeFilter}>Все</button></li>
-                                        {folders.map(item =>
-                                            <li key={item.slug}><button className={item.slug === this.state.currentFilter? 'selectedFolder' : null} data-folder-slug={item.slug} onClick={this.changeFilter}>{item.name}</button></li>
+                                        <Folder selected={'' === this.state.currentFilter} folder={null} onClick={this.changeFilter} />
+                                        {folders.map(folder =>
+                                            <Folder key={folder.slug} selected={folder.slug === this.state.currentFilter} folder={folder} onClick={this.changeFilter} onDelete={this.onFolderDelete} />
                                         )}
                                     </FoldersList>
                                     <hr />
                                     <ItemsList createElement={this.onElementCreation}>
                                         {itemsToBeDisplayed.map(item =>
-                                            <Item key={item.id} item={item} onTrack={this.onTrackEntryAddition}>
+                                            <Item key={item.id} item={item} onTrack={this.onTrackEntryAddition} onElementDelete={this.onElementDelete}>
                                                 {changeFolderPopup(item, folders, this.putItemInFolder)}
                                             </Item>
                                         )}
