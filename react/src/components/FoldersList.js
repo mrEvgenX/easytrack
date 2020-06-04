@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
 import './FoldersList.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlusCircle } from '@fortawesome/free-solid-svg-icons';
+
 
 export default class FoldersList extends Component {
 
@@ -10,17 +13,26 @@ export default class FoldersList extends Component {
         };
     }
 
-    handleClick = (e) => {
-        const { createFolder } = this.props;
-        e.preventDefault();
+    doFolderCreation = () => {
         if (this.state.newFolderName !== '') {
-            createFolder(this.state.newFolderName);
+            this.props.createFolder(this.state.newFolderName);
             this.setState({newFolderName: ''});
-        }
+        }        
+    }
+
+    handleClick = (e) => {
+        e.preventDefault();
+        this.doFolderCreation()
     }
 
     handleChange = (e) => {
         this.setState({newFolderName: e.target.value});
+    }
+
+    handleKeyDown = e => {
+        if (e.key === 'Enter') {
+            this.doFolderCreation();
+        }
     }
 
     render() {
@@ -29,8 +41,8 @@ export default class FoldersList extends Component {
             <ul className="FoldersList">
                 {children}
                 <li>
-                    <input type="text" value={this.state.newFolderName} onChange={this.handleChange} />
-                    <button onClick={this.handleClick}>Создать папку</button>
+                    <input type="text" value={this.state.newFolderName} placeholder="Имя новой папки" onChange={this.handleChange} onKeyDown={this.handleKeyDown} />
+                    <button onClick={this.handleClick}><FontAwesomeIcon icon={faPlusCircle} /></button>
                 </li>
             </ul>
         );

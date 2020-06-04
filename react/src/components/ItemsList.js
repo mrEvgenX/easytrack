@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
 import './ItemsList.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlusCircle } from '@fortawesome/free-solid-svg-icons';
+
 
 export default class ItemsList extends Component {
 
@@ -10,12 +13,21 @@ export default class ItemsList extends Component {
         };
     }
 
-    handleElementCreation = (e) => {
-        const { createElement } = this.props;
-        e.preventDefault();
+    doElementCreation = () => {
         if (this.state.newElementName !== '') {
-            createElement(this.state.newElementName, null);
+            this.props.createElement(this.state.newElementName, null);
             this.setState({ newElementName: '' });
+        }
+    }
+
+    handleElementCreation = (e) => {
+        e.preventDefault();
+        this.doElementCreation()
+    }
+
+    handleKeyDown = e => {
+        if (e.key === 'Enter') {
+            this.doElementCreation();
         }
     }
 
@@ -27,9 +39,9 @@ export default class ItemsList extends Component {
         const { children } = this.props;
         return (<ul className="ItemsList">
             {children}
-            <li>
-                <input type="text" value={this.state.newElementName} onChange={this.handleChange} />
-                <button onClick={this.handleElementCreation}>Создать элемент</button>
+            <li className="Item">
+                <input type="text" value={this.state.newElementName} placeholder="Имя нового элемента" onChange={this.handleChange} onKeyDown={this.handleKeyDown} />
+                <button onClick={this.handleElementCreation}><FontAwesomeIcon icon={faPlusCircle} /></button>
             </li>
         </ul>);
     }

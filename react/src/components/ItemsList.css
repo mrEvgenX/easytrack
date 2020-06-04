@@ -4,9 +4,3 @@
     list-style: none;
     justify-content: center;
 }
-
-.ItemsList > li {
-    margin: 10px;
-    width: 250px;
-    height: 250px;
-}
