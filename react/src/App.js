@@ -210,6 +210,31 @@ export default class App extends Component {
         this.setState({ currentFilter: folderSlug });
     }
 
+    applyEntriesChanging = (trackEntriesToAdd, trackEntriesToRemove) => {
+        this.setState(prevState => {
+            trackEntriesToAdd.forEach(({item, timeBucket}) => {
+                const entryPos = prevState.trackEntries.findIndex(
+                    ({item: currentItem, timeBucket: currentTimeBucket}) => {
+                    return currentItem === item && currentTimeBucket === timeBucket;
+                });
+                if (entryPos === -1) {
+                    prevState.trackEntries.push({timeBucket, item});
+                }
+            });
+            trackEntriesToRemove.forEach(({item, timeBucket}) => {
+                const entryPos = prevState.trackEntries.findIndex(
+                    ({item: currentItem, timeBucket: currentTimeBucket}) => {
+                    return currentItem === item && currentTimeBucket === timeBucket;
+                });
+                if (entryPos !== -1) {
+                    prevState.trackEntries.splice(entryPos, 1);
+                }
+            });
+            return prevState;
+        })
+        console.log('save results', trackEntriesToAdd, trackEntriesToRemove);
+    }
+
     render() {
         const {
             folders,
@@ -255,7 +280,7 @@ export default class App extends Component {
                                 }
                                 return (
                                     <ItemsListStat trackedItems={trackedItems}
-                                        trackEntries={trackEntries} />
+                                        trackEntries={trackEntries} applyEntriesChanging={this.applyEntriesChanging} />
                                 )
                             }
                         }

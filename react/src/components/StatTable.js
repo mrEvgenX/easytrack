@@ -3,14 +3,14 @@ import './StatTable.css';
 
 
 export function StatTable(props) {
-    const { children: [header, ...rows] } = props; 
+    const { children: [header, ...rows] } = props;
     return (
         <table>
             <thead>
-                { header }
+                {header}
             </thead>
             <tbody>
-                { rows }
+                {rows}
             </tbody>
         </table>
     );
@@ -22,7 +22,7 @@ export function StatTableHeader(props) {
     return (
         <tr>
             <th>&nbsp;</th>
-            { children }
+            {children}
         </tr>
     );
 }
@@ -41,7 +41,7 @@ export function StatTableRow(props) {
         <>
             <tr>
                 <td>{itemName}</td>
-                { children }
+                {children}
             </tr>
         </>
     );
@@ -49,18 +49,28 @@ export function StatTableRow(props) {
 
 
 export function StatTableRowCell(props) {
-    const { itemId, itemName, checkItem, editingMode } = props;
+    const { itemId, checkItem, editingMode, highlight, addEntriesToAdditionDraft, addEntriesToDeletionDraft } = props;
     const handleClick = e => {
-        if (editingMode && e.target.dataset.checked === "false") {
-            console.log('click', itemId, itemName, e.target.dataset.date);
+        if (editingMode) {
+            if (e.target.dataset.checked === "false") {
+                addEntriesToAdditionDraft(itemId, e.target.dataset.date)
+            } else {
+                addEntriesToDeletionDraft(itemId, e.target.dataset.date)
+            }
         }
     }
+    let checkedClass = "";
+    if (checkItem.added)
+        checkedClass = " CellToAdd";
+    else if (checkItem.removed)
+        checkedClass = " CellToRemove";
+    else if (checkItem.checked)
+        checkedClass = " CheckedCell";
     return (
-        <td>
+        <td className={ highlight ? 'TodayHighlight' : null }>
             <div
                 className={
-                    "CheckCell" 
-                    + (checkItem.checked ? " CheckedCell" : "")
+                    "CheckCell" + checkedClass
                     + (editingMode ? " EditableCell" : "")
                 }
                 data-date={checkItem.date}
