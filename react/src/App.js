@@ -169,9 +169,10 @@ export default class App extends Component {
     }
 
     onTrackEntryAddition = (itemId) => {
-        const now = new Date()
-        const month = now.getMonth() + 1
-        const timeBucket = `${now.getFullYear()}-${month < 10 ? '0' + month : month}-${now.getDate()}`
+        const now = new Date();
+        const month = now.getMonth() + 1;
+        const day = now.getDate();
+        const timeBucket = `${now.getFullYear()}-${month < 10 ? '0' + month : month}-${day < 10 ? '0' + day : day}`;
         addTrackEntry(this.state.auth.access, timeBucket, itemId)
             .then(data => {
                 this.setState({
@@ -224,6 +225,7 @@ export default class App extends Component {
                     <Route exact path="/" render={
                         () => <Main folders={folders}
                             trackedItems={trackedItems}
+                            trackEntries={trackEntries}
                             isAuthenticated={this.state.auth.isAuthenticated}
                             currentFilter={this.state.currentFilter}
                             changeFilter={this.changeFilter}

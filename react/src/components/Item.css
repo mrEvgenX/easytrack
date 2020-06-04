@@ -6,6 +6,10 @@
     flex-direction: column;
 }
 
+.ItemChecked button {
+    background-color: white;
+}
+
 .ItemButton {
     height: 225px;
 }

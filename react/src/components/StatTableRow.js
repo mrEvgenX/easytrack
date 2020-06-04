@@ -1,4 +1,5 @@
 import React from 'react';
+import './StatTableRow.css';
 
 
 export default function StatTableRow(props) {
@@ -7,7 +8,9 @@ export default function StatTableRow(props) {
         <>
             <tr>
                 <td>{ name }</td>
-                { checks.map(checkItem => <td key={ checkItem.date }>{ checkItem.checked ? 'v': '-' }</td>) }
+                { checks.map(checkItem => <td key={ checkItem.date }>
+                    <div className={"CheckCell " + (checkItem.checked ? 'CheckedCell': "")}>&nbsp;</div>
+                </td>) }
             </tr>
         </>
     );

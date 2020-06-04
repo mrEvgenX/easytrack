@@ -5,14 +5,16 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFolder, faTrashAlt } from '@fortawesome/free-regular-svg-icons';
 
 export default function Item(props) {
-    const { item, onTrack, onDelete, children } = props;
+    const { item, onTrack, onDelete, children, checkedToday } = props;
     const trackElement = _ => {
-        onTrack(item.id);
+        if (!checkedToday) {
+            onTrack(item.id);
+        }
     }
     const handleDeletion = _ => {
         onDelete(item);
     }
-    return (<li className="Item">
+    return (<li className={"Item " + (checkedToday? "ItemChecked": "")}>
         <div className="ItemButton">
             <button onClick={trackElement}>{item.name}</button>
         </div>

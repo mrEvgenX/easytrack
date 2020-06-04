@@ -10,7 +10,7 @@ import ItemsList from './ItemsList';
 export default function Main(props) {
 
     const { 
-        folders, trackedItems, isAuthenticated, currentFilter,
+        folders, trackedItems, trackEntries, isAuthenticated, currentFilter,
         changeFilter,
         onFolderCreation,
         onFolderDelete,
@@ -28,6 +28,14 @@ export default function Main(props) {
     } else {
         itemsToBeDisplayed = trackedItems;
     }
+    const now = new Date();
+    const month = now.getMonth() + 1;
+    const day = now.getDate();
+    const todayTimeBucket = `${now.getFullYear()}-${month < 10 ? '0' + month : month}-${day < 10 ? '0' + day : day}`;
+    itemsToBeDisplayed.forEach(item => {
+        const checkedToday = trackEntries.filter(entry => entry.item === item.id && entry.timeBucket === todayTimeBucket);
+        item.checkedToday = checkedToday.length === 1;
+    })
     return (<>
         <FoldersList createFolder={onFolderCreation}>
             <Folder selected={'' === currentFilter} folder={null} onClick={changeFilter} />
@@ -37,7 +45,7 @@ export default function Main(props) {
         </FoldersList>
         <ItemsList createElement={onElementCreation}>
             {itemsToBeDisplayed.map(item =>
-                <Item key={item.id} item={item} onTrack={onTrackEntryAddition} onDelete={onElementDelete}>
+                <Item key={item.id} item={item} onTrack={onTrackEntryAddition} onDelete={onElementDelete} checkedToday={item.checkedToday}>
                     {changeFolderPopup(item, folders, putItemInFolder)}
                 </Item>
             )}

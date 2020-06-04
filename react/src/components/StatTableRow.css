@@ -1,0 +1,13 @@
+.CheckCell {
+    width: 30px;
+    height: 30px;
+    border-radius: 15px;
+    margin: auto;
+    border-style: dashed;
+    border-color: black;
+    border-width: 1px;
+}
+
+.CheckedCell {
+    background-color: red;
+}

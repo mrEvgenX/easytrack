@@ -4,9 +4,9 @@ import { Link } from 'react-router-dom';
 
 export default function HeaderBlockUnlogged() {
     return (
-        <>
-            <p><Link to='/login'>Вход</Link></p>
-            <p><Link to='/register'>Регистрация</Link></p>
-        </>
+        <ul>
+            <li><Link to='/login'>Вход</Link></li>
+            <li><Link to='/register'>Регистрация</Link></li>
+        </ul>
     );
 }
