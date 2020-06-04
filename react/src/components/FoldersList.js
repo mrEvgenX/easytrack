@@ -39,9 +39,10 @@ export default class FoldersList extends Component {
         const { children } = this.props;
         return (
             <ul className="FoldersList">
+                <p>Фильтр:</p>
                 {children}
                 <li>
-                    <input type="text" value={this.state.newFolderName} placeholder="Имя новой папки" onChange={this.handleChange} onKeyDown={this.handleKeyDown} />
+                    <input className="FormInput" type="text" value={this.state.newFolderName} placeholder="Имя новой папки" onChange={this.handleChange} onKeyDown={this.handleKeyDown} />
                     <button onClick={this.handleClick}><FontAwesomeIcon icon={faPlusCircle} /></button>
                 </li>
             </ul>

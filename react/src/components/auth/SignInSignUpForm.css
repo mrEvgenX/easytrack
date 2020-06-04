@@ -1,0 +1,18 @@
+.SignInSignUpForm {
+    align-self: center;
+}
+
+.SignInSignUpForm * {
+    text-align: center;
+}
+
+.SignInSignUpForm input {
+    margin: 5px;
+    border-radius: 5px;
+    border-style: groove;
+    font-size: medium;
+}
+
+.SignInSignUpForm input:focus {
+    outline-color: teal;
+}

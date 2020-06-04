@@ -16,7 +16,7 @@ import {
 } from 'react-router-dom';
 import ItemsListStat from './components/ItemsListStat';
 import Login from './components/auth/Login';
-import Register from './components/Register';
+import Register from './components/auth/Register';
 import WelcomeBlock from './components/WelcomeBlock';
 import Main from './components/Main';
 
@@ -39,26 +39,28 @@ export default class App extends Component {
             trackEntries: [],
             currentFilter: '',
         };
-        populateState(this.state.auth.access)
-            .then(data => {
-                this.setState(data)
-            })
-            .catch(_ => {
-                refreshAccess(this.state.auth.refresh)
-                    .then(data => {
-                        this.setState({
-                            auth: {
-                                ...this.state.auth,
-                                access: data.access
-                            }
+        if (this.state.auth.isAuthenticated) {
+            populateState(this.state.auth.access)
+                .then(data => {
+                    this.setState(data)
+                })
+                .catch(_ => {
+                    refreshAccess(this.state.auth.refresh)
+                        .then(data => {
+                            this.setState({
+                                auth: {
+                                    ...this.state.auth,
+                                    access: data.access
+                                }
+                            });
+                            populateState(this.state.auth.access).then(data => {
+                                this.setState(data)
+                            });
+                        }).catch(error => {
+                            console.log(error);
                         });
-                        populateState(this.state.auth.access).then(data => {
-                            this.setState(data)
-                        });
-                    }).catch(error => {
-                        console.log(error);
-                    });
-            });
+                });
+        }
     }
 
     onLogin = (username, password) => {
@@ -175,13 +177,22 @@ export default class App extends Component {
         const timeBucket = `${now.getFullYear()}-${month < 10 ? '0' + month : month}-${day < 10 ? '0' + day : day}`;
         addTrackEntry(this.state.auth.access, timeBucket, itemId)
             .then(data => {
-                this.setState({
-                    trackEntries: [...this.state.trackEntries, data]
+                this.setState(prevState => {
+                    prevState.trackEntries = [...prevState.trackEntries, data];
+                    return prevState;
                 })
             })
             .catch(error => {
                 console.log(error);
             });
+    }
+
+    onTrackEntryBackdating = (entriesToBeAdded) => {
+        this.setState(prevState => {
+            prevState.trackEntries = [...prevState.trackEntries, ...entriesToBeAdded];
+            return prevState;
+        })
+        console.log(entriesToBeAdded);
     }
 
     putItemInFolder = (item, folder) => {
@@ -273,7 +284,6 @@ export default class App extends Component {
                                     return <Redirect to="/login" />;
                                 }
                                 return (<>
-                                    <h3>Статистика по элементам</h3>
                                     <Register registrationFailed={registrationFailed} onRegister={this.onRegister} />
                                 </>)
                             }

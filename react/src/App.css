@@ -20,3 +20,13 @@
 .selectedFolder {
   font-weight: bold;
 }
+
+
+.FormInput {
+  border-radius: 5px;
+  border-style: groove;
+}
+
+.FormInput:focus {
+  outline-color: teal;
+}

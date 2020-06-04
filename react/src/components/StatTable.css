@@ -11,3 +11,7 @@
 .CheckedCell {
     background-color: red;
 }
+
+.EditableCell {
+    border-style: solid;
+}

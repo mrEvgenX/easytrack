@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
-import StatTable from './StatTable';
-import StatTableRow from './StatTableRow';
-import StatTableHeader from './StatTableHeader';
+import { StatTable, StatTableHeader, StatTableHeaderCell, StatTableRow, StatTableRowCell } from './StatTable';
 import DatePicker from "react-datepicker";
- 
+
 import "react-datepicker/dist/react-datepicker.css";
 
 
@@ -23,6 +21,7 @@ export default class ItemsListStat extends Component {
         fromDate.setSeconds(1);
         this.state = {
             newElementName: '',
+            editingMode: false,
             fromDate,
             toDate
         };
@@ -42,45 +41,75 @@ export default class ItemsListStat extends Component {
 
     *iterateDaysBetweenDates() {
         let current = new Date(this.state.fromDate.getTime());
-        while(current <= this.state.toDate) {
-            const month = current.getMonth() < 9 ? `0${current.getMonth() + 1}`: `${current.getMonth() + 1}`;
-            const day = current.getDate() < 10 ? `0${current.getDate()}`: `${current.getDate()}`;
+        while (current <= this.state.toDate) {
+            const month = current.getMonth() < 9 ? `0${current.getMonth() + 1}` : `${current.getMonth() + 1}`;
+            const day = current.getDate() < 10 ? `0${current.getDate()}` : `${current.getDate()}`;
             yield `${current.getFullYear()}-${month}-${day}`;
             current.setDate(current.getDate() + 1);
         }
     }
 
+    hangleEditingModeChange = _ => {
+        this.setState(prevState => {
+            prevState.editingMode = !prevState.editingMode;
+            return prevState;
+        })
+    }
+
     render() {
-        const {trackedItems, trackEntries} = this.props;
+        const { trackedItems, trackEntries } = this.props;
         const dates = [...this.iterateDaysBetweenDates()];
         let content = new Map()
-        trackedItems.forEach(({id, name}) => {
+        trackedItems.forEach(({ id, name }) => {
             content.set(id, {
                 name: name,
                 checks: new Set()
             });
         });
-        trackEntries.forEach(({timeBucket, item}) => {
+        trackEntries.forEach(({ timeBucket, item }) => {
             if (content.has(item)) {
                 content.get(item).checks.add(timeBucket);
             }
         })
 
-        let contentJSX = [];
+        let statRableRows = [];
         for (let item of content.entries()) {
-            let [itemId, {name, checks}] = item;
-            contentJSX.push(<StatTableRow key={itemId} name={name} checks={ dates.map(date => { return { date: date, checked: checks.has(date) } })} />)
+            let [itemId, { name, checks }] = item;
+            const checkItems= dates.map(date => { return { date: date, checked: checks.has(date) } })
+            statRableRows.push(
+                <StatTableRow key={itemId} itemName={name}>
+                        {checkItems.map(checkItem => 
+                            <StatTableRowCell key={checkItem.date + '_' + itemId} 
+                                itemId={itemId} 
+                                itemName={name}
+                                checkItem={checkItem}
+                                editingMode={this.state.editingMode} />)}
+                </StatTableRow>
+            )
         }
+
+        const now = new Date();
+        const month = now.getMonth() + 1;
+        const day = now.getDate();
+        const todayTimeBucket = `${now.getFullYear()}-${month < 10 ? '0' + month : month}-${day < 10 ? '0' + day : day}`;
 
         return (
             <>
                 <div>
-                    С <DatePicker selected={this.state.fromDate} onChange={this.handleFromDateChange} /> 
+                    С <DatePicker selected={this.state.fromDate} onChange={this.handleFromDateChange} />
                     по <DatePicker selected={this.state.toDate} onChange={this.handleToDateChange} />
                 </div>
+                <div>
+                    <button onClick={this.hangleEditingModeChange}>
+                        {this.state.editingMode ? "Сохранить изменения" : "Перейти в режим редактирования"}
+                    </button>
+                    <p>{this.state.editingMode ? "Щелкайте левой кнопкой по окружностям а потом нажмите сохранить изменения" : null}</p>
+                </div>
                 <StatTable>
-                    <StatTableHeader dates={dates} />
-                    {contentJSX}
+                    <StatTableHeader dates={dates}>
+                        {dates.map(item => <StatTableHeaderCell key={item} date={item} highlight={item === todayTimeBucket} />)}
+                    </StatTableHeader>
+                    {statRableRows}
                 </StatTable>
             </>
         );

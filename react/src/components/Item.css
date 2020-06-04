@@ -4,18 +4,51 @@
     height: 250px;
     display: flex;
     flex-direction: column;
+    border-radius: 10px;
+}
+
+.Item button{
+    flex-direction: column;
+    border-radius: 10px;
+    border: 1px solid black;
+    background-color: green;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .ItemChecked button {
-    background-color: white;
+    background-color: yellow;
 }
 
 .ItemButton {
     height: 225px;
 }
 
+.ItemButton > button {
+    height: 225px;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
 .ItemSettings {
     height: 25px;
+}
+
+.ItemSettings > button {
+    vertical-align: middle;
+}
+
+.ItemSettings > button:first-child {
+    border-top-right-radius: 0;
+    border-top-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.ItemSettings > button:last-child {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-left-radius: 0;
 }
 
 .ItemButton > button {

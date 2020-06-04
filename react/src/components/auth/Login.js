@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import './SignInSignUpForm.css';
 
 
 export default class Login extends Component {
@@ -29,7 +30,7 @@ export default class Login extends Component {
 
     render() {
         return (
-            <>
+            <div className="SignInSignUpForm">
                 <h2>Вход на сайт</h2>
                 <form>
                     <div>
@@ -44,7 +45,7 @@ export default class Login extends Component {
                         <input type='submit' value='Войти' onClick={this.handleLoginClick} />
                     </div>
                 </form>
-            </>
+            </div>
         );
     }
 }
