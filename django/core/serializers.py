@@ -23,6 +23,8 @@ class ItemSerializer(serializers.ModelSerializer):
         read_only_fields = ['id']
         extra_kwargs = {
             'owner': {'write_only': True},
+            # 'folder': {'required': False}
+            # 'owner': {'required': True}
         }
 
 
@@ -32,3 +34,24 @@ class EntrySerializer(serializers.ModelSerializer):
     class Meta:
         model = Entry
         fields = ['timeBucket', 'item']
+
+
+class EntryBulkSerializer(serializers.Serializer):
+    add = EntrySerializer(many=True, validators=[])
+    remove = EntrySerializer(many=True, validators=[])
+
+    def action_violates_access(self, value):
+        return any([
+            entry['item'].owner != self.context['request'].user
+            for entry in value
+        ])
+
+    def validate_add(self, value):
+        if self.action_violates_access(value):
+            raise serializers.ValidationError('You don\'t have items you pass')
+        return value
+
+    def validate_remove(self, value):
+        if self.action_violates_access(value):
+            raise serializers.ValidationError('You don\'t have items you pass')
+        return value

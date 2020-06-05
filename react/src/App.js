@@ -4,7 +4,7 @@ import React, {
 import './App.css';
 import {
     populateState, refreshAccess, createNewUser, requestAndStoreCredentials, clearCredentialsFromStore,
-    createFolder, createElement, addTrackEntry, putElementInFolder, deleteElement, deleteFolder
+    createFolder, createElement, addTrackEntry, putElementInFolder, deleteElement, deleteFolder, bulkUpdateTrackEntries
 } from './asyncOperations';
 import HeaderBlock from './components/header/HeaderBlock';
 import HeaderMenu from './components/header/HeaderMenu';
@@ -211,28 +211,34 @@ export default class App extends Component {
     }
 
     applyEntriesChanging = (trackEntriesToAdd, trackEntriesToRemove) => {
-        this.setState(prevState => {
-            trackEntriesToAdd.forEach(({item, timeBucket}) => {
-                const entryPos = prevState.trackEntries.findIndex(
-                    ({item: currentItem, timeBucket: currentTimeBucket}) => {
-                    return currentItem === item && currentTimeBucket === timeBucket;
-                });
-                if (entryPos === -1) {
-                    prevState.trackEntries.push({timeBucket, item});
-                }
-            });
-            trackEntriesToRemove.forEach(({item, timeBucket}) => {
-                const entryPos = prevState.trackEntries.findIndex(
-                    ({item: currentItem, timeBucket: currentTimeBucket}) => {
-                    return currentItem === item && currentTimeBucket === timeBucket;
-                });
-                if (entryPos !== -1) {
-                    prevState.trackEntries.splice(entryPos, 1);
-                }
-            });
-            return prevState;
-        })
-        console.log('save results', trackEntriesToAdd, trackEntriesToRemove);
+        bulkUpdateTrackEntries(this.state.auth.access, trackEntriesToAdd, trackEntriesToRemove)
+            .then(() => {
+                this.setState(prevState => {
+                    trackEntriesToAdd.forEach(({item, timeBucket}) => {
+                        const entryPos = prevState.trackEntries.findIndex(
+                            ({item: currentItem, timeBucket: currentTimeBucket}) => {
+                            return currentItem === item && currentTimeBucket === timeBucket;
+                        });
+                        if (entryPos === -1) {
+                            prevState.trackEntries.push({timeBucket, item});
+                        }
+                    });
+                    trackEntriesToRemove.forEach(({item, timeBucket}) => {
+                        const entryPos = prevState.trackEntries.findIndex(
+                            ({item: currentItem, timeBucket: currentTimeBucket}) => {
+                            return currentItem === item && currentTimeBucket === timeBucket;
+                        });
+                        if (entryPos !== -1) {
+                            prevState.trackEntries.splice(entryPos, 1);
+                        }
+                    });
+                    return prevState;
+                })
+                console.log('save results', trackEntriesToAdd, trackEntriesToRemove);
+            })
+            .catch(error => {
+                console.log(error);
+            })
     }
 
     render() {

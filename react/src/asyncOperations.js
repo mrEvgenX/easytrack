@@ -274,3 +274,21 @@ export function addTrackEntry(accessToken, timeBucket, itemId) {
             });
     });
 }
+
+
+export async function bulkUpdateTrackEntries(accessToken, add, remove) {
+    const response = await fetch(
+        baseAPIUrl + 'entries/bulk', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8',
+            'Authorization': `Bearer ${accessToken}`
+        },
+        body: JSON.stringify({
+            add, remove
+        })
+    }
+    );
+    if (!response.ok)
+        throw new Error(response.status);
+}

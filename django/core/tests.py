@@ -1,10 +1,10 @@
-from datetime import date
+from datetime import date, datetime, timedelta
 from django.test import TestCase, Client, RequestFactory
 from django.contrib.auth.models import User
 from django.urls import reverse
 from .models import Folder, Item, Entry
 from .serializers import FolderSerializer, ItemSerializer, EntrySerializer
-from .views import ListCreateFolders, DestroyFolder, ListCreateItems, RetrieveUpdateDestroyItem
+from .views import ListCreateFolders, DestroyFolder, ListCreateItems, RetrieveUpdateDestroyItem, EntryBulkCreateDelete
 
 
 class SerializerTests(TestCase):
@@ -191,6 +191,74 @@ class CoreItemsTests(TestCase):
         request.user = self.user1
         response = RetrieveUpdateDestroyItem.as_view()(request, pk=item.pk)
         self.assertEqual(response.status_code, 204, response.data)
-        self.assertEqual(response.data, None)
+        self.assertIsNone(response.data)
 
     # TODO проверить, что создание прямым запросом от имени другого пользователя не пройдет
+
+
+class BulkEntryTests(TestCase):
+
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.user1 = User.objects.create(username='user1@example.com')
+        self.user2 = User.objects.create(username='user2@example.com')
+        self.item1 = Item.objects.create(owner=self.user1, name='Item')
+        self.item2 = Item.objects.create(owner=self.user2, name='Item')
+        self.entries = [
+            Entry.objects.create(
+                timeBucket=(datetime(2020, 1, 1) + timedelta(days=i)).date(),
+                item=self.item1
+            )
+            for i in range(3)
+        ] + [
+            Entry.objects.create(
+                timeBucket=(datetime(2020, 1, 1) + timedelta(days=i)).date(),
+                item=self.item2
+            )
+            for i in range(3)
+        ]
+
+
+    def test_bulk_update(self):
+        request = self.factory.post(
+            '/api/v1/entries/bulk', content_type='application/json',
+            data={
+                'add': [
+                    {'item': self.item1.id, 'timeBucket': '2020-01-03'},
+                    {'item': self.item1.id, 'timeBucket': '2020-01-04'},
+                    {'item': self.item1.id, 'timeBucket': '2020-01-05'}
+                ],
+                'remove': [
+                    {'item': self.item1.id, 'timeBucket': '2020-01-02'},
+                    {'item': self.item1.id, 'timeBucket': '2020-01-03'},
+                    {'item': self.item1.id, 'timeBucket': '2020-01-06'}
+                ]
+            }
+        )
+        request._dont_enforce_csrf_checks = True
+        request.user = self.user1
+        response = EntryBulkCreateDelete.as_view()(request)
+        self.assertEqual(response.status_code, 200, response.data)
+        self.assertIsNone(response.data)
+        self.assertEqual(Entry.objects.filter(item=self.item1).count(), 3)
+
+    def test_bulk_update_with_access_violation(self):
+        request = self.factory.post(
+            '/api/v1/entries/bulk', content_type='application/json',
+            data={
+                'add': [
+                    {'item': self.item1.id, 'timeBucket': '2020-01-03'},
+                    {'item': self.item2.id, 'timeBucket': '2020-01-04'},
+                ],
+                'remove': [
+                    {'item': self.item1.id, 'timeBucket': '2020-01-02'},
+                    {'item': self.item2.id, 'timeBucket': '2020-01-03'},
+                ]
+            }
+        )
+        request._dont_enforce_csrf_checks = True
+        request.user = self.user1
+        response = EntryBulkCreateDelete.as_view()(request)
+        self.assertEqual(response.status_code, 404, response.data)
+        self.assertEqual(response.data['add'][0], "You don't have items you pass")
+        self.assertEqual(response.data['remove'][0], "You don't have items you pass")

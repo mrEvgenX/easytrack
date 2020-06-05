@@ -33,6 +33,9 @@ class Entry(models.Model):
     timeBucket = models.DateField()
     item = models.ForeignKey(to=Item, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return '{}/{}'.format(self.item, self.timeBucket)
+
     class Meta:
         unique_together = (('timeBucket', 'item'),)
 
