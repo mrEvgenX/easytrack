@@ -19,6 +19,7 @@ import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import WelcomeBlock from './components/WelcomeBlock';
 import Main from './components/Main';
+import EmailConfirmation from './components/EmailConfirmation';
 
 
 export default class App extends Component {
@@ -319,6 +320,9 @@ export default class App extends Component {
                                 </>)
                             }
                         } />
+                    <Route path="/confirm/:user_id/:token" render={
+                        ({match: {params: {user_id, token}}}) => <EmailConfirmation userId={user_id} token={token} />
+                    } />
                     <Route render={() => <h1>Такой страницы нет</h1>} />
                 </Switch>
             </div>

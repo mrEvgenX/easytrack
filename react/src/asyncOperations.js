@@ -292,3 +292,18 @@ export async function bulkUpdateTrackEntries(accessToken, add, remove) {
     if (!response.ok)
         throw new Error(response.status);
 }
+
+
+export async function getConfirmationStatus(userId, token) {
+    const response = await fetch(
+        `${baseAPIUrl}auth/confirm/${userId}/${token}`, {
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8',
+        }
+    }
+    );
+    if (!response.ok)
+        throw new Error(response.status);
+    const data = await response.json();
+    return data;
+}
