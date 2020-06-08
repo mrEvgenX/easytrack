@@ -25,7 +25,12 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - run: cd react
-    - run: yarn install --frozen-lockfile
-    - run: yarn build --if-present
-    - run: yarn test
+    - run: |
+        cd react
+        yarn install --frozen-lockfile
+    - run: |
+        cd react
+        yarn build --if-present
+    - run: |
+        cd react
+        yarn test
