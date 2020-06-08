@@ -10,6 +10,7 @@ import HeaderBlock from './components/header/HeaderBlock';
 import HeaderMenu from './components/header/HeaderMenu';
 import HeaderMenuUnlogged from './components/header/HeaderMenuUnlogged';
 import {
+    BrowserRouter,
     Switch,
     Route,
     Redirect
@@ -260,72 +261,74 @@ export default class App extends Component {
             headerMenu = <HeaderMenuUnlogged />;
         }
         return (
-            <div className="App" >
-                <HeaderBlock >
-                    {headerMenu}
-                </HeaderBlock>
-                <Switch>
-                    <Route exact path="/" render={
-                        () => <Main folders={folders}
-                            trackedItems={trackedItems}
-                            trackEntries={trackEntries}
-                            isAuthenticated={this.state.auth.isAuthenticated}
-                            currentFilter={this.state.currentFilter}
-                            changeFilter={this.changeFilter}
-                            onFolderCreation={this.onFolderCreation}
-                            onFolderDelete={this.onFolderDelete}
-                            onElementCreation={this.onElementCreation}
-                            onTrackEntryAddition={this.onTrackEntryAddition}
-                            putItemInFolder={this.putItemInFolder}
-                            onElementDelete={this.onElementDelete} />
-                    } />
-                    <Route exact path="/statistics"
-                        render={
-                            () => {
-                                if (!isAuthenticated) {
-                                    return <Redirect to="/login" />
-                                }
-                                return (
-                                    <ItemsListStat trackedItems={trackedItems}
-                                        trackEntries={trackEntries} applyEntriesChanging={this.applyEntriesChanging} />
-                                )
-                            }
-                        }
-                    />
-                    <Route exact path="/welcome" component={WelcomeBlock} />
-                    <Route exact path="/login"
-                        render={
-                            () => {
-                                if (isAuthenticated) {
-                                    return <Redirect to="/" />;
-                                }
-                                return <Login
-                                    authenticationAttemptFailed={authenticationAttemptFailed}
-                                    isAuthenticated={isAuthenticated}
-                                    onLogin={this.onLogin}
-                                />
-                            }
+            <BrowserRouter>
+                <div className="App" >
+                    <HeaderBlock >
+                        {headerMenu}
+                    </HeaderBlock>
+                    <Switch>
+                        <Route exact path="/" render={
+                            () => <Main folders={folders}
+                                trackedItems={trackedItems}
+                                trackEntries={trackEntries}
+                                isAuthenticated={this.state.auth.isAuthenticated}
+                                currentFilter={this.state.currentFilter}
+                                changeFilter={this.changeFilter}
+                                onFolderCreation={this.onFolderCreation}
+                                onFolderDelete={this.onFolderDelete}
+                                onElementCreation={this.onElementCreation}
+                                onTrackEntryAddition={this.onTrackEntryAddition}
+                                putItemInFolder={this.putItemInFolder}
+                                onElementDelete={this.onElementDelete} />
                         } />
-                    <Route exact path="/register"
-                        render={
-                            () => {
-                                if (isAuthenticated) {
-                                    return <Redirect to="/" />;
+                        <Route exact path="/statistics"
+                            render={
+                                () => {
+                                    if (!isAuthenticated) {
+                                        return <Redirect to="/login" />
+                                    }
+                                    return (
+                                        <ItemsListStat trackedItems={trackedItems}
+                                            trackEntries={trackEntries} applyEntriesChanging={this.applyEntriesChanging} />
+                                    )
                                 }
-                                if (registrationFailed !== null && !registrationFailed) {
-                                    return <Redirect to="/login" />;
-                                }
-                                return (<>
-                                    <Register registrationFailed={registrationFailed} onRegister={this.onRegister} />
-                                </>)
                             }
+                        />
+                        <Route exact path="/welcome" component={WelcomeBlock} />
+                        <Route exact path="/login"
+                            render={
+                                () => {
+                                    if (isAuthenticated) {
+                                        return <Redirect to="/" />;
+                                    }
+                                    return <Login
+                                        authenticationAttemptFailed={authenticationAttemptFailed}
+                                        isAuthenticated={isAuthenticated}
+                                        onLogin={this.onLogin}
+                                    />
+                                }
+                            } />
+                        <Route exact path="/register"
+                            render={
+                                () => {
+                                    if (isAuthenticated) {
+                                        return <Redirect to="/" />;
+                                    }
+                                    if (registrationFailed !== null && !registrationFailed) {
+                                        return <Redirect to="/login" />;
+                                    }
+                                    return (<>
+                                        <Register registrationFailed={registrationFailed} onRegister={this.onRegister} />
+                                    </>)
+                                }
+                            } />
+                        <Route path="/confirm/:user_id/:token" render={
+                            ({match: {params: {user_id, token}}}) => <EmailConfirmation userId={user_id} token={token} />
                         } />
-                    <Route path="/confirm/:user_id/:token" render={
-                        ({match: {params: {user_id, token}}}) => <EmailConfirmation userId={user_id} token={token} />
-                    } />
-                    <Route render={() => <h1>Такой страницы нет</h1>} />
-                </Switch>
-            </div>
+                        <Route render={() => <h1>Такой страницы нет</h1>} />
+                    </Switch>
+                </div>
+            </BrowserRouter>
         );
     }
 
