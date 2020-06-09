@@ -1,5 +1,5 @@
 import React from 'react';
-import changeFolderPopup from './ChangeFolderPopup'
+import changeFolderPopup from './ChangeFolderPopup';
 import { Redirect } from 'react-router-dom';
 import Folder from './Folder';
 import FoldersList from './FoldersList';
