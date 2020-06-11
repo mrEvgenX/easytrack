@@ -3,7 +3,8 @@ import React, {
 } from 'react';
 import {
     populateState, refreshAccess, createNewUser, requestAndStoreCredentials, clearCredentialsFromStore,
-    createFolder, createElement, addTrackEntry, putElementInFolder, deleteElement, deleteFolder, bulkUpdateTrackEntries
+    createFolder, createElement, addTrackEntry, putElementInFolder, deleteElement, deleteFolder, bulkUpdateTrackEntries,
+    AccessTokenExpiredError
 } from './asyncOperations';
 import App from './App';
 
@@ -13,9 +14,12 @@ function actOrRefreshToken(func, refreshToken, accessRefresher) {
         try {
             return await func(accessToken, ...args);
         } catch(err) {
-            const { access: newAccessToken } = await refreshAccess(refreshToken);
-            accessRefresher(newAccessToken);
-            return null;
+            if (err instanceof AccessTokenExpiredError) {
+                const { access: newAccessToken } = await refreshAccess(refreshToken);
+                accessRefresher(newAccessToken);
+                return null;
+            } else
+                throw err;
         }
     }
 }
@@ -65,9 +69,11 @@ export default class AppContainer extends Component {
         const { auth: { isAuthenticated }, folders, trackedItems, trackEntries } = this.state;
         if (
             isAuthenticated 
-            && folders.length === 0 
-            && trackedItems.length === 0 
-            && trackEntries.length === 0
+            && (
+                folders.length === 0 
+                || trackedItems.length === 0 
+                || trackEntries.length === 0
+            )
         ) {
             actOrRefreshToken(
                 populateState, this.state.auth.refresh, this.accessRefresher
@@ -151,41 +157,58 @@ export default class AppContainer extends Component {
                 this.setState({
                     folders: [...this.state.folders, data]
                 })
+            })
+            .catch(error => {
+                console.log(error);
             });
     }
 
     onFolderDelete = folder => {
-        deleteFolder(this.state.auth.access, folder.slug)
+        actRefreshingTokenIfNecessary(
+            deleteFolder, this.state.auth.refresh, this.accessRefresher
+        )(this.state.auth.access, folder.slug)
             .then(() => {
                 this.setState(prevState => {
                     const folderPos = prevState.folders.indexOf(folder);
                     prevState.folders.splice(folderPos, 1);
                     return prevState;
                 })
+            })
+            .catch(error => {
+                console.log(error);
             });
-        console.log(`folder with #${folder.slug} will be deleted`);
     }
 
     onElementCreation = (name, folder) => {
         if (folder === null && this.state.currentFilter !== '') {
             folder = this.state.currentFilter;
         }
-        createElement(this.state.auth.access, folder, name)
+        actRefreshingTokenIfNecessary(
+            createElement, this.state.auth.refresh, this.accessRefresher
+        )(this.state.auth.access, folder, name)
             .then(data => {
                 this.setState({
                     trackedItems: [...this.state.trackedItems, data]
                 })
+            })
+            .catch(error => {
+                console.log(error);
             });
     }
 
     onElementDelete = (item) => {
-        deleteElement(this.state.auth.access, item.id)
+        actRefreshingTokenIfNecessary(
+            deleteElement, this.state.auth.refresh, this.accessRefresher
+        )(this.state.auth.access, item.id)
             .then(() => {
                 this.setState(prevState => {
                     const itemPos = prevState.trackedItems.indexOf(item);
                     prevState.trackedItems.splice(itemPos, 1);
                     return prevState;
                 })
+            })
+            .catch(error => {
+                console.log(error);
             });
     }
 
@@ -194,7 +217,9 @@ export default class AppContainer extends Component {
         const month = now.getMonth() + 1;
         const day = now.getDate();
         const timeBucket = `${now.getFullYear()}-${month < 10 ? '0' + month : month}-${day < 10 ? '0' + day : day}`;
-        addTrackEntry(this.state.auth.access, timeBucket, itemId)
+        actRefreshingTokenIfNecessary(
+            addTrackEntry, this.state.auth.refresh, this.accessRefresher
+        )(this.state.auth.access, timeBucket, itemId)
             .then(data => {
                 this.setState(prevState => {
                     prevState.trackEntries = [...prevState.trackEntries, data];
@@ -206,16 +231,10 @@ export default class AppContainer extends Component {
             });
     }
 
-    onTrackEntryBackdating = (entriesToBeAdded) => {
-        this.setState(prevState => {
-            prevState.trackEntries = [...prevState.trackEntries, ...entriesToBeAdded];
-            return prevState;
-        })
-        console.log(entriesToBeAdded);
-    }
-
     putItemInFolder = (item, folder) => {
-        putElementInFolder(this.state.auth.access, item.id, folder)
+        actRefreshingTokenIfNecessary(
+            putElementInFolder, this.state.auth.refresh, this.accessRefresher
+        )(this.state.auth.access, item.id, folder)
             .then(data => {
                 this.setState(prevState => {
                     const itemPos = prevState.trackedItems.indexOf(item);
@@ -223,6 +242,9 @@ export default class AppContainer extends Component {
                     return prevState;
                 })
             })
+            .catch(error => {
+                console.log(error);
+            });
     }
 
     changeFilter = folderSlug => {
@@ -230,7 +252,9 @@ export default class AppContainer extends Component {
     }
 
     applyEntriesChanging = (trackEntriesToAdd, trackEntriesToRemove) => {
-        bulkUpdateTrackEntries(this.state.auth.access, trackEntriesToAdd, trackEntriesToRemove)
+        actRefreshingTokenIfNecessary(
+            bulkUpdateTrackEntries, this.state.auth.refresh, this.accessRefresher
+        )(this.state.auth.access, trackEntriesToAdd, trackEntriesToRemove)
             .then(() => {
                 this.setState(prevState => {
                     trackEntriesToAdd.forEach(({item, timeBucket}) => {

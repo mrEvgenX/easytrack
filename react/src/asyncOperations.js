@@ -1,8 +1,15 @@
 const baseAPIUrl = 'http://localhost:8000/api/v1/';
 
 
+export class AccessTokenExpiredError extends Error {
+    constructor() {
+        super('Access token expired');
+        this.name = 'AccessTokenExpiredError';
+    }
+}
+
+
 export function populateState(accessToken) {
-    console.log('state fetching started');
     return new Promise((resolve, reject) => {
         if (accessToken === null) {
             reject(new Error('Access token not provided'));
@@ -20,8 +27,10 @@ export function populateState(accessToken) {
         }
         )))
             .then(responses => {
-                if (responses.some(response => !response.ok)) {
-                    reject(new Error('Access token expired'));
+                if (responses.some(response => response.status === 401)) {
+                    reject(new AccessTokenExpiredError());
+                } else if (responses.some(response => !response.ok)) {
+                    reject(new Error('Something went wrong'));
                 }
                 return responses;
             })
@@ -151,9 +160,9 @@ export async function createFolder(accessToken, name) {
         }
     )
     if (response.status === 401) {
-        throw new Error('Access token expired');
+        throw new AccessTokenExpiredError();
     }
-    if (response.status !== 201) {
+    if (!response.ok) {
         const error = await response.json();
         throw new Error(response.status + ': ' + JSON.stringify(error));
     }
@@ -161,24 +170,27 @@ export async function createFolder(accessToken, name) {
 }
 
 
-export function deleteFolder(accessToken, folderSlug) {
-    return new Promise((resolve, reject) => {
-        fetch(
-            baseAPIUrl + 'folders/' + folderSlug, {
+export async function deleteFolder(accessToken, folderSlug) {
+    const response = await fetch(
+        baseAPIUrl + 'folders/' + folderSlug,
+        {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json;charset=utf-8',
                 'Authorization': `Bearer ${accessToken}`
             },
         }
-        )
-            .then(_ => {
-                resolve();
-            });
-    });
+    )
+    if (response.status === 401) {
+        throw new AccessTokenExpiredError();
+    }
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(response.status + ': ' + JSON.stringify(error));
+    }
 }
 
-export function createElement(accessToken, folder, name) {
+export async function createElement(accessToken, folder, name) {
     let request_body = null
     if (folder === null) {
         request_body = {
@@ -190,9 +202,9 @@ export function createElement(accessToken, folder, name) {
             name
         }
     }
-    return new Promise((resolve, reject) => {
-        fetch(
-            baseAPIUrl + 'items', {
+    const response = await fetch(
+        baseAPIUrl + 'items', 
+        {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json;charset=utf-8',
@@ -200,22 +212,26 @@ export function createElement(accessToken, folder, name) {
             },
             body: JSON.stringify(request_body)
         }
-        )
-            .then(response => response.json())
-            .then(data => {
-                resolve(data);
-            });
-    });
+    )
+    if (response.status === 401) {
+        throw new AccessTokenExpiredError();
+    }
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(response.status + ': ' + JSON.stringify(error));
+    }
+    const data = await response.json()
+    return data;
 }
 
 
-export function putElementInFolder(accessToken, itemId, folder) {
+export async function putElementInFolder(accessToken, itemId, folder) {
     if (folder === '') {
         folder = null;
     }
-    return new Promise((resolve, reject) => {
-        fetch(
-            baseAPIUrl + 'items/' + itemId, {
+    const response = await fetch(
+        baseAPIUrl + 'items/' + itemId, 
+        {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json;charset=utf-8',
@@ -223,37 +239,43 @@ export function putElementInFolder(accessToken, itemId, folder) {
             },
             body: JSON.stringify({folder})
         }
-        )
-            .then(response => response.json())
-            .then(data => {
-                resolve(data);
-            });
-    });
+    );
+    if (response.status === 401) {
+        throw new AccessTokenExpiredError();
+    }
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(response.status + ': ' + JSON.stringify(error));
+    }
+    return await response.json();
 }
 
 
-export function deleteElement(accessToken, itemId) {
-    return new Promise((resolve, reject) => {
-        fetch(
-            baseAPIUrl + 'items/' + itemId, {
+export async function deleteElement(accessToken, itemId) {
+    const response = await fetch(
+        baseAPIUrl + 'items/' + itemId, 
+        {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json;charset=utf-8',
                 'Authorization': `Bearer ${accessToken}`
             },
         }
-        )
-            .then(_ => {
-                resolve();
-            });
-    });
+    );
+    if (response.status === 401) {
+        throw new AccessTokenExpiredError();
+    }
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(response.status + ': ' + JSON.stringify(error));
+    }
 }
 
 
-export function addTrackEntry(accessToken, timeBucket, itemId) {
-    return new Promise((resolve, reject) => {
-        fetch(
-            baseAPIUrl + 'entries', {
+export async function addTrackEntry(accessToken, timeBucket, itemId) {
+    const response = await fetch(
+        baseAPIUrl + 'entries', 
+        {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json;charset=utf-8',
@@ -264,20 +286,15 @@ export function addTrackEntry(accessToken, timeBucket, itemId) {
                 item: itemId
             })
         }
-        )
-            .then(response => {
-                if (!response.ok)
-                    throw new Error(response.status);
-                return response;
-            })
-            .then(response => response.json())
-            .then(data => {
-                resolve(data);
-            })
-            .catch(error => {
-                reject(error);
-            });
-    });
+    )
+    if (response.status === 401) {
+        throw new AccessTokenExpiredError();
+    }
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(response.status + ': ' + JSON.stringify(error));
+    }
+    return await response.json();
 }
 
 
@@ -294,8 +311,13 @@ export async function bulkUpdateTrackEntries(accessToken, add, remove) {
         })
     }
     );
-    if (!response.ok)
-        throw new Error(response.status);
+    if (response.status === 401) {
+        throw new AccessTokenExpiredError();
+    }
+    if (!response.ok) {
+        const error = await response.json()
+        throw new Error(response.status + ': ' + JSON.stringify(error));
+    }
 }
 
 
@@ -307,8 +329,10 @@ export async function getConfirmationStatus(userId, token) {
         }
     }
     );
-    if (!response.ok)
-        throw new Error(response.status);
+    if (!response.ok) {
+        const error = await response.json()
+        throw new Error(response.status + ': ' + JSON.stringify(error));
+    }
     const data = await response.json();
     return data;
 }
