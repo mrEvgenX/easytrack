@@ -17,7 +17,7 @@ import Main from './components/Main';
 import EmailConfirmation from './components/EmailConfirmation';
 
 
-function PrivateRoute({isAuthenticated, render, ...rest}) {
+function PrivateRoute({ isAuthenticated, render, ...rest }) {
     return <Route {...rest} render={
         (props) => {
             if (!isAuthenticated) {
@@ -26,6 +26,20 @@ function PrivateRoute({isAuthenticated, render, ...rest}) {
             return render(props);
         }
     } />
+}
+
+
+function OneMoreStep({isAuthenticated}) {
+    // TODO надо никогда не пускать на эту страницу, если только что не завершалась регистрация
+    if (isAuthenticated) {
+        return <Redirect to="/" />;
+    }
+    return <h2>Вам направлено письмо с инструкцией для завершения регистрации</h2>
+}
+
+
+function NotFoundPage() {
+    return <h1>Такой страницы нет</h1>
 }
 
 
@@ -84,7 +98,7 @@ export default function App(props) {
                             trackedItems={trackedItems}
                             trackEntries={trackEntries}
                             applyEntriesChanging={applyEntriesChanging} />
-                        }
+                    }
                     />
                     <Route exact path="/welcome" component={WelcomeBlock} />
                     <Route exact path="/login"
@@ -114,20 +128,13 @@ export default function App(props) {
                                 </>)
                             }
                         } />
-                    <Route exact path="/one-more-step"
-                        render={
-                            () => {
-                                // TODO надо никогда не пускать на эту страницу, если только что не завершалась регистрация
-                                if (isAuthenticated) {
-                                    return <Redirect to="/" />;
-                                }
-                                return <h2>Вам направлено письмо с инструкцией для завершения регистрации</h2>
-                            }
-                        } />
-                    <Route path="/confirm/:user_id/:token" render={
-                        ({match: {params: {user_id, token}}}) => <EmailConfirmation userId={user_id} token={token} />
+                    <Route exact path="/one-more-step" render={
+                        () => <OneMoreStep isAuthenticated={isAuthenticated} />
                     } />
-                    <Route render={() => <h1>Такой страницы нет</h1>} />
+                    <Route path="/confirm/:user_id/:token" render={
+                        ({ match: { params: { user_id, token } } }) => <EmailConfirmation userId={user_id} token={token} />
+                    } />
+                    <Route component={NotFoundPage} />
                 </Switch>
             </div>
         </BrowserRouter>
