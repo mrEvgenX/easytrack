@@ -1,6 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import changeFolderPopup from './ChangeFolderPopup';
-import { Redirect } from 'react-router-dom';
 import Folder from './Folder';
 import FoldersList from './FoldersList';
 import Item from './Item';
@@ -8,9 +7,9 @@ import ItemsList from './ItemsList';
 
 
 export default function Main(props) {
-
     const { 
-        folders, trackedItems, trackEntries, isAuthenticated, currentFilter,
+        populateStateIfNecessary,
+        folders, trackedItems, trackEntries, currentFilter,
         changeFilter,
         onFolderCreation,
         onFolderDelete,
@@ -19,9 +18,9 @@ export default function Main(props) {
         putItemInFolder,
         onElementDelete
     } = props;
-    if (!isAuthenticated) {
-        return <Redirect to="/welcome" />
-    }
+    useEffect(() => {
+        populateStateIfNecessary();
+    });
     let itemsToBeDisplayed = null;
     if (currentFilter !== '') {
         itemsToBeDisplayed = trackedItems.filter(item => item.folder === currentFilter);
