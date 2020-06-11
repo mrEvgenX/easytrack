@@ -315,11 +315,21 @@ export default class App extends Component {
                                         return <Redirect to="/" />;
                                     }
                                     if (registrationFailed !== null && !registrationFailed) {
-                                        return <Redirect to="/login" />;
+                                        return <Redirect to="/one-more-step" />;
                                     }
                                     return (<>
                                         <Register registrationFailed={registrationFailed} onRegister={this.onRegister} />
                                     </>)
+                                }
+                            } />
+                        <Route exact path="/one-more-step"
+                            render={
+                                () => {
+                                    // TODO надо никогда не пускать на эту страницу, если только что не завершалась регистрация
+                                    if (isAuthenticated) {
+                                        return <Redirect to="/" />;
+                                    }
+                                    return <h2>Вам направлено письмо с инструкцией для завершения регистрации</h2>
                                 }
                             } />
                         <Route path="/confirm/:user_id/:token" render={

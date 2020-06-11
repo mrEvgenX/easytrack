@@ -8,6 +8,7 @@ from django.shortcuts import redirect
 from rest_framework import permissions, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import CreateUserSerializer
 from .tokens import account_activation_token
 
@@ -19,6 +20,7 @@ class RegistrationView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         user = serializer.save()
+        # TODO сделать как-то в транзакции, если письмо не удалось отправить, то не создавать пользователя
         user_id = urlsafe_base64_encode(force_bytes(user.pk))
         token = account_activation_token.make_token(user)
         email_user = settings.EMAIL_HOST_USER
@@ -44,4 +46,12 @@ class ConfirmationView(APIView):
             user.save()
             return Response({'success': 'User activated'})
         else:
-            return Response({'error': 'User does not exist or token invalid'}, status=404)
+            return Response({'error': 'User token is invalid'}, status=404)
+
+
+class TokenObtainPairLoginCaseInsensitiveView(TokenObtainPairView):
+    
+    def get_serializer(self, *args, **kwargs):
+        if 'data' in kwargs:
+            kwargs['data']['username'] = kwargs['data']['username'].lower()
+        return super().get_serializer(*args, **kwargs)
