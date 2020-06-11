@@ -2,6 +2,7 @@ const baseAPIUrl = 'http://localhost:8000/api/v1/';
 
 
 export function populateState(accessToken) {
+    console.log('state fetching started');
     return new Promise((resolve, reject) => {
         if (accessToken === null) {
             reject(new Error('Access token not provided'));
@@ -135,10 +136,10 @@ export function createNewUser(login, password) {
 }
 
 
-export function createFolder(accessToken, name) {
-    return new Promise((resolve, reject) => {
-        fetch(
-            baseAPIUrl + 'folders', {
+export async function createFolder(accessToken, name) {
+    const response = await fetch(
+        baseAPIUrl + 'folders',
+        {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json;charset=utf-8',
@@ -148,13 +149,17 @@ export function createFolder(accessToken, name) {
                 name
             })
         }
-        )
-            .then(response => response.json())
-            .then(data => {
-                resolve(data);
-            });
-    });
+    )
+    if (response.status === 401) {
+        throw new Error('Access token expired');
+    }
+    if (response.status !== 201) {
+        const error = await response.json();
+        throw new Error(response.status + ': ' + JSON.stringify(error));
+    }
+    return await response.json();
 }
+
 
 export function deleteFolder(accessToken, folderSlug) {
     return new Promise((resolve, reject) => {

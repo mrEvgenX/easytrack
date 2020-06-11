@@ -8,6 +8,32 @@ import {
 import App from './App';
 
 
+function actOrRefreshToken(func, refreshToken, accessRefresher) {
+    return async (accessToken, ...args) => {
+        try {
+            return await func(accessToken, ...args);
+        } catch(err) {
+            const { access: newAccessToken } = await refreshAccess(refreshToken);
+            accessRefresher(newAccessToken);
+            return null;
+        }
+    }
+}
+
+
+function actRefreshingTokenIfNecessary(func, refreshToken, accessRefresher) {
+    return async (accessToken, ...args) => {
+        try {
+            return await func(accessToken, ...args);
+        } catch(err) {
+            const { access: newAccessToken } = await refreshAccess(refreshToken);
+            accessRefresher(newAccessToken);
+            return await func(newAccessToken, ...args);
+        }
+    }
+}
+
+
 export default class AppContainer extends Component {
 
     constructor(props) {
@@ -28,6 +54,13 @@ export default class AppContainer extends Component {
         };
     }
 
+    accessRefresher = newAccessToken => {
+        this.setState(prevState => {
+            prevState.auth.access = newAccessToken;
+            return prevState;
+        });
+    }
+
     populateStateIfNecessary = () => {
         const { auth: { isAuthenticated }, folders, trackedItems, trackEntries } = this.state;
         if (
@@ -36,25 +69,13 @@ export default class AppContainer extends Component {
             && trackedItems.length === 0 
             && trackEntries.length === 0
         ) {
-            populateState(this.state.auth.access)
+            actOrRefreshToken(
+                populateState, this.state.auth.refresh, this.accessRefresher
+            )(this.state.auth.access)
                 .then(data => {
-                    this.setState(data)
-                })
-                .catch(_ => {
-                    refreshAccess(this.state.auth.refresh)
-                        .then(data => {
-                            this.setState({
-                                auth: {
-                                    ...this.state.auth,
-                                    access: data.access
-                                }
-                            });
-                            populateState(this.state.auth.access).then(data => {
-                                this.setState(data)
-                            });
-                        }).catch(error => {
-                            console.log(error);
-                        });
+                    if (data !== null) {
+                        this.setState(data)
+                    }
                 });
         }
     }
@@ -123,7 +144,9 @@ export default class AppContainer extends Component {
     }
 
     onFolderCreation = (name) => {
-        createFolder(this.state.auth.access, name)
+        actRefreshingTokenIfNecessary(
+            createFolder, this.state.auth.refresh, this.accessRefresher
+        )(this.state.auth.access, name)
             .then(data => {
                 this.setState({
                     folders: [...this.state.folders, data]
