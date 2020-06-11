@@ -7,10 +7,10 @@ test('renders "all" filter button', () => {
   const { getByText } = render(
     <BrowserRouter>
       <Main
-        isAuthenticated={true}
         folders={[]}
         trackedItems={[]}
-        trackEntries={[]} />
+        trackEntries={[]}
+        populateStateIfNecessary={() => {}} />
     </BrowserRouter>
   );
   const allFilterButton = getByText(/Все/i);

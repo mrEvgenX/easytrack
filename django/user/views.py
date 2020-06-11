@@ -52,6 +52,11 @@ class ConfirmationView(APIView):
 class TokenObtainPairLoginCaseInsensitiveView(TokenObtainPairView):
     
     def get_serializer(self, *args, **kwargs):
-        if 'data' in kwargs:
-            kwargs['data']['username'] = kwargs['data']['username'].lower()
+        data = kwargs.get('data')
+        if data:
+            username = data['username']
+            data.update({
+                'username': username.lower()
+            })
+            kwargs['data'] = data
         return super().get_serializer(*args, **kwargs)
