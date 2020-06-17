@@ -14,6 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+from django.conf import settings
 from django.urls import path, include
 import core.urls
 import user.urls
@@ -24,3 +25,9 @@ urlpatterns = [
     path('api/v1/auth/', include(user.urls, namespace='api.auth')),
     path('api/v1/', include(core.urls, namespace='api')),
 ]
+
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns = [
+        path('__debug__/', include(debug_toolbar.urls)),
+    ] + urlpatterns
