@@ -1,5 +1,5 @@
 django==3.0.7
-django-cors-headers==3.3.0
+# django-cors-headers==3.3.0
 djangorestframework==3.11.0
 unidecode==1.1.1
 djangorestframework-simplejwt==4.4.0
