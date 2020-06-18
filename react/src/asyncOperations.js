@@ -1,4 +1,4 @@
-const baseAPIUrl = 'http://localhost:8000/api/v1/';
+const baseAPIUrl = '/api/v1/';
 
 
 export class AccessTokenExpiredError extends Error {

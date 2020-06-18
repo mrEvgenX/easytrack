@@ -13,13 +13,12 @@ INSTALLED_APPS += [
 ]
 
 DATABASES['default'].update({
-    'ENGINE': 'django.db.backends.sqlite3',
-    'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    'NAME': 'easytrack',
+    'USER': 'easytrack_dev',
+    'PASSWORD': 'development',
+    'HOST': 'localhost',
+    'PORT': '5432',
 })
-
-CORS_ORIGIN_WHITELIST = [
-    'http://localhost:3000'
-]
 
 # python -m smtpd -n -c DebuggingServer localhost:1025
 EMAIL_HOST='localhost'
@@ -31,3 +30,6 @@ EMAIL_USE_SSL = False
 INTERNAL_IPS = [
     '127.0.0.1',
 ]
+
+
+STATIC_ROOT='static'

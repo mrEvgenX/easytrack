@@ -51,6 +51,7 @@ export default class AppContainer extends Component {
                 authenticationAttemptFailed: false,
                 registrationFailed: null
             },
+            needToFetchData: true,
             folders: [],
             trackedItems: [],
             trackEntries: [],
@@ -66,15 +67,11 @@ export default class AppContainer extends Component {
     }
 
     populateStateIfNecessary = () => {
-        const { auth: { isAuthenticated }, folders, trackedItems, trackEntries } = this.state;
+        const { auth: { isAuthenticated }, needToFetchData } = this.state;
         if (
-            isAuthenticated 
-            && (
-                folders.length === 0 
-                || trackedItems.length === 0 
-                || trackEntries.length === 0
-            )
+            isAuthenticated && needToFetchData
         ) {
+            this.setState({needToFetchData: false});
             actOrRefreshToken(
                 populateState, this.state.auth.refresh, this.accessRefresher
             )(this.state.auth.access)
