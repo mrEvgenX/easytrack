@@ -28,5 +28,5 @@ jobs:
     - name: Run Tests
       run: |
         cd django
-        export DJANGO_SETTINGS_MODULE=config.settings_dev
+        export DJANGO_SETTINGS_MODULE=config.settings_test
         python manage.py test

@@ -1,5 +1,4 @@
-FROM phusion/baseimage
-
+FROM phusion/baseimage:bionic-1.0.0
 RUN mkdir -p /easytrack/react
 COPY ./django ./static ./requirements.*.txt /easytrack/
 COPY ./react/build /easytrack/react
