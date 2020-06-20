@@ -13,11 +13,8 @@ INSTALLED_APPS += [
 ]
 
 DATABASES['default'].update({
-    'NAME': 'easytrack',
-    'USER': 'easytrack_dev',
-    'PASSWORD': 'development',
-    'HOST': 'localhost',
-    'PORT': '5432',
+    'ENGINE': 'django.db.backends.sqlite3',
+    'NAME': os.path.join(BASE_DIR, '../db.sqlite3'),
 })
 
 # python -m smtpd -n -c DebuggingServer localhost:1025

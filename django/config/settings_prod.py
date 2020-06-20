@@ -30,7 +30,3 @@ DATABASES['default'].update({
     'HOST': os.getenv('DJANGO_DB_HOST'),
     'PORT': os.getenv('DJANGO_DB_PORT'),
 })
-
-CORS_ORIGIN_WHITELIST = [
-    os.getenv('DJANGO_CORS_ORIGIN_WHITELIST')
-]
