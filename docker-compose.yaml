@@ -5,19 +5,17 @@ services:
     build: .
     restart: always
     ports:
-      - "8080:8080"
-    # environment:
-    #   - DJANGO_SETTINGS_MODULE=config.settings_prod
-    #   - DJANGO_SECRET_KEY
-    #   - DJANGO_ALLOWED_HOSTS
-    #   - DJANGO_DB_NAME
-    #   - DJANGO_DB_USER
-    #   - DJANGO_DB_PASSWORD
-    #   - DJANGO_DB_HOST
-    #   - DJANGO_DB_PORT
-    #   - DJANGO_EMAIL_HOST
-    #   - DJANGO_EMAIL_HOST_USER
-    #   - DJANGO_EMAIL_HOST_PASSWORD
-    #   - DJANGO_EMAIL_PORT
-    env_file:
-          - .env.production.local
+      - "80:80"
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings_prod
+      - DJANGO_SECRET_KEY
+      - DJANGO_ALLOWED_HOSTS
+      - DJANGO_DB_NAME
+      - DJANGO_DB_USER
+      - DJANGO_DB_PASSWORD
+      - DJANGO_DB_HOST
+      - DJANGO_DB_PORT
+      - DJANGO_EMAIL_HOST
+      - DJANGO_EMAIL_HOST_USER
+      - DJANGO_EMAIL_HOST_PASSWORD
+      - DJANGO_EMAIL_PORT
