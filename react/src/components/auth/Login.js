@@ -23,7 +23,7 @@ export default class Login extends Component {
         if (this.state.login === '' || this.state.password === '') {
             this.setState({ requiredFieldsNotFilled: true });
         } else {
-            this.setState({login: '', password: '', requiredFieldsNotFilled: false });
+            this.setState({requiredFieldsNotFilled: false });
             onLogin(this.state.login, this.state.password);
         }
     }
@@ -34,10 +34,10 @@ export default class Login extends Component {
                 <h2>Вход на сайт</h2>
                 <form>
                     <div>
-                        <input type='text' name='login' placeholder='E-mail' onChange={this.handleInputChange} />
+                        <input type='text' name='login' placeholder='E-mail' value={this.state.login} onChange={this.handleInputChange} />
                     </div>
                     <div>
-                        <input type='password' name='password' placeholder='Пароль' onChange={this.handleInputChange} />
+                        <input type='password' name='password' placeholder='Пароль' value={this.state.password} onChange={this.handleInputChange} />
                     </div>
                     <div>
                         { this.state.requiredFieldsNotFilled? <p>Все поля обязательны</p>: null }

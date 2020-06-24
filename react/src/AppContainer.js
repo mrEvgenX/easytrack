@@ -296,8 +296,8 @@ export default class AppContainer extends Component {
             onTrackEntryAddition={this.onTrackEntryAddition}
             putItemInFolder={this.putItemInFolder}
             onElementDelete={this.onElementDelete}
-            authenticationAttemptFailed={this.authenticationAttemptFailed}
-            registrationFailed={this.registrationFailed}
+            authenticationAttemptFailed={this.state.auth.authenticationAttemptFailed}
+            registrationFailed={this.state.auth.registrationFailed}
             applyEntriesChanging={this.applyEntriesChanging}
             onLogin={this.onLogin}
             onLogout={this.onLogout}
