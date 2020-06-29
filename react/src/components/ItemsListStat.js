@@ -29,6 +29,10 @@ export default class ItemsListStat extends Component {
         };
     }
 
+    componentDidMount() {
+        this.props.populateStateIfNecessary();
+    }
+
     handleFromDateChange = date => {
         this.setState({
             fromDate: date
