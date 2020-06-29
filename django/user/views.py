@@ -1,3 +1,4 @@
+import os
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.template.loader import render_to_string
@@ -23,10 +24,10 @@ class RegistrationView(generics.CreateAPIView):
         # TODO сделать как-то в транзакции, если письмо не удалось отправить, то не создавать пользователя
         user_id = urlsafe_base64_encode(force_bytes(user.pk))
         token = account_activation_token.make_token(user)
-        email_user = settings.EMAIL_HOST_USER
-        subject, from_email, to = 'Easy Track - Подтверждение регистрации', email_user, user.email
-        text_content = render_to_string('confirmation_email.html', {'user': user, 'user_id': user_id, 'token': token})
-        html_content = render_to_string('confirmation_email_html.html', {'user': user, 'user_id': user_id, 'token': token})
+        host = os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost:3000')  # TODO как-то по-другому внедрять нужную информацию о домене
+        subject, from_email, to = 'Easy Track - Подтверждение регистрации', settings.EMAIL_FROM, user.email
+        text_content = render_to_string('confirmation_email.html', {'host': host, 'user': user, 'user_id': user_id, 'token': token})
+        html_content = render_to_string('confirmation_email_html.html', {'host': host, 'user': user, 'user_id': user_id, 'token': token})
         msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
         msg.attach_alternative(html_content, "text/html")
         msg.send()

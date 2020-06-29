@@ -1,3 +1,4 @@
+- rm -rf ../static/js/ ../static/css && mv ./build/static/* ../static/ && rm -rf ./build/static/
 - Обработка сетевых ошибок
 - Тесты на активацию по почте
 - Больше тестов на фронтенд

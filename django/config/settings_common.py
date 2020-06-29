@@ -143,5 +143,31 @@ STATIC_ROOT = os.path.join(BASE_DIR, '../static')
 EMAIL_HOST = os.getenv('DJANGO_EMAIL_HOST')
 EMAIL_HOST_USER = os.getenv('DJANGO_EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('DJANGO_EMAIL_HOST_PASSWORD')
-EMAIL_PORT=os.getenv('DJANGO_EMAIL_PORT')
-EMAIL_USE_SSL = True
+EMAIL_PORT = os.getenv('DJANGO_EMAIL_PORT')
+EMAIL_USE_TLS = True
+EMAIL_FROM = os.getenv('DJANGO_EMAIL_FROM')
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'main': {
+            'class': 'logging.StreamHandler',
+            'level': 'DEBUG',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['main'],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+        },
+        'django.db.backends': {
+            'handlers': [],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'DEBUG'),
+        },
+        'core': {
+            'handlers': ['main'],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO')
+        }
+    },
+}

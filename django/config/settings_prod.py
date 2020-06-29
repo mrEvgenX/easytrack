@@ -18,6 +18,9 @@ assert EMAIL_HOST_PASSWORD is not None, (
 assert EMAIL_PORT is not None, (
     'Please provide DJANGO_EMAIL_PORT environment variable with a value'
     )
+assert EMAIL_FROM is not None, (
+    'Please provide DJANGO_EMAIL_FROM environment variable with a value'
+    )
 
 ALLOWED_HOSTS += [
     os.getenv('DJANGO_ALLOWED_HOSTS'),
@@ -30,3 +33,9 @@ DATABASES['default'].update({
     'HOST': os.getenv('DJANGO_DB_HOST'),
     'PORT': os.getenv('DJANGO_DB_PORT'),
 })
+
+LOGGING['handlers']['main'] = {
+    'class': 'logging.handlers.WatchedFileHandler',
+    'level': 'DEBUG',
+    'filename': os.getenv('DJANGO_LOG_FILE')
+}
