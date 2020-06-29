@@ -51,7 +51,6 @@ export default function App(props) {
         trackEntries,
         currentFilter,
         isAuthenticated,
-        authenticationAttemptFailed,
         registrationFailed,
         changeFilter,
         onFolderCreation,
@@ -108,11 +107,7 @@ export default function App(props) {
                                 if (isAuthenticated) {
                                     return <Redirect to="/" />;
                                 }
-                                return <Login
-                                    authenticationAttemptFailed={authenticationAttemptFailed}
-                                    isAuthenticated={isAuthenticated}
-                                    onLogin={onLogin}
-                                />
+                                return <Login onLogin={onLogin}/>
                             }
                         } />
                     <Route exact path="/register"
