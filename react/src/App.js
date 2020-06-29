@@ -95,6 +95,7 @@ export default function App(props) {
                     } />
                     <PrivateRoute isAuthenticated={isAuthenticated} exact path="/statistics" render={
                         () => <ItemsListStat
+                            populateStateIfNecessary={populateStateIfNecessary}
                             trackedItems={trackedItems}
                             trackEntries={trackEntries}
                             applyEntriesChanging={applyEntriesChanging} />
