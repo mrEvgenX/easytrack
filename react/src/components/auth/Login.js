@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Redirect } from 'react-router-dom';
 import './SignInSignUpForm.css';
 
 
@@ -9,7 +10,8 @@ export default class Login extends Component {
         this.state = {
             login: '',
             password: '',
-            requiredFieldsNotFilled: false
+            requiredFieldsNotFilled: false,
+            authenticationAttemptFailed: null,
         }
     }
 
@@ -24,11 +26,16 @@ export default class Login extends Component {
             this.setState({ requiredFieldsNotFilled: true });
         } else {
             this.setState({requiredFieldsNotFilled: false });
-            onLogin(this.state.login, this.state.password);
+            onLogin(this.state.login, this.state.password)
+                .then(loginSuccessfull => this.setState({ authenticationAttemptFailed: !loginSuccessfull }));
         }
     }
 
     render() {
+        const { authenticationAttemptFailed } = this.state;
+        if (authenticationAttemptFailed !== null && !authenticationAttemptFailed) {
+            return <Redirect to="/" />;
+        }
         return (
             <div className="SignInSignUpForm">
                 <h2>Вход на сайт</h2>
@@ -41,7 +48,7 @@ export default class Login extends Component {
                     </div>
                     <div>
                         { this.state.requiredFieldsNotFilled? <p>Все поля обязательны</p>: null }
-                        { this.props.authenticationAttemptFailed? <p>Неправильный логин или пароль</p>: null }
+                        { this.state.authenticationAttemptFailed? <p>Неправильный логин или пароль</p>: null }
                         <input type='submit' value='Войти' onClick={this.handleLoginClick} />
                     </div>
                 </form>

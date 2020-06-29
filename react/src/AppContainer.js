@@ -9,7 +9,7 @@ import {
 import App from './App';
 
 
-function actOrRefreshToken(func, refreshToken, accessRefresher) {
+function actRefreshingTokenIfNecessary(func, refreshToken, accessRefresher) {
     return async (accessToken, ...args) => {
         try {
             return await func(accessToken, ...args);
@@ -17,22 +17,9 @@ function actOrRefreshToken(func, refreshToken, accessRefresher) {
             if (err instanceof AccessTokenExpiredError) {
                 const { access: newAccessToken } = await refreshAccess(refreshToken);
                 accessRefresher(newAccessToken);
-                return null;
+                return await func(newAccessToken, ...args);
             } else
                 throw err;
-        }
-    }
-}
-
-
-function actRefreshingTokenIfNecessary(func, refreshToken, accessRefresher) {
-    return async (accessToken, ...args) => {
-        try {
-            return await func(accessToken, ...args);
-        } catch(err) {
-            const { access: newAccessToken } = await refreshAccess(refreshToken);
-            accessRefresher(newAccessToken);
-            return await func(newAccessToken, ...args);
         }
     }
 }
@@ -48,7 +35,6 @@ export default class AppContainer extends Component {
                 refresh: localStorage.getItem('refreshToken'),
                 access: localStorage.getItem('accessToken'),
                 isAuthenticated: localStorage.getItem('refreshToken') !== null,
-                authenticationAttemptFailed: false,
                 registrationFailed: null
             },
             needToFetchData: true,
@@ -72,7 +58,7 @@ export default class AppContainer extends Component {
             isAuthenticated && needToFetchData
         ) {
             this.setState({needToFetchData: false});
-            actOrRefreshToken(
+            actRefreshingTokenIfNecessary(
                 populateState, this.state.auth.refresh, this.accessRefresher
             )(this.state.auth.access)
                 .then(data => {
@@ -83,29 +69,28 @@ export default class AppContainer extends Component {
         }
     }
 
-    onLogin = (username, password) => {
-        requestAndStoreCredentials(username, password)
-            .then(data => {
-                this.setState({
-                    auth: {
-                        ...data,
-                        isAuthenticated: true
-                    }
-                });
-                populateState(data.auth.access).then(data => {
-                    this.setState(data)
-                });
-            })
-            .catch(error => {
-                this.setState({
-                    auth: {
-                        ...this.state.auth,
-                        authenticationAttemptFailed: true,
-                        registrationFailed: null
-                    }
-                });
-                console.log(error);
+    onLogin = async (username, password) => {
+        try {
+            let loginData = await requestAndStoreCredentials(username, password);
+            this.setState({
+                auth: {
+                    ...loginData,
+                    isAuthenticated: true,  
+                },
+                needToFetchData: true,
             });
+            return true;
+        } catch (error) {
+            this.setState({
+                auth: {
+                    ...this.state.auth,
+                    isAuthenticated: false,
+                    registrationFailed: null
+                }
+            });
+            console.log(error);
+        }
+        return false;
     }
 
     onLogout = () => {
@@ -118,6 +103,7 @@ export default class AppContainer extends Component {
                 isAuthenticated: false,
                 registrationFailed: null
             },
+            needToFetchData: true,
             folders: [],
             trackedItems: [],
             trackEntries: [],
@@ -296,7 +282,6 @@ export default class AppContainer extends Component {
             onTrackEntryAddition={this.onTrackEntryAddition}
             putItemInFolder={this.putItemInFolder}
             onElementDelete={this.onElementDelete}
-            authenticationAttemptFailed={this.state.auth.authenticationAttemptFailed}
             registrationFailed={this.state.auth.registrationFailed}
             applyEntriesChanging={this.applyEntriesChanging}
             onLogin={this.onLogin}
