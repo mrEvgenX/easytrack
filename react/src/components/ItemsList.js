@@ -37,12 +37,14 @@ export default class ItemsList extends Component {
 
     render() {
         const { children } = this.props;
-        return (<ul className="ItemsList">
+        return (<section className="section">
+        <ul className="ItemsList">
             {children}
             <li className="Item">
                 <input className="FormInput" type="text" value={this.state.newElementName} placeholder="Имя нового элемента" onChange={this.handleChange} onKeyDown={this.handleKeyDown} />
                 <button onClick={this.handleElementCreation}><FontAwesomeIcon icon={faPlusCircle} /></button>
             </li>
-        </ul>);
+        </ul>
+        </section>);
     }
 }
