@@ -1,3 +1,5 @@
+import { RegistrationFormValidationError, UserAlreadyExists } from './exceptions';
+
 const baseAPIUrl = '/api/v1/';
 
 
@@ -115,10 +117,10 @@ export function clearCredentialsFromStore() {
 }
 
 
-export function createNewUser(login, password) {
-    return new Promise((resolve, reject) => {
-        fetch(
-            baseAPIUrl + 'auth/register', {
+export async function createNewUser(login, password) {
+    const response = await fetch(
+        baseAPIUrl + 'auth/register',
+        {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json;charset=utf-8',
@@ -128,20 +130,15 @@ export function createNewUser(login, password) {
                 password
             })
         }
-        )
-            .then(response => {
-                if (!response.ok)
-                    throw new Error(response.status);
-                return response;
-            })
-            .then(response => response.json())
-            .then(data => {
-                resolve(data);
-            })
-            .catch(error => {
-                reject(error);
-            });
-    });
+    )
+    const data = await response.json();
+    if (!response.ok && response.status === 400) {
+        if ('detail' in data && data.detail.includes('already exists')) {
+            throw new UserAlreadyExists(data.detail);
+        }
+        throw new RegistrationFormValidationError('Form not valid');
+    }
+    return data;
 }
 
 
@@ -203,7 +200,7 @@ export async function createElement(accessToken, folder, name) {
         }
     }
     const response = await fetch(
-        baseAPIUrl + 'items', 
+        baseAPIUrl + 'items',
         {
             method: 'POST',
             headers: {
@@ -230,14 +227,14 @@ export async function putElementInFolder(accessToken, itemId, folder) {
         folder = null;
     }
     const response = await fetch(
-        baseAPIUrl + 'items/' + itemId, 
+        baseAPIUrl + 'items/' + itemId,
         {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json;charset=utf-8',
                 'Authorization': `Bearer ${accessToken}`
             },
-            body: JSON.stringify({folder})
+            body: JSON.stringify({ folder })
         }
     );
     if (response.status === 401) {
@@ -253,7 +250,7 @@ export async function putElementInFolder(accessToken, itemId, folder) {
 
 export async function deleteElement(accessToken, itemId) {
     const response = await fetch(
-        baseAPIUrl + 'items/' + itemId, 
+        baseAPIUrl + 'items/' + itemId,
         {
             method: 'DELETE',
             headers: {
@@ -274,7 +271,7 @@ export async function deleteElement(accessToken, itemId) {
 
 export async function addTrackEntry(accessToken, timeBucket, itemId) {
     const response = await fetch(
-        baseAPIUrl + 'entries', 
+        baseAPIUrl + 'entries',
         {
             method: 'POST',
             headers: {

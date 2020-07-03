@@ -6,12 +6,20 @@ from django.utils.encoding import force_bytes, force_text
 from django.core.mail import EmailMultiAlternatives
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.shortcuts import redirect
+from django.db.utils import IntegrityError
 from rest_framework import permissions, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework.exceptions import APIException
 from .serializers import CreateUserSerializer
 from .tokens import account_activation_token
+
+
+class UserAlreadyExistsError(APIException):
+    status_code = 400
+    default_detail = 'User with this email is already exists.'
+    default_code = 'Bad request'
 
 
 class RegistrationView(generics.CreateAPIView):
@@ -20,7 +28,10 @@ class RegistrationView(generics.CreateAPIView):
     serializer_class = CreateUserSerializer
 
     def perform_create(self, serializer):
-        user = serializer.save()
+        try:
+            user = serializer.save()
+        except IntegrityError:
+            raise UserAlreadyExistsError()
         # TODO сделать как-то в транзакции, если письмо не удалось отправить, то не создавать пользователя
         user_id = urlsafe_base64_encode(force_bytes(user.pk))
         token = account_activation_token.make_token(user)

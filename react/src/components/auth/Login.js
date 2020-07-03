@@ -32,7 +32,7 @@ export default class Login extends Component {
     }
 
     render() {
-        const { authenticationAttemptFailed } = this.state;
+        const { requiredFieldsNotFilled, authenticationAttemptFailed } = this.state;
         if (authenticationAttemptFailed !== null && !authenticationAttemptFailed) {
             return <Redirect to="/" />;
         }
@@ -47,8 +47,8 @@ export default class Login extends Component {
                         <input type='password' name='password' placeholder='Пароль' value={this.state.password} onChange={this.handleInputChange} />
                     </div>
                     <div>
-                        { this.state.requiredFieldsNotFilled? <p>Все поля обязательны</p>: null }
-                        { this.state.authenticationAttemptFailed? <p>Неправильный логин или пароль</p>: null }
+                        { requiredFieldsNotFilled? <p>Все поля обязательны</p>: null }
+                        { authenticationAttemptFailed? <p>Неправильный логин или пароль</p>: null }
                         <input type='submit' value='Войти' onClick={this.handleLoginClick} />
                     </div>
                 </form>
