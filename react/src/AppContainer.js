@@ -6,6 +6,7 @@ import {
     createFolder, createElement, addTrackEntry, putElementInFolder, deleteElement, deleteFolder, bulkUpdateTrackEntries,
     AccessTokenExpiredError
 } from './asyncOperations';
+import { UserAlreadyExists, RegistrationFormValidationError } from './exceptions'
 import App from './App';
 
 
@@ -35,7 +36,6 @@ export default class AppContainer extends Component {
                 refresh: localStorage.getItem('refreshToken'),
                 access: localStorage.getItem('accessToken'),
                 isAuthenticated: localStorage.getItem('refreshToken') !== null,
-                registrationFailed: null
             },
             needToFetchData: true,
             folders: [],
@@ -71,7 +71,7 @@ export default class AppContainer extends Component {
 
     onLogin = async (username, password) => {
         try {
-            let loginData = await requestAndStoreCredentials(username, password);
+            const loginData = await requestAndStoreCredentials(username, password);
             this.setState({
                 auth: {
                     ...loginData,
@@ -83,9 +83,7 @@ export default class AppContainer extends Component {
         } catch (error) {
             this.setState({
                 auth: {
-                    ...this.state.auth,
-                    isAuthenticated: false,
-                    registrationFailed: null
+                    isAuthenticated: false
                 }
             });
             console.log(error);
@@ -97,11 +95,9 @@ export default class AppContainer extends Component {
         clearCredentialsFromStore();
         this.setState({
             auth: {
-                ...this.state.auth,
                 refresh: null,
                 access: null,
-                isAuthenticated: false,
-                registrationFailed: null
+                isAuthenticated: false
             },
             needToFetchData: true,
             folders: [],
@@ -110,26 +106,25 @@ export default class AppContainer extends Component {
         });
     }
 
-    onRegister = (login, password) => {
-        createNewUser(login, password)
-            .then(data => {
-                console.log(data);
-                this.setState({
-                    auth: {
-                        ...this.state.auth,
-                        registrationFailed: false
-                    }
-                });
-            })
-            .catch(error => {
-                console.log(error);
-                this.setState({
-                    auth: {
-                        ...this.state.auth,
-                        registrationFailed: true
-                    }
-                });
-            });
+    onRegister = async (login, password) => {
+        let result = {
+            userAlreadyExists: false,
+            notValidForm: false,
+            registrationSucceeded: false
+        }
+        try {
+            await createNewUser(login, password);
+            result.registrationSucceeded = true;
+        } catch(error) {
+            if (error instanceof RegistrationFormValidationError) {
+                result.notValidForm = true;
+            } else if (error instanceof UserAlreadyExists) {
+                result.userAlreadyExists = true;
+            } else {
+                throw error;
+            }
+        }
+        return result;
     }
 
     onFolderCreation = (name) => {
@@ -282,7 +277,6 @@ export default class AppContainer extends Component {
             onTrackEntryAddition={this.onTrackEntryAddition}
             putItemInFolder={this.putItemInFolder}
             onElementDelete={this.onElementDelete}
-            registrationFailed={this.state.auth.registrationFailed}
             applyEntriesChanging={this.applyEntriesChanging}
             onLogin={this.onLogin}
             onLogout={this.onLogout}

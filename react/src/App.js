@@ -51,7 +51,6 @@ export default function App(props) {
         trackEntries,
         currentFilter,
         isAuthenticated,
-        registrationFailed,
         changeFilter,
         onFolderCreation,
         onFolderDelete,
@@ -116,12 +115,7 @@ export default function App(props) {
                                 if (isAuthenticated) {
                                     return <Redirect to="/" />;
                                 }
-                                if (registrationFailed !== null && !registrationFailed) {
-                                    return <Redirect to="/one-more-step" />;
-                                }
-                                return (<>
-                                    <Register registrationFailed={registrationFailed} onRegister={onRegister} />
-                                </>)
+                                return <Register onRegister={onRegister} />
                             }
                         } />
                     <Route exact path="/one-more-step" render={

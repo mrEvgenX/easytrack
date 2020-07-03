@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Redirect } from 'react-router-dom';
 import './SignInSignUpForm.css';
 
 
@@ -12,6 +13,10 @@ export default class Register extends Component {
             passwordRepeat: '',
             requiredFieldsNotFilled: false,
             passwordsMatchFailed: false,
+            userAlreadyExists: false,
+            notValidForm: false,
+            registrationUnexpectedlyFailed: false,
+            registrationSucceeded: false
         }
     }
 
@@ -30,18 +35,27 @@ export default class Register extends Component {
                 this.setState({ requiredFieldsNotFilled: false, passwordsMatchFailed: true  });
             } else {
                 this.setState({ requiredFieldsNotFilled: false, passwordsMatchFailed: false });
-                onRegister(login, password);
+                onRegister(login, password)
+                    .then(data => this.setState({ ...data }))
+                    .catch(error => {
+                        this.setState({ registrationUnexpectedlyFailed: true });
+                        console.log(error);
+                    });
             }
         }
     }
 
     render() {
+        const { requiredFieldsNotFilled, passwordsMatchFailed, notValidForm, userAlreadyExists, registrationUnexpectedlyFailed, registrationSucceeded } = this.state;
+        if (registrationSucceeded) {
+            return <Redirect to="/one-more-step" />;
+        }
         return (
             <div className="SignInSignUpForm">
                 <h2>Создание нового профиля</h2>
                 <form>
                     <div>
-                        <input type='text' name='login' placeholder='E-mail' onChange={this.handleInputChange} />
+                        <input type='email' name='login' placeholder='E-mail' onChange={this.handleInputChange} />
                     </div>
                     <div>
                         <input type='password' name='password' placeholder='Пароль' onChange={this.handleInputChange} />
@@ -50,10 +64,11 @@ export default class Register extends Component {
                         <input type='password' name='passwordRepeat' placeholder='Пароль еще раз' onChange={this.handleInputChange} />
                     </div>
                     <div>
-                        { this.state.requiredFieldsNotFilled? <p>Все поля обязательны</p> : null }
-                        { this.state.passwordsMatchFailed? <p>Пароли не совпадают</p> : null }
-                        {/* TODO определять конкретно, что за ошибка */} 
-                        { this.props.registrationFailed? <p>Некорректный email, либо такой пользователь уже существует</p> : null }
+                        { requiredFieldsNotFilled? <p>Все поля обязательны</p> : null }
+                        { passwordsMatchFailed? <p>Пароли не совпадают</p> : null }
+                        { notValidForm? <p>Некорректный email</p> : null }
+                        { userAlreadyExists? <p>Такой пользователь уже существует</p> : null }
+                        { registrationUnexpectedlyFailed? <p>Абсолютно неизвестная ошибка:(</p> : null }
                         <input type='submit' value='Зарегистрироваться' onClick={this.handleRegisterClick} />
                     </div>
                 </form>
