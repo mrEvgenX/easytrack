@@ -4,19 +4,38 @@ import { Link } from 'react-router-dom';
 
 export default function WelcomeBlock() {
     return (
-        <>
-            <h2>Добро пожаловать</h2>
-            <p>С EasyTrack вы можете начать улучшать свою жизнь уже прямо сейчас!</p>
-            <h2>Описывайте желаемые привычки</h2>
-            <p>"Чистить зубы 2 раза в день", "Медитировать", "Выходить на пробежку"...</p>
-            <h2>Отмечайте свой прогресс</h2>
-            <p>Следуйте намеченному плану и раз в день отмечайте выполнение нужных действий</p>
-            <h2>Анализируйте</h2>
-            <p>Вам будет доступна статистика за прошедшие дни в наглядном виде</p>
-            <h2>Организуйте</h2>
-            <p>Сами привычки будут собраны в тематические папки, например: "Личная эффективность", "Гармония в семье"...</p>
-            <h1><Link to='/register'>Создать профиль</Link></h1>
-            <p><Link to='/login'>Войти</Link></p>
-        </>
+        <section className="section">
+            <div className="container">
+                <h2 className="title">Добро пожаловать</h2>
+                <p className="subtitle">С EasyTrack вы можете начать улучшать свою жизнь уже прямо сейчас!</p>
+            </div>
+            
+            <div className="container">
+                <h2 className="title">Описывайте желаемые привычки</h2>
+                <p className="subtitle">"Чистить зубы 2 раза в день", "Медитировать", "Выходить на пробежку"...</p>
+            </div>
+            
+            <div className="container">
+                <h2 className="title">Отмечайте свой прогресс</h2>
+                <p className="subtitle">Следуйте намеченному плану и раз в день отмечайте выполнение нужных действий</p>
+            </div>
+            
+            <div className="container">
+                <h2 className="title">Анализируйте</h2>
+                <p className="subtitle">Вам будет доступна статистика за прошедшие дни в наглядном виде</p>
+            </div>
+            
+            <div className="container">
+                <h2 className="title">Организуйте</h2>
+                <p className="subtitle">Сами привычки будут собраны в тематические папки, например: "Личная эффективность", "Гармония в семье"...</p>
+            </div>
+
+            <div className="container">
+                <Link className="button is-primary" to='/register'>Создать профиль</Link>
+            </div>
+            <div className="container">
+                <Link className="button is-primary" to='/login'>Войти</Link>
+            </div>
+        </section>
     );
 }

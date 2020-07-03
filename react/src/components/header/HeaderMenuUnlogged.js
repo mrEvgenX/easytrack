@@ -2,11 +2,14 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 
-export default function HeaderBlockUnlogged() {
+export default function HeaderBlockUnlogged(props) {
+    const { isActive } = props;
     return (
-        <ul>
-            <li><Link to='/login'>Вход</Link></li>
-            <li><Link to='/register'>Регистрация</Link></li>
-        </ul>
+        <div id="mainNavbar" className={isActive? "navbar-menu is-active" : "navbar-menu"}>
+            <div className="navbar-start">
+                <Link className="navbar-item" to='/login'>Вход</Link>
+                <Link className="navbar-item" to='/register'>Регистрация</Link>
+            </div>
+        </div>
     );
 }

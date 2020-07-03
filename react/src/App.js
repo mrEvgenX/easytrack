@@ -7,8 +7,6 @@ import {
 } from 'react-router-dom';
 import './App.css';
 import HeaderBlock from './components/header/HeaderBlock';
-import HeaderMenu from './components/header/HeaderMenu';
-import HeaderMenuUnlogged from './components/header/HeaderMenuUnlogged';
 import ItemsListStat from './components/ItemsListStat';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
@@ -63,18 +61,10 @@ export default function App(props) {
         onLogout,
         onRegister
     } = props;
-    let headerMenu;
-    if (isAuthenticated) {
-        headerMenu = < HeaderMenu onLogout={onLogout} />;
-    } else {
-        headerMenu = <HeaderMenuUnlogged />;
-    }
     return (
         <BrowserRouter>
             <div className="App" >
-                <HeaderBlock >
-                    {headerMenu}
-                </HeaderBlock>
+                <HeaderBlock isAuthenticated={isAuthenticated} onLogout={onLogout} />
                 <Switch>
                     <PrivateRoute isAuthenticated={isAuthenticated} exact path="/" render={
                         () => <Main

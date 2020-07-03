@@ -3,16 +3,20 @@ import { Link } from 'react-router-dom';
 
 
 export default function HeaderMenu(props) {
-    const { onLogout } = props;
+    const { isActive, onLogout } = props;
     const handleClick = (e) => {
         e.preventDefault();
         onLogout()
     }
     return (
-        <ul>
-            <li><Link to='/'>Главная</Link></li>
-            <li><Link to='/statistics'>Статистика</Link></li>
-            <li><button onClick={handleClick}>Выход</button></li>
-        </ul>
+        <div id="mainNavbar" className={isActive? "navbar-menu is-active" : "navbar-menu"}>
+            <div className="navbar-start">
+                <Link className="navbar-item" to="/">Главная</Link>
+                <Link className="navbar-item" to="/statistics">Статистика</Link>
+            </div>
+            <div className="navbar-end">
+                <button className='navbar-item button' onClick={handleClick}>Выход</button>
+            </div>
+        </div>
     );
 }
