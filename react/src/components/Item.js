@@ -26,12 +26,13 @@ export default function Item(props) {
             <button className="button" onClick={showModal}><FontAwesomeIcon icon={faCog} /></button>
         </div>
         <div className={"modal " + (modalVisible? "is-active" : "")}>
-            <div className="modal-background"></div>
+            <div className="modal-background" onClick={showModal}></div>
             <div className="modal-content">
                 <div className="box">
                     {children(showModal, handleDeletion)}
                 </div>
             </div>
+            <button class="modal-close is-large" onClick={showModal} aria-label="close"></button>
         </div>
     </div>
     );

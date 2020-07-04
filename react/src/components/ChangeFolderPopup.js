@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import './ChangeFolderPopup.css'
 
 const ChangeFolderPopup = (props) => {
-    const { item, folders, closePopup, handleDeletion, putItemInFolder } = props;
+    const { item, folders, closePopup, handleDeletion, filtersEnabled, putItemInFolder } = props;
     const [selectedFolder, setSelectedFolder] = useState(item.folder !== null? item.folder : '');
     const onSave = _ => {
         putItemInFolder(item, selectedFolder);
@@ -14,6 +14,7 @@ const ChangeFolderPopup = (props) => {
     return (<>
         <h3 className="title">{item.name}</h3>
         <p className="content">Настроить фильтр</p>
+        {filtersEnabled ? <>
         <ul>
             <li>
                 <input name="folder" type="radio" value='' checked={selectedFolder === ''} onChange={onChange} />
@@ -38,6 +39,12 @@ const ChangeFolderPopup = (props) => {
                 </div>
             </div>
         </div>
+        </>
+        :
+        <>
+        <p className="content">Эта функция требует наличия хотя бы пяти элементов</p>
+        </>
+        }
         <p className="content">Удаление элемента</p>
         <div className="container">
         <div class="field">
