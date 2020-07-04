@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import './Item.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFolder, faTrashAlt } from '@fortawesome/free-regular-svg-icons';
 import { faCog } from '@fortawesome/free-solid-svg-icons';
 
 export default function Item(props) {
