@@ -180,6 +180,10 @@ export default class AppContainer extends Component {
         )(this.state.auth.access, item.id)
             .then(() => {
                 this.setState(prevState => {
+                    const filtersEnabled = prevState.trackedItems.length - 1 > 4
+                    if (!filtersEnabled) {
+                        prevState.currentFilter='';
+                    }
                     const itemPos = prevState.trackedItems.indexOf(item);
                     prevState.trackedItems.splice(itemPos, 1);
                     return prevState;
@@ -269,6 +273,7 @@ export default class AppContainer extends Component {
             trackedItems={this.state.trackedItems}
             trackEntries={this.state.trackEntries}
             isAuthenticated={this.state.auth.isAuthenticated}
+            filtersEnabled={this.state.trackedItems.length > 4}
             currentFilter={this.state.currentFilter}
             changeFilter={this.changeFilter}
             onFolderCreation={this.onFolderCreation}

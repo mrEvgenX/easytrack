@@ -51,28 +51,36 @@ export default class Register extends Component {
             return <Redirect to="/one-more-step" />;
         }
         return (
-            <div className="SignInSignUpForm">
-                <h2>Создание нового профиля</h2>
-                <form>
-                    <div>
-                        <input type='email' name='login' placeholder='E-mail' onChange={this.handleInputChange} />
+            <>
+                <section className="hero is-danger">
+                    <div className="hero-body">
+                        <div className="container has-text-centered">
+                            <h1 className="title">Создание нового профиля</h1>
+                        </div>
                     </div>
-                    <div>
-                        <input type='password' name='password' placeholder='Пароль' onChange={this.handleInputChange} />
-                    </div>
-                    <div>
-                        <input type='password' name='passwordRepeat' placeholder='Пароль еще раз' onChange={this.handleInputChange} />
-                    </div>
-                    <div>
-                        { requiredFieldsNotFilled? <p>Все поля обязательны</p> : null }
-                        { passwordsMatchFailed? <p>Пароли не совпадают</p> : null }
-                        { notValidForm? <p>Некорректный email</p> : null }
-                        { userAlreadyExists? <p>Такой пользователь уже существует</p> : null }
-                        { registrationUnexpectedlyFailed? <p>Абсолютно неизвестная ошибка:(</p> : null }
-                        <input type='submit' value='Зарегистрироваться' onClick={this.handleRegisterClick} />
-                    </div>
-                </form>
-            </div>
+                </section>
+                <section className="section">
+                    <form className="SignInSignUpForm">
+                        <div>
+                            <input type='email' name='login' placeholder='E-mail' onChange={this.handleInputChange} />
+                        </div>
+                        <div>
+                            <input type='password' name='password' placeholder='Пароль' onChange={this.handleInputChange} />
+                        </div>
+                        <div>
+                            <input type='password' name='passwordRepeat' placeholder='Пароль еще раз' onChange={this.handleInputChange} />
+                        </div>
+                        <div>
+                            { requiredFieldsNotFilled? <p>Все поля обязательны</p> : null }
+                            { passwordsMatchFailed? <p>Пароли не совпадают</p> : null }
+                            { notValidForm? <p>Некорректный email</p> : null }
+                            { userAlreadyExists? <p>Такой пользователь уже существует</p> : null }
+                            { registrationUnexpectedlyFailed? <p>Абсолютно неизвестная ошибка:(</p> : null }
+                            <input type='submit' value='Зарегистрироваться' onClick={this.handleRegisterClick} />
+                        </div>
+                    </form>
+                </section>
+            </>
         );
     }
 }

@@ -7,7 +7,7 @@ DEBUG = True
 MIDDLEWARE += [
     'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
-
+ 
 INSTALLED_APPS += [
     'debug_toolbar',
 ]
@@ -20,7 +20,8 @@ DATABASES['default'].update({
 # python -m smtpd -n -c DebuggingServer localhost:1025
 EMAIL_HOST='localhost'
 EMAIL_PORT=1025
-EMAIL_USE_SSL = False
+EMAIL_FROM='no-reply@localhost'
+EMAIL_USE_TLS = False
 
 # Django Debug Toolbar
 
