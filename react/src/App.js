@@ -47,6 +47,7 @@ export default function App(props) {
         folders,
         trackedItems,
         trackEntries,
+        filtersEnabled,
         currentFilter,
         isAuthenticated,
         changeFilter,
@@ -72,6 +73,7 @@ export default function App(props) {
                             folders={folders}
                             trackedItems={trackedItems}
                             trackEntries={trackEntries}
+                            filtersEnabled={filtersEnabled}
                             currentFilter={currentFilter}
                             changeFilter={changeFilter}
                             onFolderCreation={onFolderCreation}

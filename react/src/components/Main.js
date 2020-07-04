@@ -10,6 +10,7 @@ export default function Main(props) {
     const { 
         populateStateIfNecessary,
         folders, trackedItems, trackEntries, currentFilter,
+        filtersEnabled,
         changeFilter,
         onFolderCreation,
         onFolderDelete,
@@ -22,7 +23,7 @@ export default function Main(props) {
         populateStateIfNecessary();
     });
     let itemsToBeDisplayed = null;
-    if (currentFilter !== '') {
+    if (filtersEnabled && currentFilter !== '') {
         itemsToBeDisplayed = trackedItems.filter(item => item.folder === currentFilter);
     } else {
         itemsToBeDisplayed = trackedItems;
@@ -36,16 +37,23 @@ export default function Main(props) {
         item.checkedToday = checkedToday.length === 1;
     })
     return (<>
-        <FoldersList createFolder={onFolderCreation}>
+        { filtersEnabled ? <FoldersList createFolder={onFolderCreation}>
             <Folder selected={'' === currentFilter} folder={null} onClick={changeFilter} />
             {folders.map(folder =>
                 <Folder key={folder.slug} selected={folder.slug === currentFilter} folder={folder} onClick={changeFilter} onDelete={onFolderDelete} />
             )}
-        </FoldersList>
+        </FoldersList> : null}
+        <div className="container">
+            {itemsToBeDisplayed.length > 0 ? 
+            <p className="content">Нажмите соответствующий на элемент, чтобы отметить его как "сделанный"</p>
+            :
+            <p className="content">Придумайте имя для нового элемента и нажмите на плюс, чтобы начать его отслеживать</p>
+            }
+        </div>
         <ItemsList createElement={onElementCreation}>
             {itemsToBeDisplayed.map(item =>
                 <Item key={item.id} item={item} onTrack={onTrackEntryAddition} onDelete={onElementDelete} checkedToday={item.checkedToday}>
-                    {changeFolderPopup(item, folders, putItemInFolder)}
+                    {changeFolderPopup(item, folders, putItemInFolder, filtersEnabled)}
                 </Item>
             )}
         </ItemsList>

@@ -37,22 +37,30 @@ export default class Login extends Component {
             return <Redirect to="/" />;
         }
         return (
-            <div className="SignInSignUpForm">
-                <h2>Вход на сайт</h2>
-                <form>
-                    <div>
-                        <input type='text' name='login' placeholder='E-mail' value={this.state.login} onChange={this.handleInputChange} />
+            <>
+                <section className="hero is-success">
+                    <div className="hero-body">
+                        <div className="container has-text-centered">
+                            <h1 className="title">Вход на сайт</h1>
+                        </div>
                     </div>
-                    <div>
-                        <input type='password' name='password' placeholder='Пароль' value={this.state.password} onChange={this.handleInputChange} />
-                    </div>
-                    <div>
-                        { requiredFieldsNotFilled? <p>Все поля обязательны</p>: null }
-                        { authenticationAttemptFailed? <p>Неправильный логин или пароль</p>: null }
-                        <input type='submit' value='Войти' onClick={this.handleLoginClick} />
-                    </div>
-                </form>
-            </div>
+                </section>
+                <section className="section">
+                    <form className="SignInSignUpForm">
+                        <div>
+                            <input type='text' name='login' placeholder='E-mail' value={this.state.login} onChange={this.handleInputChange} />
+                        </div>
+                        <div>
+                            <input type='password' name='password' placeholder='Пароль' value={this.state.password} onChange={this.handleInputChange} />
+                        </div>
+                        <div>
+                            { requiredFieldsNotFilled? <p>Все поля обязательны</p>: null }
+                            { authenticationAttemptFailed? <p>Неправильный логин или пароль</p>: null }
+                            <input type='submit' value='Войти' onClick={this.handleLoginClick} />
+                        </div>
+                    </form>
+                </section>
+            </>
         );
     }
 }

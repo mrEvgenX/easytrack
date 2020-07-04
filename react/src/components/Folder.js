@@ -15,7 +15,7 @@ export default function Folder(props) {
         onDelete(folder);
     }
     return (<li>
-        <button className={selected? 'selectedFolder' : null} onClick={handleFilterChanging}>{folder.name}</button>
-        {folder.slug !== '' ? <button onClick={handleDeletion}><FontAwesomeIcon icon={faTrashAlt} /></button> : null}
+        <button className={"button " + (selected? 'selectedFolder' : '')} onClick={handleFilterChanging}>{folder.name}</button>
+        {folder.slug !== '' ? <button className="button" onClick={handleDeletion}><FontAwesomeIcon icon={faTrashAlt} /></button> : null}
     </li>);
 }

@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './Item.css';
-import Popup from "reactjs-popup";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFolder, faTrashAlt } from '@fortawesome/free-regular-svg-icons';
+import { faCog } from '@fortawesome/free-solid-svg-icons';
 
 export default function Item(props) {
     const { item, onTrack, onDelete, children, checkedToday } = props;
+    const [ modalVisible, setModalVisible ] = useState(false);
     const trackElement = _ => {
         if (!checkedToday) {
             onTrack(item.id);
@@ -14,15 +15,25 @@ export default function Item(props) {
     const handleDeletion = _ => {
         onDelete(item);
     }
-    return (<li className={"Item " + (checkedToday? "ItemChecked": "")}>
+    const showModal = _ => {
+        setModalVisible(!modalVisible);
+    }
+    return (
+    <div className={"tile content Item " + (checkedToday? "ItemChecked": "")}>
         <div className="ItemButton">
-            <button onClick={trackElement}>{item.name}</button>
+            <button className="button" onClick={trackElement}>{item.name}</button>
         </div>
         <div className="ItemSettings">
-            <Popup trigger={<button><FontAwesomeIcon icon={faFolder} /></button>} modal position="right center">
-                {children}
-            </Popup>
-            <button onClick={handleDeletion}><FontAwesomeIcon icon={faTrashAlt} /></button>
+            <button className="button" onClick={showModal}><FontAwesomeIcon icon={faCog} /></button>
         </div>
-    </li>);
+        <div className={"modal " + (modalVisible? "is-active" : "")}>
+            <div className="modal-background"></div>
+            <div className="modal-content">
+                <div className="box">
+                    {children(showModal, handleDeletion)}
+                </div>
+            </div>
+        </div>
+    </div>
+    );
 }

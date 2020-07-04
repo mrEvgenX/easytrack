@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import './ItemsList.css';
+import './Item.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 
@@ -38,13 +38,17 @@ export default class ItemsList extends Component {
     render() {
         const { children } = this.props;
         return (<section className="section">
-        <ul className="ItemsList">
-            {children}
-            <li className="Item">
-                <input className="FormInput" type="text" value={this.state.newElementName} placeholder="Имя нового элемента" onChange={this.handleChange} onKeyDown={this.handleKeyDown} />
-                <button onClick={this.handleElementCreation}><FontAwesomeIcon icon={faPlusCircle} /></button>
-            </li>
-        </ul>
+            <div className="container">
+                <div className="tile is-ancestor">
+                    <div className="tile is-parent" style={{flexWrap: "wrap", justifyContent: "space-start"}}>
+                        {children}
+                        <div className="tile content Item">
+                            <input className="FormInput" type="text" value={this.state.newElementName} placeholder="Имя нового элемента" onChange={this.handleChange} onKeyDown={this.handleKeyDown} />
+                            <button className="button" onClick={this.handleElementCreation}><FontAwesomeIcon icon={faPlusCircle} /></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </section>);
     }
 }
