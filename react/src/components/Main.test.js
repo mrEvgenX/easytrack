@@ -13,6 +13,6 @@ test('renders "all" filter button', () => {
         populateStateIfNecessary={() => {}} />
     </BrowserRouter>
   );
-  const allFilterButton = getByText(/Все/i);
+  const allFilterButton = getByText(/Придумайте имя/i);
   expect(allFilterButton).toBeInTheDocument();
 });
