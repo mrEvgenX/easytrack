@@ -10,8 +10,10 @@ RUN mkdir /var/log/easytrack/
 RUN touch /var/log/easytrack/easytrack.log
 RUN mkdir /var/log/uwsgi/
 RUN touch /var/log/uwsgi/easytrack.log
+RUN mkdir -p /var/www/easytrack/
 RUN chown www-data /var/log/easytrack/easytrack.log
 RUN chown www-data /var/log/uwsgi/easytrack.log
+RUN chown www-data /var/www/easytrack/
 
 RUN apt-get -y update
 RUN apt-get install -qy \
