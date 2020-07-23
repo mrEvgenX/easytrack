@@ -15,7 +15,7 @@ export default function HeaderMenu(props) {
                 <Link className="navbar-item" to="/statistics">Статистика</Link>
             </div>
             <div className="navbar-end">
-                <button className='navbar-item button' onClick={handleClick}>Выход</button>
+                <a href="/" className='navbar-item' onClick={handleClick}>Выход</a>
             </div>
         </div>
     );

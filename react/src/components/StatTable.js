@@ -5,7 +5,7 @@ import './StatTable.css';
 export function StatTable(props) {
     const { children: [header, ...rows] } = props;
     return (
-        <table>
+        <table style={{display: 'block', overflowX: 'auto', whiteSpace: 'nowrap'}}>
             <thead>
                 {header}
             </thead>
@@ -31,7 +31,7 @@ export function StatTableHeader(props) {
 export function StatTableHeaderCell(props) {
     const { date, highlight } = props;
     return (
-        <th style={{ backgroundColor: highlight ? 'yellow' : null }} key={date}>{date}</th>
+        <th style={{ backgroundColor: highlight ? 'yellow' : null }} key={date}>{date}|</th>
     );
 }
 

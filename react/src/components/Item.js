@@ -20,7 +20,7 @@ export default function Item(props) {
     return (
     <div className={"tile content Item " + (checkedToday? "ItemChecked": "")}>
         <div className="ItemButton">
-            <button className="button" onClick={trackElement}>{item.name}</button>
+            <button className="button" onClick={trackElement} disabled={checkedToday}>{item.name}</button>
         </div>
         <div className="ItemSettings">
             <button className="button" onClick={showModal}><FontAwesomeIcon icon={faCog} /></button>
@@ -32,7 +32,7 @@ export default function Item(props) {
                     {children(showModal, handleDeletion)}
                 </div>
             </div>
-            <button class="modal-close is-large" onClick={showModal} aria-label="close"></button>
+            <button className="modal-close is-large" onClick={showModal} aria-label="close"></button>
         </div>
     </div>
     );

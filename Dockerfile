@@ -32,4 +32,4 @@ COPY runit/nginx /etc/service/nginx
 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-EXPOSE 80
+EXPOSE 8080

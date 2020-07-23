@@ -4,6 +4,8 @@ import Folder from './Folder';
 import FoldersList from './FoldersList';
 import Item from './Item';
 import ItemsList from './ItemsList';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 
 
 export default function Main(props) {
@@ -45,9 +47,9 @@ export default function Main(props) {
         </FoldersList> : null}
         <div className="container">
             {itemsToBeDisplayed.length > 0 ? 
-            <p className="content">Нажмите соответствующий на элемент, чтобы отметить его как "сделанный"</p>
+            <p className="content">Нажмите на соответствующий элемент, чтобы отметить его как "сделанный", не забудьте вернуться к нему завтра</p>
             :
-            <p className="content">Придумайте имя для нового элемента и нажмите на плюс, чтобы начать его отслеживать</p>
+            <p className="content">Придумайте имя для нового элемента и нажмите <FontAwesomeIcon icon={faPlusCircle} />, чтобы начать его отслеживать</p>
             }
         </div>
         <ItemsList createElement={onElementCreation}>

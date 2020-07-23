@@ -153,14 +153,16 @@ export default class ItemsListStat extends Component {
         }
         return (
             <>
-                <div>
-                    С <DatePicker selected={this.state.fromDate} onChange={this.handleFromDateChange} />
-                    по <DatePicker selected={this.state.toDate} onChange={this.handleToDateChange} />
+                <div className="container" style={{display: 'flex', alignItems: 'center', marginBottom: '10px'}}>
+                    С <DatePicker className="input" selected={this.state.fromDate} onChange={this.handleFromDateChange} />
+                    по <DatePicker className="input" selected={this.state.toDate} onChange={this.handleToDateChange} />
                 </div>
-                <div>
-                    <button onClick={this.hangleEditingModeChange}>
+                <div className="container" style={{marginBottom: '10px'}}>
+                    <button className="button" onClick={this.hangleEditingModeChange}>
                         {this.state.editingMode ? "Сохранить изменения" : "Перейти в режим редактирования"}
                     </button>
+                </div>
+                <div className="container" style={{marginBottom: '10px'}}>
                     <p>{this.state.editingMode ? "Щелкайте левой кнопкой по окружностям а потом нажмите сохранить изменения" : null}</p>
                 </div>
                 <StatTable>

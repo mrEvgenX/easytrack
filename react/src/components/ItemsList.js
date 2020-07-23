@@ -43,8 +43,10 @@ export default class ItemsList extends Component {
                     <div className="tile is-parent" style={{flexWrap: "wrap", justifyContent: "space-start"}}>
                         {children}
                         <div className="tile content Item">
-                            <input className="FormInput" type="text" value={this.state.newElementName} placeholder="Имя нового элемента" onChange={this.handleChange} onKeyDown={this.handleKeyDown} />
-                            <button className="button" onClick={this.handleElementCreation}><FontAwesomeIcon icon={faPlusCircle} /></button>
+                            <input className="FormInput NameItemToBeCreated" type="text" value={this.state.newElementName} placeholder="Имя нового элемента" onChange={this.handleChange} onKeyDown={this.handleKeyDown} style={{height: '100%'}} />
+                            <div className="ItemSettings">
+                                <button className="button" onClick={this.handleElementCreation}><FontAwesomeIcon icon={faPlusCircle} /></button>
+                            </div>
                         </div>
                     </div>
                 </div>

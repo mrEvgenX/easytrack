@@ -10,31 +10,32 @@
     flex-basis: auto !important;
 }
 
-.Item button{
-    border-radius: 10px;
-    border: 1px solid black;
-    background-color: green;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+.Item > .ItemButton > button, .Item > .ItemSettings > button {
+    background-color: #CCFFCC;
+    white-space: normal;
 }
 
-.ItemChecked button {
-    background-color: yellow;
+.ItemChecked > .ItemButton > button, .ItemChecked > .ItemSettings > button {
+    background-color: white;
+    border-color: #efefef;
+}
+
+.ItemChecked > .ItemButton > button {
+    color: #CACACA;
 }
 
 .ItemButton {
-    height: 225px;
+    height: 220px;
 }
 
 .ItemButton > button {
-    height: 225px;
-    border-bottom-right-radius: 0;
-    border-bottom-left-radius: 0;
+    height: 220px;
+    border-bottom-right-radius: 0!important;
+    border-bottom-left-radius: 0!important;
 }
 
 .ItemSettings {
-    height: 25px;
+    height: 30px;
 }
 
 .ItemSettings > button {
@@ -42,8 +43,8 @@
 }
 
 .ItemSettings > button {
-    border-top-right-radius: 0;
-    border-top-left-radius: 0;
+    border-top-right-radius: 0!important;
+    border-top-left-radius: 0!important;
 }
 
 .ItemButton > button {
@@ -54,4 +55,16 @@
 .ItemSettings > button {
     width: 100%;
     height: 100%;
+}
+
+
+input.NameItemToBeCreated::placeholder {  
+    /* Firefox, Chrome, Opera */ 
+    text-align: center; 
+}
+
+input.NameItemToBeCreated {  
+    border-bottom-right-radius: 0!important;
+    border-bottom-left-radius: 0!important;
+    width: 250px;
 }

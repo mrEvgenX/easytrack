@@ -40,7 +40,7 @@ export default class FoldersList extends Component {
         return (<section className="section">
         <div className="container">
             <ul className="FoldersList">
-                <p className="content">Фильтр:</p>
+                <p>Фильтр:</p>
                 {children}
                 <li>
                     <input className="FormInput" type="text" value={this.state.newFolderName} placeholder="Имя новой папки" onChange={this.handleChange} onKeyDown={this.handleKeyDown} />
