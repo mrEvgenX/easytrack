@@ -15,3 +15,12 @@ export class UserAlreadyExists extends Error {
         }
     }
 }
+
+export class EmailNotVerified extends Error {
+    constructor(...params) {
+        super(...params)
+        if (Error.captureStackTrace) {
+            Error.captureStackTrace(this, EmailNotVerified)
+        }
+    }
+}

@@ -1,4 +1,4 @@
-import { RegistrationFormValidationError, UserAlreadyExists } from './exceptions';
+import { RegistrationFormValidationError, UserAlreadyExists, EmailNotVerified } from './exceptions';
 
 const baseAPIUrl = '/api/v1/';
 
@@ -133,8 +133,12 @@ export async function createNewUser(login, password) {
     )
     const data = await response.json();
     if (!response.ok && response.status === 400) {
-        if ('detail' in data && data.detail.includes('already exists')) {
-            throw new UserAlreadyExists(data.detail);
+        if ('detail' in data) {
+            if (data.detail.includes('already exists')) {
+                throw new UserAlreadyExists(data.detail);
+            } else if (data.detail.includes('address is not verified')) {
+                throw new EmailNotVerified(data.detail);
+            }
         }
         throw new RegistrationFormValidationError('Form not valid');
     }

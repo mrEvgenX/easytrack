@@ -32,7 +32,16 @@ function OneMoreStep({isAuthenticated}) {
     if (isAuthenticated) {
         return <Redirect to="/" />;
     }
-    return <h2>Вам направлено письмо с инструкцией для завершения регистрации</h2>
+    return <h2>Вам направлено письмо с инструкцией для завершения регистрации.</h2>
+}
+
+
+function AwaitActivationByAdmin({isAuthenticated}) {
+    // TODO надо никогда не пускать на эту страницу, если только что не завершалась регистрация
+    if (isAuthenticated) {
+        return <Redirect to="/" />;
+    }
+    return <h2>Заявка на регистрацию направлена администратору, скоро он примет решение по поводу ее одобрения.</h2>
 }
 
 
@@ -112,6 +121,9 @@ export default function App(props) {
                         } />
                     <Route exact path="/one-more-step" render={
                         () => <OneMoreStep isAuthenticated={isAuthenticated} />
+                    } />
+                    <Route exact path="/await-activation-by-admin" render={
+                        () => <AwaitActivationByAdmin isAuthenticated={isAuthenticated} />
                     } />
                     <Route path="/confirm/:user_id/:token" render={
                         ({ match: { params: { user_id, token } } }) => <EmailConfirmation userId={user_id} token={token} />

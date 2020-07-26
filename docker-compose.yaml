@@ -21,3 +21,4 @@ services:
       - DJANGO_EMAIL_PORT
       - DJANGO_EMAIL_FROM
       - DJANGO_LOG_FILE
+      - DJANGO_ADMIN_EMAIL

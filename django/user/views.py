@@ -7,6 +7,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.shortcuts import redirect
 from django.db.utils import IntegrityError
+from smtplib import SMTPDataError
 from rest_framework import permissions, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -14,11 +15,18 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.exceptions import APIException
 from .serializers import CreateUserSerializer
 from .tokens import account_activation_token
+import logging
 
 
 class UserAlreadyExistsError(APIException):
     status_code = 400
     default_detail = 'User with this email is already exists.'
+    default_code = 'Bad request'
+
+
+class EmailNotVerifiedInAWSSESError(APIException):
+    status_code = 400
+    default_detail = 'Email address is not verified in AWS SES.'
     default_code = 'Bad request'
 
 
@@ -36,12 +44,27 @@ class RegistrationView(generics.CreateAPIView):
         user_id = urlsafe_base64_encode(force_bytes(user.pk))
         token = account_activation_token.make_token(user)
         host = os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost:3000')  # TODO как-то по-другому внедрять нужную информацию о домене
-        subject, from_email, to = 'Easy Track - Подтверждение регистрации', settings.EMAIL_FROM, user.email
-        text_content = render_to_string('confirmation_email.html', {'host': host, 'user': user, 'user_id': user_id, 'token': token})
-        html_content = render_to_string('confirmation_email_html.html', {'host': host, 'user': user, 'user_id': user_id, 'token': token})
-        msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
-        msg.attach_alternative(html_content, "text/html")
-        msg.send()
+        try:
+            subject, from_email, to = 'Easy Track - Подтверждение регистрации', settings.EMAIL_FROM, user.email
+            text_content = render_to_string('confirmation_email.html', {'host': host, 'user': user, 'user_id': user_id, 'token': token})
+            html_content = render_to_string('confirmation_email_html.html', {'host': host, 'user': user, 'user_id': user_id, 'token': token})
+            msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+            msg.attach_alternative(html_content, "text/html")
+            msg.send()
+        except SMTPDataError as e:
+            logging.exception('Error during email sending')
+            if 'Email address is not verified' in e.args[1].decode('utf-8'):
+                # Отправить письмо админу c заявкой на активацию аккаунта
+                to = os.getenv('DJANGO_ADMIN_EMAIL', 'admin@localhost')
+                subject, from_email = 'Easy Track - Заявка на активацию пользователя {}'.format(user.email), settings.EMAIL_FROM
+                text_content = render_to_string('activation_by_admin_email.html', {'host': host, 'user_id': user.pk})
+                html_content = render_to_string('activation_by_admin_email_html.html', {'host': host, 'user_id': user.pk})
+                msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+                msg.attach_alternative(html_content, "text/html")
+                msg.send()
+                raise EmailNotVerifiedInAWSSESError()
+            else:
+                raise
 
 
 class ConfirmationView(APIView):

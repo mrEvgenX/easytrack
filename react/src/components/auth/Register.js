@@ -14,6 +14,7 @@ export default class Register extends Component {
             requiredFieldsNotFilled: false,
             passwordsMatchFailed: false,
             userAlreadyExists: false,
+            emailNotVerified: false,
             notValidForm: false,
             registrationUnexpectedlyFailed: false,
             registrationSucceeded: false
@@ -46,8 +47,11 @@ export default class Register extends Component {
     }
 
     render() {
-        const { requiredFieldsNotFilled, passwordsMatchFailed, notValidForm, userAlreadyExists, registrationUnexpectedlyFailed, registrationSucceeded } = this.state;
+        const { requiredFieldsNotFilled, passwordsMatchFailed, notValidForm, userAlreadyExists, emailNotVerified, registrationUnexpectedlyFailed, registrationSucceeded } = this.state;
         if (registrationSucceeded) {
+            if (emailNotVerified) {
+                return <Redirect to="/await-activation-by-admin" />;
+            }
             return <Redirect to="/one-more-step" />;
         }
         return (

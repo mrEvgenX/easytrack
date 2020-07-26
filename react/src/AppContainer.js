@@ -6,7 +6,7 @@ import {
     createFolder, createElement, addTrackEntry, putElementInFolder, deleteElement, deleteFolder, bulkUpdateTrackEntries,
     AccessTokenExpiredError
 } from './asyncOperations';
-import { UserAlreadyExists, RegistrationFormValidationError } from './exceptions'
+import { UserAlreadyExists, RegistrationFormValidationError, EmailNotVerified } from './exceptions'
 import App from './App';
 
 
@@ -109,6 +109,7 @@ export default class AppContainer extends Component {
     onRegister = async (login, password) => {
         let result = {
             userAlreadyExists: false,
+            emailNotVerified: false,
             notValidForm: false,
             registrationSucceeded: false
         }
@@ -120,6 +121,9 @@ export default class AppContainer extends Component {
                 result.notValidForm = true;
             } else if (error instanceof UserAlreadyExists) {
                 result.userAlreadyExists = true;
+            } else if (error instanceof EmailNotVerified) {
+                result.registrationSucceeded = true;
+                result.emailNotVerified = true;
             } else {
                 throw error;
             }

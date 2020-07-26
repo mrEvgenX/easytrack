@@ -43,6 +43,7 @@ Settings for sending activation email:
 - DJANGO_EMAIL_HOST_PASSWORD=password
 - DJANGO_EMAIL_PORT=587
 - DJANGO_EMAIL_FROM=no-reply@example.com
+- DJANGO_ADMIN_EMAIL=your-personal-email@gmail.com
 
 Logging settings:
 
