@@ -4,12 +4,14 @@ Application for tracking new habits
 
 ## How to run
 
+Recommended to use virtualenv.
+
 ### Debug
 
 One tab: 
-- cd ./django
 - pip install -r requirements.dev.txt  # once
 - export DJANGO_SETTINGS_MODULE=config.settings_dev
+- cd ./django
 - python3 manage.py runserver
 
 Second tab:
@@ -24,7 +26,10 @@ Third tab:
 
 ### Production/stating
 
-Install docker and docker-compose
+- Install docker and docker-compose
+- pip install -r requirements.dev.txt  # once
+- export DJANGO_SETTINGS_MODULE=config.settings_prod
+- ./build_release.sh
 
 Create .env file and define the following environment variables:
 - DJANGO_SETTINGS_MODULE=config.settings_prod
@@ -51,6 +56,6 @@ Logging settings:
 
 Finally:
 
-docker-compose up -d
+- docker-compose up -d
 
 Go to http://yourhost:8080
