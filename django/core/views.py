@@ -8,40 +8,6 @@ from unidecode import unidecode
 from django.utils.text import slugify
 
 
-class ListCreateFolders(generics.ListCreateAPIView):
-    serializer_class = FolderSerializer
-
-    def get_queryset(self, *args, **kwargs):
-        return Folder.objects.filter(owner=self.request.user.pk)
-
-    def get_serializer(self, *args, **kwargs):
-        data = kwargs.get('data')
-        if data:
-            data.update({
-                'slug': slugify(unidecode(data['name'])),
-                'owner': self.request.user.pk
-            })
-            kwargs['data'] = data
-        return super().get_serializer(*args, **kwargs)
-
-
-class DestroyFolder(generics.DestroyAPIView):
-    lookup_field='slug'
-    serializer_class = FolderSerializer
-
-    def get_queryset(self, *args, **kwargs):
-        return Folder.objects.filter(owner=self.request.user.pk)
-    
-    def get_serializer(self, *args, **kwargs):
-        data = kwargs.get('data')
-        if data:
-            data.update({
-                'owner': self.request.user.pk
-            })
-            kwargs['data'] = data
-        return super().get_serializer(*args, **kwargs)
-
-
 class ListCreateItems(generics.ListCreateAPIView):
     serializer_class = ItemSerializer
 

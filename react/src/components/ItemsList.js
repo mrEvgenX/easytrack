@@ -15,7 +15,7 @@ export default class ItemsList extends Component {
 
     doElementCreation = () => {
         if (this.state.newElementName !== '') {
-            this.props.createElement(this.state.newElementName, null);
+            this.props.onElementCreation(this.state.newElementName);
             this.setState({ newElementName: '' });
         }
     }

@@ -45,13 +45,27 @@ export default class ItemsListStat extends Component {
         });
     };
 
+    /* weekdayNumberToWord = weekday_num => {
+        return {
+            0: 'Вс',
+            1: 'Пн',
+            2: 'Вт',
+            3: 'Ср',
+            4: 'Чт',
+            5: 'Пт',
+            6: 'Сб',
+        }[weekday_num]
+    } */
+
     *iterateDaysBetweenDates() {
-        let current = new Date(this.state.fromDate.getTime());
-        while (current <= this.state.toDate) {
+        let current = new Date(this.state.toDate.getTime());
+        while (current >= this.state.fromDate) {
             const month = current.getMonth() < 9 ? `0${current.getMonth() + 1}` : `${current.getMonth() + 1}`;
             const day = current.getDate() < 10 ? `0${current.getDate()}` : `${current.getDate()}`;
             yield `${current.getFullYear()}-${month}-${day}`;
-            current.setDate(current.getDate() + 1);
+            /* const weekday = this.weekdayNumberToWord(current.getDay());
+            yield `${weekday} / ${day}`; */
+            current.setDate(current.getDate() - 1);
         }
     }
 

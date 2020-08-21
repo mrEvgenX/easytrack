@@ -53,18 +53,11 @@ function NotFoundPage() {
 export default function App(props) {
     const {
         populateStateIfNecessary,
-        folders,
         trackedItems,
         trackEntries,
-        filtersEnabled,
-        currentFilter,
         isAuthenticated,
-        changeFilter,
-        onFolderCreation,
-        onFolderDelete,
         onElementCreation,
         onTrackEntryAddition,
-        putItemInFolder,
         onElementDelete,
         applyEntriesChanging,
         onLogin,
@@ -79,17 +72,10 @@ export default function App(props) {
                     <PrivateRoute isAuthenticated={isAuthenticated} exact path="/" render={
                         () => <Main
                             populateStateIfNecessary={populateStateIfNecessary}
-                            folders={folders}
                             trackedItems={trackedItems}
                             trackEntries={trackEntries}
-                            filtersEnabled={filtersEnabled}
-                            currentFilter={currentFilter}
-                            changeFilter={changeFilter}
-                            onFolderCreation={onFolderCreation}
-                            onFolderDelete={onFolderDelete}
                             onElementCreation={onElementCreation}
                             onTrackEntryAddition={onTrackEntryAddition}
-                            putItemInFolder={putItemInFolder}
                             onElementDelete={onElementDelete} />
                     } />
                     <PrivateRoute isAuthenticated={isAuthenticated} exact path="/statistics" render={

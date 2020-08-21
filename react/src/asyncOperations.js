@@ -17,7 +17,6 @@ export function populateState(accessToken) {
             reject(new Error('Access token not provided'));
         }
         Promise.all([
-            baseAPIUrl + 'folders',
             baseAPIUrl + 'items',
             baseAPIUrl + 'entries'
         ].map(url => fetch(
@@ -40,9 +39,8 @@ export function populateState(accessToken) {
                 Promise.all(responses.map(response => response.json()))
                     .then(data => {
                         resolve({
-                            folders: data[0],
-                            trackedItems: data[1],
-                            trackEntries: data[2]
+                            trackedItems: data[0],
+                            trackEntries: data[1]
                         });
                     });
             })
@@ -146,62 +144,9 @@ export async function createNewUser(login, password) {
 }
 
 
-export async function createFolder(accessToken, name) {
-    const response = await fetch(
-        baseAPIUrl + 'folders',
-        {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json;charset=utf-8',
-                'Authorization': `Bearer ${accessToken}`
-            },
-            body: JSON.stringify({
-                name
-            })
-        }
-    )
-    if (response.status === 401) {
-        throw new AccessTokenExpiredError();
-    }
-    if (!response.ok) {
-        const error = await response.json();
-        throw new Error(response.status + ': ' + JSON.stringify(error));
-    }
-    return await response.json();
-}
-
-
-export async function deleteFolder(accessToken, folderSlug) {
-    const response = await fetch(
-        baseAPIUrl + 'folders/' + folderSlug,
-        {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json;charset=utf-8',
-                'Authorization': `Bearer ${accessToken}`
-            },
-        }
-    )
-    if (response.status === 401) {
-        throw new AccessTokenExpiredError();
-    }
-    if (!response.ok) {
-        const error = await response.json();
-        throw new Error(response.status + ': ' + JSON.stringify(error));
-    }
-}
-
-export async function createElement(accessToken, folder, name) {
-    let request_body = null
-    if (folder === null) {
-        request_body = {
-            name
-        }
-    } else {
-        request_body = {
-            folder,
-            name
-        }
+export async function createElement(accessToken, name) {
+    let request_body = {
+        name
     }
     const response = await fetch(
         baseAPIUrl + 'items',
@@ -223,32 +168,6 @@ export async function createElement(accessToken, folder, name) {
     }
     const data = await response.json()
     return data;
-}
-
-
-export async function putElementInFolder(accessToken, itemId, folder) {
-    if (folder === '') {
-        folder = null;
-    }
-    const response = await fetch(
-        baseAPIUrl + 'items/' + itemId,
-        {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json;charset=utf-8',
-                'Authorization': `Bearer ${accessToken}`
-            },
-            body: JSON.stringify({ folder })
-        }
-    );
-    if (response.status === 401) {
-        throw new AccessTokenExpiredError();
-    }
-    if (!response.ok) {
-        const error = await response.json();
-        throw new Error(response.status + ': ' + JSON.stringify(error));
-    }
-    return await response.json();
 }
 
 

@@ -7,7 +7,6 @@ test('renders "all" filter button', () => {
   const { getByText } = render(
     <BrowserRouter>
       <Main
-        folders={[]}
         trackedItems={[]}
         trackEntries={[]}
         populateStateIfNecessary={() => {}} />

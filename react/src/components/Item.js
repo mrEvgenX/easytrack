@@ -29,7 +29,7 @@ export default function Item(props) {
             <div className="modal-background" onClick={showModal}></div>
             <div className="modal-content">
                 <div className="box">
-                    {children(showModal, handleDeletion)}
+                    {children(handleDeletion)}
                 </div>
             </div>
             <button className="modal-close is-large" onClick={showModal} aria-label="close"></button>
