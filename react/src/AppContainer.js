@@ -1,13 +1,15 @@
 import React, {
     Component
 } from 'react';
+import {connect} from 'react-redux';
 import {
-    populateState, refreshAccess, createNewUser, requestAndStoreCredentials, clearCredentialsFromStore,
+    populateState, refreshAccess, createNewUser, requestAndStoreCredentials,
     createElement, addTrackEntry, deleteElement, bulkUpdateTrackEntries,
     AccessTokenExpiredError
 } from './asyncOperations';
 import { UserAlreadyExists, RegistrationFormValidationError, EmailNotVerified } from './exceptions'
 import App from './App';
+import {storeAuthTokens, storeRefreshedToken, showAuthError, removeAuthTokens} from './redux/auth';
 
 
 function actRefreshingTokenIfNecessary(func, refreshToken, accessRefresher) {
@@ -26,17 +28,11 @@ function actRefreshingTokenIfNecessary(func, refreshToken, accessRefresher) {
 }
 
 
-export default class AppContainer extends Component {
+class AppContainer extends Component {
 
     constructor(props) {
         super(props);
         this.state = {
-            auth: {
-                // TODO Incapsulate every call to localstorage
-                refresh: localStorage.getItem('refreshToken'),
-                access: localStorage.getItem('accessToken'),
-                isAuthenticated: localStorage.getItem('refreshToken') !== null,
-            },
             needToFetchData: true,
             trackedItems: [],
             trackEntries: [],
@@ -44,21 +40,18 @@ export default class AppContainer extends Component {
     }
 
     accessRefresher = newAccessToken => {
-        this.setState(prevState => {
-            prevState.auth.access = newAccessToken;
-            return prevState;
-        });
+        this.props.storeRefreshedToken(newAccessToken);
     }
 
     populateStateIfNecessary = () => {
-        const { auth: { isAuthenticated }, needToFetchData } = this.state;
+        const { needToFetchData } = this.state;
         if (
-            isAuthenticated && needToFetchData
+            this.props.auth.isAuthenticated && needToFetchData
         ) {
             this.setState({needToFetchData: false});
             actRefreshingTokenIfNecessary(
-                populateState, this.state.auth.refresh, this.accessRefresher
-            )(this.state.auth.access)
+                populateState, this.props.auth.refresh, this.accessRefresher
+            )(this.props.auth.access)
                 .then(data => {
                     if (data !== null) {
                         this.setState(data)
@@ -70,33 +63,21 @@ export default class AppContainer extends Component {
     onLogin = async (username, password) => {
         try {
             const loginData = await requestAndStoreCredentials(username, password);
+            this.props.storeAuthTokens(loginData.refresh, loginData.access);
             this.setState({
-                auth: {
-                    ...loginData,
-                    isAuthenticated: true,  
-                },
                 needToFetchData: true,
             });
             return true;
         } catch (error) {
-            this.setState({
-                auth: {
-                    isAuthenticated: false
-                }
-            });
+            this.props.showAuthError(error);
             console.log(error);
         }
         return false;
     }
 
     onLogout = () => {
-        clearCredentialsFromStore();
+        this.props.removeAuthTokens();
         this.setState({
-            auth: {
-                refresh: null,
-                access: null,
-                isAuthenticated: false
-            },
             needToFetchData: true,
             trackedItems: [],
             trackEntries: [],
@@ -130,8 +111,8 @@ export default class AppContainer extends Component {
 
     onElementCreation = (name) => {
         actRefreshingTokenIfNecessary(
-            createElement, this.state.auth.refresh, this.accessRefresher
-        )(this.state.auth.access, name)
+            createElement, this.props.auth.refresh, this.accessRefresher
+        )(this.props.auth.access, name)
             .then(data => {
                 this.setState({
                     trackedItems: [...this.state.trackedItems, data]
@@ -144,8 +125,8 @@ export default class AppContainer extends Component {
 
     onElementDelete = (item) => {
         actRefreshingTokenIfNecessary(
-            deleteElement, this.state.auth.refresh, this.accessRefresher
-        )(this.state.auth.access, item.id)
+            deleteElement, this.props.auth.refresh, this.accessRefresher
+        )(this.props.auth.access, item.id)
             .then(() => {
                 this.setState(prevState => {
                     const itemPos = prevState.trackedItems.indexOf(item);
@@ -164,8 +145,8 @@ export default class AppContainer extends Component {
         const day = now.getDate();
         const timeBucket = `${now.getFullYear()}-${month < 10 ? '0' + month : month}-${day < 10 ? '0' + day : day}`;
         actRefreshingTokenIfNecessary(
-            addTrackEntry, this.state.auth.refresh, this.accessRefresher
-        )(this.state.auth.access, timeBucket, itemId)
+            addTrackEntry, this.props.auth.refresh, this.accessRefresher
+        )(this.props.auth.access, timeBucket, itemId)
             .then(data => {
                 this.setState(prevState => {
                     prevState.trackEntries = [...prevState.trackEntries, data];
@@ -179,8 +160,8 @@ export default class AppContainer extends Component {
 
     applyEntriesChanging = (trackEntriesToAdd, trackEntriesToRemove) => {
         actRefreshingTokenIfNecessary(
-            bulkUpdateTrackEntries, this.state.auth.refresh, this.accessRefresher
-        )(this.state.auth.access, trackEntriesToAdd, trackEntriesToRemove)
+            bulkUpdateTrackEntries, this.props.auth.refresh, this.accessRefresher
+        )(this.props.auth.access, trackEntriesToAdd, trackEntriesToRemove)
             .then(() => {
                 this.setState(prevState => {
                     trackEntriesToAdd.forEach(({item, timeBucket}) => {
@@ -215,7 +196,7 @@ export default class AppContainer extends Component {
             populateStateIfNecessary={this.populateStateIfNecessary}
             trackedItems={this.state.trackedItems}
             trackEntries={this.state.trackEntries}
-            isAuthenticated={this.state.auth.isAuthenticated}
+            isAuthenticated={this.props.auth.isAuthenticated}
             onElementCreation={this.onElementCreation}
             onTrackEntryAddition={this.onTrackEntryAddition}
             onElementDelete={this.onElementDelete}
@@ -227,3 +208,16 @@ export default class AppContainer extends Component {
     }
 
 }
+
+const mapStateToProps = state => ({
+    auth: state.auth
+})
+
+const mapDispatchToProps = dispatch => ({
+    storeAuthTokens: (refresh, access) => dispatch(storeAuthTokens(refresh, access)),
+    storeRefreshedToken: access => dispatch(storeRefreshedToken(access)),
+    showAuthError: error => dispatch(showAuthError(error)),
+    removeAuthTokens: () => dispatch(removeAuthTokens()),
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(AppContainer)

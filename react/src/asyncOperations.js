@@ -68,8 +68,6 @@ export function requestAndStoreCredentials(username, password) {
             })
             .then(response => response.json())
             .then(data => {
-                localStorage.setItem('refreshToken', data.refresh);
-                localStorage.setItem('accessToken', data.access);
                 resolve(data);
             })
             .catch(error => {
@@ -99,19 +97,12 @@ export function refreshAccess(refreshToken) {
             })
             .then(response => response.json())
             .then(data => {
-                localStorage.setItem('accessToken', data.access);
                 resolve(data);
             })
             .catch(error => {
                 reject(error);
             });
     });
-}
-
-
-export function clearCredentialsFromStore() {
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('accessToken');
 }
 
 
