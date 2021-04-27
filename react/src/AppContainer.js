@@ -3,29 +3,13 @@ import React, {
 } from 'react';
 import {connect} from 'react-redux';
 import {
-    populateState, refreshAccess, createNewUser,
+    populateState, createNewUser,
     createElement, addTrackEntry, deleteElement, bulkUpdateTrackEntries,
     AccessTokenExpiredError
 } from './asyncOperations';
 import { UserAlreadyExists, RegistrationFormValidationError, EmailNotVerified } from './exceptions'
 import App from './App';
-import {storeAuthTokens, storeRefreshedToken, showAuthError, removeAuthTokens, authenticate} from './redux/auth';
-
-
-function actRefreshingTokenIfNecessary(func, refreshToken, accessRefresher) {
-    return async (accessToken, ...args) => {
-        try {
-            return await func(accessToken, ...args);
-        } catch(err) {
-            if (err instanceof AccessTokenExpiredError) {
-                const { access: newAccessToken } = await refreshAccess(refreshToken);
-                accessRefresher(newAccessToken);
-                return await func(newAccessToken, ...args);
-            } else
-                throw err;
-        }
-    }
-}
+import {storeAuthTokens, storeRefreshedToken, showAuthError, removeAuthTokens, authenticate, refreshAccess} from './redux/auth';
 
 
 class AppContainer extends Component {
@@ -39,19 +23,32 @@ class AppContainer extends Component {
         };
     }
 
-    accessRefresher = newAccessToken => {
-        this.props.storeRefreshedToken(newAccessToken);
+    actRefreshingTokenIfNecessary = func => {
+        return async (...args) => {
+            try {
+                return await func(this.props.auth.access, ...args);
+            } catch(err) {
+                if (err instanceof AccessTokenExpiredError) {
+                    await this.props.refreshAccess(this.props.auth.refresh)
+                    if (this.props.auth.error != null) {
+                        throw this.props.auth.error
+                    }
+                    return await func(this.props.auth.access, ...args)
+                } else {
+                    throw err
+                }
+                    
+            }
+        }
     }
 
     populateStateIfNecessary = () => {
         const { needToFetchData } = this.state;
         if (
-            this.props.auth.isAuthenticated && needToFetchData
+            this.props.isAuthenticated && needToFetchData
         ) {
             this.setState({needToFetchData: false});
-            actRefreshingTokenIfNecessary(
-                populateState, this.props.auth.refresh, this.accessRefresher
-            )(this.props.auth.access)
+            this.actRefreshingTokenIfNecessary(populateState)()
                 .then(data => {
                     if (data !== null) {
                         this.setState(data)
@@ -106,9 +103,7 @@ class AppContainer extends Component {
     }
 
     onElementCreation = (name) => {
-        actRefreshingTokenIfNecessary(
-            createElement, this.props.auth.refresh, this.accessRefresher
-        )(this.props.auth.access, name)
+        this.actRefreshingTokenIfNecessary(createElement)(name)
             .then(data => {
                 this.setState({
                     trackedItems: [...this.state.trackedItems, data]
@@ -120,9 +115,7 @@ class AppContainer extends Component {
     }
 
     onElementDelete = (item) => {
-        actRefreshingTokenIfNecessary(
-            deleteElement, this.props.auth.refresh, this.accessRefresher
-        )(this.props.auth.access, item.id)
+        this.actRefreshingTokenIfNecessary(deleteElement)(item.id)
             .then(() => {
                 this.setState(prevState => {
                     const itemPos = prevState.trackedItems.indexOf(item);
@@ -140,9 +133,7 @@ class AppContainer extends Component {
         const month = now.getMonth() + 1;
         const day = now.getDate();
         const timeBucket = `${now.getFullYear()}-${month < 10 ? '0' + month : month}-${day < 10 ? '0' + day : day}`;
-        actRefreshingTokenIfNecessary(
-            addTrackEntry, this.props.auth.refresh, this.accessRefresher
-        )(this.props.auth.access, timeBucket, itemId)
+        this.actRefreshingTokenIfNecessary(addTrackEntry)(timeBucket, itemId)
             .then(data => {
                 this.setState(prevState => {
                     prevState.trackEntries = [...prevState.trackEntries, data];
@@ -155,9 +146,7 @@ class AppContainer extends Component {
     }
 
     applyEntriesChanging = (trackEntriesToAdd, trackEntriesToRemove) => {
-        actRefreshingTokenIfNecessary(
-            bulkUpdateTrackEntries, this.props.auth.refresh, this.accessRefresher
-        )(this.props.auth.access, trackEntriesToAdd, trackEntriesToRemove)
+        this.actRefreshingTokenIfNecessary(bulkUpdateTrackEntries)(this.props.auth.access, trackEntriesToAdd, trackEntriesToRemove)
             .then(() => {
                 this.setState(prevState => {
                     trackEntriesToAdd.forEach(({item, timeBucket}) => {
@@ -192,7 +181,7 @@ class AppContainer extends Component {
             populateStateIfNecessary={this.populateStateIfNecessary}
             trackedItems={this.state.trackedItems}
             trackEntries={this.state.trackEntries}
-            isAuthenticated={this.props.auth.isAuthenticated}
+            isAuthenticated={this.props.isAuthenticated}
             onElementCreation={this.onElementCreation}
             onTrackEntryAddition={this.onTrackEntryAddition}
             onElementDelete={this.onElementDelete}
@@ -206,7 +195,8 @@ class AppContainer extends Component {
 }
 
 const mapStateToProps = state => ({
-    auth: state.auth
+    auth: state.auth,
+    isAuthenticated: state.auth.refresh != null,
 })
 
 const mapDispatchToProps = dispatch => ({
@@ -214,7 +204,8 @@ const mapDispatchToProps = dispatch => ({
     storeRefreshedToken: access => dispatch(storeRefreshedToken(access)),
     showAuthError: error => dispatch(showAuthError(error)),
     removeAuthTokens: () => dispatch(removeAuthTokens()),
-    authenticate: (username, password) => dispatch(authenticate(username, password))
+    authenticate: (username, password) => dispatch(authenticate(username, password)),
+    refreshAccess: refresh => dispatch(refreshAccess(refresh)),
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(AppContainer)

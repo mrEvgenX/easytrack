@@ -13,7 +13,7 @@ export class AccessTokenExpiredError extends Error {
 
 export function populateState(accessToken) {
     return new Promise((resolve, reject) => {
-        if (accessToken === null) {
+        if (accessToken == null) {
             reject(new Error('Access token not provided'));
         }
         Promise.all([
@@ -44,35 +44,6 @@ export function populateState(accessToken) {
                         });
                     });
             })
-    });
-}
-
-
-export function refreshAccess(refreshToken) {
-    return new Promise((resolve, reject) => {
-        fetch(
-            baseAPIUrl + 'auth/token/refresh', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json;charset=utf-8',
-            },
-            body: JSON.stringify({
-                refresh: refreshToken
-            })
-        }
-        )
-            .then(response => {
-                if (!response.ok)
-                    throw new Error(response.status);
-                return response;
-            })
-            .then(response => response.json())
-            .then(data => {
-                resolve(data);
-            })
-            .catch(error => {
-                reject(error);
-            });
     });
 }
 
