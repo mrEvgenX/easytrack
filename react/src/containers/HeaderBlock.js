@@ -1,11 +1,22 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import HeaderMenu from './HeaderMenu';
-import HeaderMenuUnlogged from './HeaderMenuUnlogged';
+import React, { useState } from 'react'
+import { Link } from 'react-router-dom'
+import {useSelector, useDispatch} from 'react-redux'
+import HeaderMenu from '../components/header/HeaderMenu'
+import HeaderMenuUnlogged from '../components/header/HeaderMenuUnlogged'
+import {removeAuthTokens} from '../redux/auth'
+import {clearData} from '../redux/data'
+
 
 export default function HeaderBlock(props) {
     const [menuExpanded, expandMenu ] = useState(false);
-    const { isAuthenticated, onLogout } = props;
+    const isAuthenticated = useSelector(state => state.auth.refresh != null)
+    const dispatch = useDispatch()
+    
+    const onLogout = () => {
+        dispatch(removeAuthTokens())
+        dispatch(clearData())
+    }
+
     const toggleMenu = () => {
         expandMenu(!menuExpanded);
     }

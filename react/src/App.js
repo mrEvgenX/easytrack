@@ -6,9 +6,9 @@ import {
     Redirect
 } from 'react-router-dom';
 import './App.css';
-import HeaderBlock from './components/header/HeaderBlock';
+import HeaderBlock from './containers/HeaderBlock';
 import ItemsListStat from './components/ItemsListStat';
-import Login from './components/auth/Login';
+import Login from './containers/Login';
 import Register from './components/auth/Register';
 import WelcomeBlock from './components/WelcomeBlock';
 import Main from './components/Main';
@@ -60,14 +60,12 @@ export default function App(props) {
         onTrackEntryAddition,
         onElementDelete,
         applyEntriesChanging,
-        onLogin,
-        onLogout,
         onRegister
     } = props;
     return (
         <BrowserRouter>
             <div className="App" >
-                <HeaderBlock isAuthenticated={isAuthenticated} onLogout={onLogout} />
+                <HeaderBlock />
                 <Switch>
                     <PrivateRoute isAuthenticated={isAuthenticated} exact path="/" render={
                         () => <Main
@@ -87,15 +85,7 @@ export default function App(props) {
                     }
                     />
                     <Route exact path="/welcome" component={WelcomeBlock} />
-                    <Route exact path="/login"
-                        render={
-                            () => {
-                                if (isAuthenticated) {
-                                    return <Redirect to="/" />;
-                                }
-                                return <Login onLogin={onLogin}/>
-                            }
-                        } />
+                    <Route exact path="/login" component={Login} />
                     <Route exact path="/register"
                         render={
                             () => {

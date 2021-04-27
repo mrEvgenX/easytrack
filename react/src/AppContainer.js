@@ -5,32 +5,29 @@ import {connect} from 'react-redux';
 import {
     populateState, createNewUser,
     createElement, addTrackEntry, deleteElement, bulkUpdateTrackEntries,
-    AccessTokenExpiredError
 } from './asyncOperations';
 import { UserAlreadyExists, RegistrationFormValidationError, EmailNotVerified } from './exceptions'
 import App from './App';
-import {storeAuthTokens, storeRefreshedToken, showAuthError, removeAuthTokens, authenticate, refreshAccess} from './redux/auth'
+import {refreshAccess} from './redux/auth'
 import {populateData, clearData, appendTrackedItem, deleteTrackedItem, addTrackEntries, deleteTrackEntries, noNeedForDataAnymore} from './redux/data'
+import jwtDecode from 'jwt-decode'
 
 
 class AppContainer extends Component {
 
     actRefreshingTokenIfNecessary = func => {
         return async (...args) => {
-            try {
-                return await func(this.props.auth.access, ...args);
-            } catch(err) {
-                if (err instanceof AccessTokenExpiredError) {
-                    await this.props.refreshAccess(this.props.auth.refresh)
-                    if (this.props.auth.error != null) {
-                        throw this.props.auth.error
-                    }
-                    return await func(this.props.auth.access, ...args)
-                } else {
-                    throw err
-                }
-                    
+            const { exp } = jwtDecode(this.props.auth.access)
+            if (Date.now() >= exp * 1000) {
+                await this.props.refreshAccess(this.props.auth.refresh)
             }
+            if (this.props.auth.error != null) {
+                throw this.props.auth.error
+            }
+            if (this.props.auth.access == null) {
+                throw Error('access token not provided')
+            }
+            return await func(this.props.auth.access, ...args);
         }
     }
 
@@ -46,20 +43,6 @@ class AppContainer extends Component {
                     }
                 });
         }
-    }
-
-    onLogin = async (username, password) => {
-        await this.props.authenticate(username, password)
-        if (this.props.auth.error != null) {
-            this.props.clearData()
-            return true
-        }
-        return false
-    }
-
-    onLogout = () => {
-        this.props.removeAuthTokens()
-        this.props.clearData()
     }
 
     onRegister = async (login, password) => {
@@ -113,7 +96,7 @@ class AppContainer extends Component {
     }
 
     applyEntriesChanging = (trackEntriesToAdd, trackEntriesToRemove) => {
-        this.actRefreshingTokenIfNecessary(bulkUpdateTrackEntries)(this.props.auth.access, trackEntriesToAdd, trackEntriesToRemove)
+        this.actRefreshingTokenIfNecessary(bulkUpdateTrackEntries)(trackEntriesToAdd, trackEntriesToRemove)
             .then(() => {
                 this.props.addTrackEntries(trackEntriesToAdd)
                 this.props.deleteTrackEntries(trackEntriesToRemove)
@@ -130,8 +113,6 @@ class AppContainer extends Component {
             onTrackEntryAddition={this.onTrackEntryAddition}
             onElementDelete={this.onElementDelete}
             applyEntriesChanging={this.applyEntriesChanging}
-            onLogin={this.onLogin}
-            onLogout={this.onLogout}
             onRegister={this.onRegister}
             />;
     }
@@ -147,11 +128,6 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-    storeAuthTokens: (refresh, access) => dispatch(storeAuthTokens(refresh, access)),
-    storeRefreshedToken: access => dispatch(storeRefreshedToken(access)),
-    showAuthError: error => dispatch(showAuthError(error)),
-    removeAuthTokens: () => dispatch(removeAuthTokens()),
-    authenticate: (username, password) => dispatch(authenticate(username, password)),
     refreshAccess: refresh => dispatch(refreshAccess(refresh)),
     populateData: (trackedItems, trackEntries) => dispatch(populateData(trackedItems, trackEntries)),
     clearData: () => dispatch(clearData()),
