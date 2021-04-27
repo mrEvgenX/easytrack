@@ -8,15 +8,19 @@ Recommended to use virtualenv.
 
 ### Debug
 
-One tab: 
-- pip install -r requirements.dev.txt  # once
-- export DJANGO_SETTINGS_MODULE=config.settings_dev
+One tab:
 - cd ./django
+- virtualenv -p `which python3` venv  # once
+- source ./venv/bin/activate
+- pip install -r ../requirements.dev.txt  # once
+- export DJANGO_SETTINGS_MODULE=config.settings_dev
+- python3 manage.py migrate  # once
+- python3 manage.py createsuperuser  # once
 - python3 manage.py runserver
 
 Second tab:
 
-- python -m smtpd -n -c DebuggingServer localhost:1025
+- python3 -m smtpd -n -c DebuggingServer localhost:1025
 
 Third tab:
 
