@@ -9,19 +9,11 @@ import {
 } from './asyncOperations';
 import { UserAlreadyExists, RegistrationFormValidationError, EmailNotVerified } from './exceptions'
 import App from './App';
-import {storeAuthTokens, storeRefreshedToken, showAuthError, removeAuthTokens, authenticate, refreshAccess} from './redux/auth';
+import {storeAuthTokens, storeRefreshedToken, showAuthError, removeAuthTokens, authenticate, refreshAccess} from './redux/auth'
+import {populateData, clearData, appendTrackedItem, deleteTrackedItem, addTrackEntries, deleteTrackEntries, noNeedForDataAnymore} from './redux/data'
 
 
 class AppContainer extends Component {
-
-    constructor(props) {
-        super(props);
-        this.state = {
-            needToFetchData: true,
-            trackedItems: [],
-            trackEntries: [],
-        };
-    }
 
     actRefreshingTokenIfNecessary = func => {
         return async (...args) => {
@@ -43,38 +35,31 @@ class AppContainer extends Component {
     }
 
     populateStateIfNecessary = () => {
-        const { needToFetchData } = this.state;
         if (
-            this.props.isAuthenticated && needToFetchData
+            this.props.isAuthenticated && this.props.needToFetchData
         ) {
-            this.setState({needToFetchData: false});
+            this.props.noNeedForDataAnymore()
             this.actRefreshingTokenIfNecessary(populateState)()
                 .then(data => {
                     if (data !== null) {
-                        this.setState(data)
+                        this.props.populateData(data.trackedItems, data.trackEntries)
                     }
                 });
         }
     }
 
     onLogin = async (username, password) => {
-        await this.props.authenticate(username, password);
+        await this.props.authenticate(username, password)
         if (this.props.auth.error != null) {
-            this.setState({
-                needToFetchData: true,
-            });
-            return true;
+            this.props.clearData()
+            return true
         }
-        return false;
+        return false
     }
 
     onLogout = () => {
-        this.props.removeAuthTokens();
-        this.setState({
-            needToFetchData: true,
-            trackedItems: [],
-            trackEntries: [],
-        });
+        this.props.removeAuthTokens()
+        this.props.clearData()
     }
 
     onRegister = async (login, password) => {
@@ -105,26 +90,14 @@ class AppContainer extends Component {
     onElementCreation = (name) => {
         this.actRefreshingTokenIfNecessary(createElement)(name)
             .then(data => {
-                this.setState({
-                    trackedItems: [...this.state.trackedItems, data]
-                })
-            })
-            .catch(error => {
-                console.log(error);
+                this.props.appendTrackedItem(data)
             });
     }
 
     onElementDelete = (item) => {
         this.actRefreshingTokenIfNecessary(deleteElement)(item.id)
             .then(() => {
-                this.setState(prevState => {
-                    const itemPos = prevState.trackedItems.indexOf(item);
-                    prevState.trackedItems.splice(itemPos, 1);
-                    return prevState;
-                })
-            })
-            .catch(error => {
-                console.log(error);
+                this.props.deleteTrackedItem(item)
             });
     }
 
@@ -135,52 +108,23 @@ class AppContainer extends Component {
         const timeBucket = `${now.getFullYear()}-${month < 10 ? '0' + month : month}-${day < 10 ? '0' + day : day}`;
         this.actRefreshingTokenIfNecessary(addTrackEntry)(timeBucket, itemId)
             .then(data => {
-                this.setState(prevState => {
-                    prevState.trackEntries = [...prevState.trackEntries, data];
-                    return prevState;
-                })
-            })
-            .catch(error => {
-                console.log(error);
+                this.props.addTrackEntries([data])
             });
     }
 
     applyEntriesChanging = (trackEntriesToAdd, trackEntriesToRemove) => {
         this.actRefreshingTokenIfNecessary(bulkUpdateTrackEntries)(this.props.auth.access, trackEntriesToAdd, trackEntriesToRemove)
             .then(() => {
-                this.setState(prevState => {
-                    trackEntriesToAdd.forEach(({item, timeBucket}) => {
-                        const entryPos = prevState.trackEntries.findIndex(
-                            ({item: currentItem, timeBucket: currentTimeBucket}) => {
-                            return currentItem === item && currentTimeBucket === timeBucket;
-                        });
-                        if (entryPos === -1) {
-                            prevState.trackEntries.push({timeBucket, item});
-                        }
-                    });
-                    trackEntriesToRemove.forEach(({item, timeBucket}) => {
-                        const entryPos = prevState.trackEntries.findIndex(
-                            ({item: currentItem, timeBucket: currentTimeBucket}) => {
-                            return currentItem === item && currentTimeBucket === timeBucket;
-                        });
-                        if (entryPos !== -1) {
-                            prevState.trackEntries.splice(entryPos, 1);
-                        }
-                    });
-                    return prevState;
-                })
-                console.log('save results', trackEntriesToAdd, trackEntriesToRemove);
-            })
-            .catch(error => {
-                console.log(error);
+                this.props.addTrackEntries(trackEntriesToAdd)
+                this.props.deleteTrackEntries(trackEntriesToRemove)
             })
     }
 
     render() {
         return <App
             populateStateIfNecessary={this.populateStateIfNecessary}
-            trackedItems={this.state.trackedItems}
-            trackEntries={this.state.trackEntries}
+            trackedItems={this.props.trackedItems}
+            trackEntries={this.props.trackEntries}
             isAuthenticated={this.props.isAuthenticated}
             onElementCreation={this.onElementCreation}
             onTrackEntryAddition={this.onTrackEntryAddition}
@@ -197,6 +141,9 @@ class AppContainer extends Component {
 const mapStateToProps = state => ({
     auth: state.auth,
     isAuthenticated: state.auth.refresh != null,
+    trackedItems: state.data.trackedItems,
+    trackEntries: state.data.trackEntries,
+    needToFetchData: state.data.needToFetchData,
 })
 
 const mapDispatchToProps = dispatch => ({
@@ -206,6 +153,13 @@ const mapDispatchToProps = dispatch => ({
     removeAuthTokens: () => dispatch(removeAuthTokens()),
     authenticate: (username, password) => dispatch(authenticate(username, password)),
     refreshAccess: refresh => dispatch(refreshAccess(refresh)),
+    populateData: (trackedItems, trackEntries) => dispatch(populateData(trackedItems, trackEntries)),
+    clearData: () => dispatch(clearData()),
+    appendTrackedItem: item => dispatch(appendTrackedItem(item)),
+    deleteTrackedItem: item => dispatch(deleteTrackedItem(item)),
+    addTrackEntries: entries => dispatch(addTrackEntries(entries)),
+    deleteTrackEntries: entries => dispatch(deleteTrackEntries(entries)),
+    noNeedForDataAnymore: () => dispatch(noNeedForDataAnymore())    
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(AppContainer)

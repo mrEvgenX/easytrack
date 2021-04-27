@@ -48,7 +48,6 @@ const showTokenRefreshError = error => ({
     payload: error,
 })
 
-
 // operations
 
 export const authenticate = (username, password) => async dispatch => {
