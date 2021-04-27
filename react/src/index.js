@@ -5,6 +5,7 @@ import AppContainer from './AppContainer';
 import 'bulma/css/bulma.css';
 import {combineReducers, createStore, applyMiddleware} from 'redux';
 import {logger} from 'redux-logger';
+import thunk from 'redux-thunk';
 import {Provider} from 'react-redux';
 import {authReducer} from './redux/auth';
 
@@ -12,7 +13,7 @@ const store = createStore(
   combineReducers({
     auth: authReducer
   }),
-  applyMiddleware(logger)
+  applyMiddleware(thunk, logger)
 );
 
 ReactDOM.render(

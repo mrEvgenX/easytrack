@@ -3,13 +3,13 @@ import React, {
 } from 'react';
 import {connect} from 'react-redux';
 import {
-    populateState, refreshAccess, createNewUser, requestAndStoreCredentials,
+    populateState, refreshAccess, createNewUser,
     createElement, addTrackEntry, deleteElement, bulkUpdateTrackEntries,
     AccessTokenExpiredError
 } from './asyncOperations';
 import { UserAlreadyExists, RegistrationFormValidationError, EmailNotVerified } from './exceptions'
 import App from './App';
-import {storeAuthTokens, storeRefreshedToken, showAuthError, removeAuthTokens} from './redux/auth';
+import {storeAuthTokens, storeRefreshedToken, showAuthError, removeAuthTokens, authenticate} from './redux/auth';
 
 
 function actRefreshingTokenIfNecessary(func, refreshToken, accessRefresher) {
@@ -61,16 +61,12 @@ class AppContainer extends Component {
     }
 
     onLogin = async (username, password) => {
-        try {
-            const loginData = await requestAndStoreCredentials(username, password);
-            this.props.storeAuthTokens(loginData.refresh, loginData.access);
+        await this.props.authenticate(username, password);
+        if (this.props.auth.error != null) {
             this.setState({
                 needToFetchData: true,
             });
             return true;
-        } catch (error) {
-            this.props.showAuthError(error);
-            console.log(error);
         }
         return false;
     }
@@ -218,6 +214,7 @@ const mapDispatchToProps = dispatch => ({
     storeRefreshedToken: access => dispatch(storeRefreshedToken(access)),
     showAuthError: error => dispatch(showAuthError(error)),
     removeAuthTokens: () => dispatch(removeAuthTokens()),
+    authenticate: (username, password) => dispatch(authenticate(username, password))
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(AppContainer)

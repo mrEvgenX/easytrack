@@ -48,35 +48,6 @@ export function populateState(accessToken) {
 }
 
 
-export function requestAndStoreCredentials(username, password) {
-    return new Promise((resolve, reject) => {
-        fetch(
-            baseAPIUrl + 'auth/token/obtain', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json;charset=utf-8',
-            },
-            body: JSON.stringify({
-                username,
-                password
-            })
-        })
-            .then(response => {
-                if (!response.ok)
-                    throw new Error(response.status);
-                return response;
-            })
-            .then(response => response.json())
-            .then(data => {
-                resolve(data);
-            })
-            .catch(error => {
-                reject(error);
-            });
-    });
-}
-
-
 export function refreshAccess(refreshToken) {
     return new Promise((resolve, reject) => {
         fetch(
