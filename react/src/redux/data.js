@@ -1,7 +1,6 @@
 // types
 
 // const START_POPULATING_DATA = 'easytrack/data/START_POPULATING_DATA'
-const RESET_NEED_TO_FETCH_DATA_FLAG = 'ELLIMINATE IT LATER/RESET_NEED_TO_FETCH_DATA_FLAG'
 const POPULATE_DATA = 'easytrack/data/POPULATE_ITEMS'
 const CLEAR_DATA = 'easytrack/data/CLEAR_DATA'
 const APPEND_TRACKED_ITEM = 'easytrack/data/APPEND_TRACKED_ITEM'
@@ -14,10 +13,6 @@ const DELETE_TRACK_ENTRIES = 'easytrack/data/DELETE_TRACK_ENTRIES'
 // const startPopulatingData = () => ({
 //     type: START_POPULATING_DATA,
 // })
-
-export function noNeedForDataAnymore() {
-    return {type: RESET_NEED_TO_FETCH_DATA_FLAG}
-}
 
 export const populateData = (trackedItems, trackEntries) => ({
     type: POPULATE_DATA,
@@ -58,7 +53,6 @@ export const deleteTrackEntries = entries => ({
 // reducers
 
 const initialState = {
-    needToFetchData: true,
     trackedItems: [],
     trackEntries: [],
 }
@@ -71,22 +65,15 @@ export const dataReducer = (state = initialState, action) => {
         //         ...state,
         //         loading: true,
         //     }
-        case RESET_NEED_TO_FETCH_DATA_FLAG:
-            return {
-                ...state,
-                needToFetchData: false,
-            }
         case POPULATE_DATA:
             return {
                 ...state,
-                needToFetchData: false,
                 trackedItems: payload.trackedItems,
                 trackEntries: payload.trackEntries,
             }
         case CLEAR_DATA:
             return {
                 ...state,
-                needToFetchData: true,
                 trackedItems: [],
                 trackEntries: [],
             }

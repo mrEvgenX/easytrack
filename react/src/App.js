@@ -7,11 +7,11 @@ import {
 } from 'react-router-dom';
 import './App.css';
 import HeaderBlock from './containers/HeaderBlock';
-import ItemsListStat from './components/ItemsListStat';
+import ItemsListStat from './containers/ItemsListStat';
 import Login from './containers/Login';
 import Register from './components/auth/Register';
 import WelcomeBlock from './components/WelcomeBlock';
-import Main from './components/Main';
+import Main from './containers/Main';
 import EmailConfirmation from './components/EmailConfirmation';
 
 
@@ -53,8 +53,6 @@ function NotFoundPage() {
 export default function App(props) {
     const {
         populateStateIfNecessary,
-        trackedItems,
-        trackEntries,
         isAuthenticated,
         onElementCreation,
         onTrackEntryAddition,
@@ -70,8 +68,6 @@ export default function App(props) {
                     <PrivateRoute isAuthenticated={isAuthenticated} exact path="/" render={
                         () => <Main
                             populateStateIfNecessary={populateStateIfNecessary}
-                            trackedItems={trackedItems}
-                            trackEntries={trackEntries}
                             onElementCreation={onElementCreation}
                             onTrackEntryAddition={onTrackEntryAddition}
                             onElementDelete={onElementDelete} />
@@ -79,8 +75,6 @@ export default function App(props) {
                     <PrivateRoute isAuthenticated={isAuthenticated} exact path="/statistics" render={
                         () => <ItemsListStat
                             populateStateIfNecessary={populateStateIfNecessary}
-                            trackedItems={trackedItems}
-                            trackEntries={trackEntries}
                             applyEntriesChanging={applyEntriesChanging} />
                     }
                     />

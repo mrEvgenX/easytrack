@@ -1,22 +1,26 @@
 import React, { useEffect } from 'react';
-import itemSettingsPopup from './ItemSettingsPopup';
-import Item from './Item';
-import ItemsList from './ItemsList';
+import {useSelector} from 'react-redux'
+import itemSettingsPopup from '../components/ItemSettingsPopup';
+import Item from '../components/Item';
+import ItemsList from '../components/ItemsList';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 
 
-export default function Main(props) {
-    const { 
+const Main = props => {
+    const {
         populateStateIfNecessary,
-        trackedItems, trackEntries,
         onElementCreation,
         onTrackEntryAddition,
         onElementDelete
     } = props;
+    const trackedItems = useSelector(state => state.data.trackedItems)
+    const trackEntries = useSelector(state => state.data.trackEntries)
+
     useEffect(() => {
         populateStateIfNecessary();
-    });
+    }, [populateStateIfNecessary]);
+    
     let itemsToBeDisplayed = trackedItems;
     const now = new Date();
     const month = now.getMonth() + 1;
@@ -43,3 +47,5 @@ export default function Main(props) {
         </ItemsList>
     </>)
 }
+
+export default Main

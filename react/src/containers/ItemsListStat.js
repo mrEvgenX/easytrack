@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
-import { StatTable, StatTableHeader, StatTableHeaderCell, StatTableRow, StatTableRowCell } from './StatTable';
+import {connect} from 'react-redux'
+import { StatTable, StatTableHeader, StatTableHeaderCell, StatTableRow, StatTableRowCell } from '../components/StatTable';
 import DatePicker from "react-datepicker";
 
 import "react-datepicker/dist/react-datepicker.css";
 
 
 // TODO надо унаследовать свойства ItemsList
-export default class ItemsListStat extends Component {
+class ItemsListStat extends Component {
 
     constructor(props) {
         super(props);
@@ -189,3 +190,12 @@ export default class ItemsListStat extends Component {
         );
     }
 }
+
+
+const mapStateToProps = state => ({
+    trackedItems: state.data.trackedItems,
+    trackEntries: state.data.trackEntries,
+})
+
+
+export default connect(mapStateToProps)(ItemsListStat)

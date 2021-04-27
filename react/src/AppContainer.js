@@ -9,7 +9,7 @@ import {
 import { UserAlreadyExists, RegistrationFormValidationError, EmailNotVerified } from './exceptions'
 import App from './App';
 import {refreshAccess} from './redux/auth'
-import {populateData, clearData, appendTrackedItem, deleteTrackedItem, addTrackEntries, deleteTrackEntries, noNeedForDataAnymore} from './redux/data'
+import {populateData, appendTrackedItem, deleteTrackedItem, addTrackEntries, deleteTrackEntries} from './redux/data'
 import jwtDecode from 'jwt-decode'
 
 
@@ -32,10 +32,7 @@ class AppContainer extends Component {
     }
 
     populateStateIfNecessary = () => {
-        if (
-            this.props.isAuthenticated && this.props.needToFetchData
-        ) {
-            this.props.noNeedForDataAnymore()
+        if (this.props.isAuthenticated) {
             this.actRefreshingTokenIfNecessary(populateState)()
                 .then(data => {
                     if (data !== null) {
@@ -106,8 +103,6 @@ class AppContainer extends Component {
     render() {
         return <App
             populateStateIfNecessary={this.populateStateIfNecessary}
-            trackedItems={this.props.trackedItems}
-            trackEntries={this.props.trackEntries}
             isAuthenticated={this.props.isAuthenticated}
             onElementCreation={this.onElementCreation}
             onTrackEntryAddition={this.onTrackEntryAddition}
@@ -122,20 +117,15 @@ class AppContainer extends Component {
 const mapStateToProps = state => ({
     auth: state.auth,
     isAuthenticated: state.auth.refresh != null,
-    trackedItems: state.data.trackedItems,
-    trackEntries: state.data.trackEntries,
-    needToFetchData: state.data.needToFetchData,
 })
 
 const mapDispatchToProps = dispatch => ({
     refreshAccess: refresh => dispatch(refreshAccess(refresh)),
     populateData: (trackedItems, trackEntries) => dispatch(populateData(trackedItems, trackEntries)),
-    clearData: () => dispatch(clearData()),
     appendTrackedItem: item => dispatch(appendTrackedItem(item)),
     deleteTrackedItem: item => dispatch(deleteTrackedItem(item)),
     addTrackEntries: entries => dispatch(addTrackEntries(entries)),
     deleteTrackEntries: entries => dispatch(deleteTrackEntries(entries)),
-    noNeedForDataAnymore: () => dispatch(noNeedForDataAnymore())    
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(AppContainer)
