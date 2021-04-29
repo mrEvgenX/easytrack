@@ -1,9 +1,10 @@
 import React from 'react'
 import {Redirect} from 'react-router-dom';
 import {useSelector, useDispatch} from 'react-redux'
-import LoginComponent from '../components/auth/Login';
+import LoginComponent from '../components/auth/Login'
 import {authenticate} from '../redux/auth'
 import {clearData} from '../redux/data'
+import './SignInSignUpForm.css'
 
 
 const Login = () => {

@@ -1,10 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect } from 'react'
+import { Redirect } from 'react-router-dom'
 import {useSelector} from 'react-redux'
-import itemSettingsPopup from '../components/ItemSettingsPopup';
-import Item from '../components/Item';
-import ItemsList from '../components/ItemsList';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlusCircle } from '@fortawesome/free-solid-svg-icons';
+import itemSettingsPopup from '../components/ItemSettingsPopup'
+import Item from '../components/Item'
+import ItemsList from '../components/ItemsList'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faPlusCircle } from '@fortawesome/free-solid-svg-icons'
 
 
 const Main = props => {
@@ -16,10 +17,17 @@ const Main = props => {
     } = props;
     const trackedItems = useSelector(state => state.data.trackedItems)
     const trackEntries = useSelector(state => state.data.trackEntries)
-
+    const isAuthenticated = useSelector(state => state.auth.refresh != null)
+    
     useEffect(() => {
-        populateStateIfNecessary();
-    }, [populateStateIfNecessary]);
+        if (isAuthenticated) {
+            populateStateIfNecessary();
+        }
+    }, [populateStateIfNecessary, isAuthenticated]);
+
+    if (!isAuthenticated) {
+        return <Redirect to="/welcome" />;
+    }
     
     let itemsToBeDisplayed = trackedItems;
     const now = new Date();

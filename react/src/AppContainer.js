@@ -3,10 +3,9 @@ import React, {
 } from 'react';
 import {connect} from 'react-redux';
 import {
-    populateState, createNewUser,
+    populateState,
     createElement, addTrackEntry, deleteElement, bulkUpdateTrackEntries,
 } from './asyncOperations';
-import { UserAlreadyExists, RegistrationFormValidationError, EmailNotVerified } from './exceptions'
 import App from './App';
 import {refreshAccess} from './redux/auth'
 import {populateData, appendTrackedItem, deleteTrackedItem, addTrackEntries, deleteTrackEntries} from './redux/data'
@@ -32,39 +31,12 @@ class AppContainer extends Component {
     }
 
     populateStateIfNecessary = () => {
-        if (this.props.isAuthenticated) {
-            this.actRefreshingTokenIfNecessary(populateState)()
-                .then(data => {
-                    if (data !== null) {
-                        this.props.populateData(data.trackedItems, data.trackEntries)
-                    }
-                });
-        }
-    }
-
-    onRegister = async (login, password) => {
-        let result = {
-            userAlreadyExists: false,
-            emailNotVerified: false,
-            notValidForm: false,
-            registrationSucceeded: false
-        }
-        try {
-            await createNewUser(login, password);
-            result.registrationSucceeded = true;
-        } catch(error) {
-            if (error instanceof RegistrationFormValidationError) {
-                result.notValidForm = true;
-            } else if (error instanceof UserAlreadyExists) {
-                result.userAlreadyExists = true;
-            } else if (error instanceof EmailNotVerified) {
-                result.registrationSucceeded = true;
-                result.emailNotVerified = true;
-            } else {
-                throw error;
-            }
-        }
-        return result;
+        this.actRefreshingTokenIfNecessary(populateState)()
+            .then(data => {
+                if (data !== null) {
+                    this.props.populateData(data.trackedItems, data.trackEntries)
+                }
+            });
     }
 
     onElementCreation = (name) => {
@@ -103,12 +75,10 @@ class AppContainer extends Component {
     render() {
         return <App
             populateStateIfNecessary={this.populateStateIfNecessary}
-            isAuthenticated={this.props.isAuthenticated}
             onElementCreation={this.onElementCreation}
             onTrackEntryAddition={this.onTrackEntryAddition}
             onElementDelete={this.onElementDelete}
             applyEntriesChanging={this.applyEntriesChanging}
-            onRegister={this.onRegister}
             />;
     }
 
@@ -116,7 +86,6 @@ class AppContainer extends Component {
 
 const mapStateToProps = state => ({
     auth: state.auth,
-    isAuthenticated: state.auth.refresh != null,
 })
 
 const mapDispatchToProps = dispatch => ({

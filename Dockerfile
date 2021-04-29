@@ -1,4 +1,4 @@
-FROM phusion/baseimage:bionic-1.0.0
+FROM phusion/baseimage:focal-1.0.0-alpha1-amd64
 
 RUN apt-get -y update && \
     apt-get install -qy nginx postgresql-client python3 python3-pip && \

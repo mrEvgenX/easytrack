@@ -1,4 +1,5 @@
-import React, { Component } from 'react';
+import React, { Component } from 'react'
+import { Redirect } from 'react-router-dom'
 import {connect} from 'react-redux'
 import { StatTable, StatTableHeader, StatTableHeaderCell, StatTableRow, StatTableRowCell } from '../components/StatTable';
 import DatePicker from "react-datepicker";
@@ -113,7 +114,12 @@ class ItemsListStat extends Component {
     }
 
     render() {
-        const { trackedItems, trackEntries } = this.props;
+        const { trackedItems, trackEntries, isAuthenticated } = this.props;
+        
+        if (!isAuthenticated) {
+            return <Redirect to="/welcome" />;
+        }
+
         const dates = [...this.iterateDaysBetweenDates()];
         let content = new Map()
         trackedItems.forEach(({ id, name }) => {
@@ -195,6 +201,7 @@ class ItemsListStat extends Component {
 const mapStateToProps = state => ({
     trackedItems: state.data.trackedItems,
     trackEntries: state.data.trackEntries,
+    isAuthenticated: state.auth.refresh != null,
 })
 
 

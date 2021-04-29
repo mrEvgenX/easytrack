@@ -33,6 +33,7 @@ Third tab:
 - Install docker and docker-compose
 - pip install -r requirements.dev.txt  # once
 - export DJANGO_SETTINGS_MODULE=config.settings_prod
+- cd react && yarn install && cd ..
 - ./build_release.sh
 
 Create .env file and define the following environment variables:

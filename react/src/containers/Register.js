@@ -1,9 +1,32 @@
-import React, { Component } from 'react';
-import { Redirect } from 'react-router-dom';
-import './SignInSignUpForm.css';
+import React, { Component } from 'react'
+import {connect, useSelector} from 'react-redux'
+import { Redirect } from 'react-router-dom'
+import { createNewUser } from '../asyncOperations'
+import { UserAlreadyExists, RegistrationFormValidationError, EmailNotVerified } from '../exceptions'
+import './SignInSignUpForm.css'
 
 
-export default class Register extends Component {
+export const OneMoreStep = () => {
+    // TODO надо никогда не пускать на эту страницу, если только что не завершалась регистрация
+    const isAuthenticated = useSelector(state => state.auth.refresh != null)
+    if (isAuthenticated) {
+        return <Redirect to="/" />;
+    }
+    return <h2>Вам направлено письмо с инструкцией для завершения регистрации.</h2>
+}
+
+
+export const AwaitActivationByAdmin = () => {
+    // TODO надо никогда не пускать на эту страницу, если только что не завершалась регистрация
+    const isAuthenticated = useSelector(state => state.auth.refresh != null)
+    if (isAuthenticated) {
+        return <Redirect to="/" />;
+    }
+    return <h2>Заявка на регистрацию направлена администратору, скоро он примет решение по поводу ее одобрения.</h2>
+}
+
+
+class Register extends Component {
 
     constructor(props) {
         super(props);
@@ -27,7 +50,6 @@ export default class Register extends Component {
 
     handleRegisterClick = e => {
         e.preventDefault();
-        const { onRegister } = this.props;
         const { login, password, passwordRepeat } = this.state;
         if (login === '' || password === '' || passwordRepeat === '') {
             this.setState({ requiredFieldsNotFilled: true, passwordsMatchFailed: false  });
@@ -36,7 +58,7 @@ export default class Register extends Component {
                 this.setState({ requiredFieldsNotFilled: false, passwordsMatchFailed: true  });
             } else {
                 this.setState({ requiredFieldsNotFilled: false, passwordsMatchFailed: false });
-                onRegister(login, password)
+                this.onRegister(login, password)
                     .then(data => this.setState({ ...data }))
                     .catch(error => {
                         this.setState({ registrationUnexpectedlyFailed: true });
@@ -46,7 +68,35 @@ export default class Register extends Component {
         }
     }
 
+    onRegister = async (login, password) => {
+        let result = {
+            userAlreadyExists: false,
+            emailNotVerified: false,
+            notValidForm: false,
+            registrationSucceeded: false
+        }
+        try {
+            await createNewUser(login, password);
+            result.registrationSucceeded = true;
+        } catch(error) {
+            if (error instanceof RegistrationFormValidationError) {
+                result.notValidForm = true;
+            } else if (error instanceof UserAlreadyExists) {
+                result.userAlreadyExists = true;
+            } else if (error instanceof EmailNotVerified) {
+                result.registrationSucceeded = true;
+                result.emailNotVerified = true;
+            } else {
+                throw error;
+            }
+        }
+        return result;
+    }
+
     render() {
+        if (this.props.isAuthenticated) {
+            return <Redirect to="/" />;
+        }
         const { requiredFieldsNotFilled, passwordsMatchFailed, notValidForm, userAlreadyExists, emailNotVerified, registrationUnexpectedlyFailed, registrationSucceeded } = this.state;
         if (registrationSucceeded) {
             if (emailNotVerified) {
@@ -88,3 +138,9 @@ export default class Register extends Component {
         );
     }
 }
+
+const mapStateToProps = state => ({
+    isAuthenticated: state.auth.refresh != null,
+})
+
+export default connect(mapStateToProps)(Register)
