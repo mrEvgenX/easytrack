@@ -1,3 +1,8 @@
+import { AccessTokenExpiredError } from '../exceptions';
+
+const baseAPIUrl = '/api/v1/';
+
+
 // types
 
 // const START_POPULATING_DATA = 'easytrack/data/START_POPULATING_DATA'
@@ -48,7 +53,58 @@ export const deleteTrackEntries = entries => ({
 
 // operations
 
-// ...
+export const fetchAndPopulateData = (access) => async dispatch => {
+    console.log('fetchAndPopulateData')
+    try {
+        console.log('fetchAndPopulateData')
+        const responses = await Promise.all(
+            [baseAPIUrl + 'items', baseAPIUrl + 'entries'].map(
+                url => fetch(
+                    url, 
+                    {
+                        headers: {
+                            'Content-Type': 'application/json;charset=utf-8',
+                            'Authorization': `Bearer ${access}`
+                        }
+                    }
+                )
+            )
+        )
+        if (responses.some(response => response.status === 401)) {
+            throw new AccessTokenExpiredError()
+        } else if (responses.some(response => !response.ok)) {
+            throw new Error('Something went wrong')
+        }
+        const [trackedItems, trackEntries] = await Promise.all(responses.map(response => response.json()))
+        dispatch(populateData(trackedItems, trackEntries))
+    } catch (error) {
+        //
+    }
+}
+
+export const createElement = (access, name) => async dispatch => {
+    try {
+        const response = await fetch(
+            baseAPIUrl + 'items', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8',
+                'Authorization': `Bearer ${access}`
+            },
+            body: JSON.stringify({ name })
+        })
+        if (response.status === 401) {
+            throw new AccessTokenExpiredError();
+        }
+        const data = await response.json()
+        if (!response.ok) {
+            throw new Error(response.status + ': ' + JSON.stringify(data));
+        }
+        dispatch(appendTrackedItem(data))
+    } catch (error) {
+        //
+    }
+}
 
 // reducers
 

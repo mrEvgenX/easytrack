@@ -64,9 +64,10 @@ export const authenticate = (username, password) => async dispatch => {
                 password
             })
         })
-        if (!response.ok)
-            throw new Error(response.status);
         const data = await response.json()
+        if (!response.ok){
+            throw new Error(response.status + ': ' + JSON.stringify(data))
+        }
         dispatch(storeAuthTokens(data.refresh, data.access))
     } catch (error) {
         dispatch(showAuthError(error))
@@ -84,9 +85,10 @@ export const refreshAccess = refresh => async dispatch => {
             },
             body: JSON.stringify({refresh})
         })
-        if (!response.ok)
-            throw new Error(response.status)
         const data = await response.json()
+        if (!response.ok) {
+            throw new Error(response.status + ': ' + JSON.stringify(data))
+        }
         dispatch(storeRefreshedToken(data.access))
     } catch (error) {
         dispatch(showTokenRefreshError(error))

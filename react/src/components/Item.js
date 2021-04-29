@@ -8,7 +8,11 @@ export default function Item(props) {
     const [ modalVisible, setModalVisible ] = useState(false);
     const trackElement = _ => {
         if (!checkedToday) {
-            onTrack(item.id);
+            const now = new Date();
+            const month = now.getMonth() + 1;
+            const day = now.getDate();
+            const timeBucket = `${now.getFullYear()}-${month < 10 ? '0' + month : month}-${day < 10 ? '0' + day : day}`;
+            onTrack(timeBucket, item.id);
         }
     }
     const handleDeletion = _ => {

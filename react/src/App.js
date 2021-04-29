@@ -1,9 +1,10 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import {
     BrowserRouter,
     Switch,
     Route,
 } from 'react-router-dom'
+import {useSelector} from 'react-redux'
 import './App.css'
 import HeaderBlock from './containers/HeaderBlock'
 import ItemsListStat from './containers/ItemsListStat'
@@ -23,6 +24,14 @@ export default function App(props) {
         onElementDelete,
         applyEntriesChanging,
     } = props
+    const isAuthenticated = useSelector(state => state.auth.refresh != null)
+    
+    useEffect(() => {
+        if (isAuthenticated) {
+            populateStateIfNecessary();
+        }
+    }, [populateStateIfNecessary, isAuthenticated]);
+
     return (
         <BrowserRouter>
             <div className="App" >
@@ -30,14 +39,12 @@ export default function App(props) {
                 <Switch>
                     <Route exact path="/" render={
                         () => <Main
-                            populateStateIfNecessary={populateStateIfNecessary}
                             onElementCreation={onElementCreation}
                             onTrackEntryAddition={onTrackEntryAddition}
                             onElementDelete={onElementDelete} />
                     } />
                     <Route exact path="/statistics" render={
                         () => <ItemsListStat
-                            populateStateIfNecessary={populateStateIfNecessary}
                             applyEntriesChanging={applyEntriesChanging} />
                     }
                     />

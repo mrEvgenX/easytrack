@@ -3,12 +3,11 @@ import React, {
 } from 'react';
 import {connect} from 'react-redux';
 import {
-    populateState,
-    createElement, addTrackEntry, deleteElement, bulkUpdateTrackEntries,
+    addTrackEntry, deleteElement, bulkUpdateTrackEntries,
 } from './asyncOperations';
 import App from './App';
 import {refreshAccess} from './redux/auth'
-import {populateData, appendTrackedItem, deleteTrackedItem, addTrackEntries, deleteTrackEntries} from './redux/data'
+import {fetchAndPopulateData, createElement, deleteTrackedItem, addTrackEntries, deleteTrackEntries} from './redux/data'
 import jwtDecode from 'jwt-decode'
 
 
@@ -31,19 +30,11 @@ class AppContainer extends Component {
     }
 
     populateStateIfNecessary = () => {
-        this.actRefreshingTokenIfNecessary(populateState)()
-            .then(data => {
-                if (data !== null) {
-                    this.props.populateData(data.trackedItems, data.trackEntries)
-                }
-            });
+        this.actRefreshingTokenIfNecessary(this.props.fetchAndPopulateData)()
     }
 
     onElementCreation = (name) => {
-        this.actRefreshingTokenIfNecessary(createElement)(name)
-            .then(data => {
-                this.props.appendTrackedItem(data)
-            });
+        this.actRefreshingTokenIfNecessary(this.props.createElement)(name)
     }
 
     onElementDelete = (item) => {
@@ -53,11 +44,7 @@ class AppContainer extends Component {
             });
     }
 
-    onTrackEntryAddition = (itemId) => {
-        const now = new Date();
-        const month = now.getMonth() + 1;
-        const day = now.getDate();
-        const timeBucket = `${now.getFullYear()}-${month < 10 ? '0' + month : month}-${day < 10 ? '0' + day : day}`;
+    onTrackEntryAddition = (timeBucket, itemId) => {
         this.actRefreshingTokenIfNecessary(addTrackEntry)(timeBucket, itemId)
             .then(data => {
                 this.props.addTrackEntries([data])
@@ -90,8 +77,8 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
     refreshAccess: refresh => dispatch(refreshAccess(refresh)),
-    populateData: (trackedItems, trackEntries) => dispatch(populateData(trackedItems, trackEntries)),
-    appendTrackedItem: item => dispatch(appendTrackedItem(item)),
+    fetchAndPopulateData: (access) => dispatch(fetchAndPopulateData(access)),
+    createElement: (access, name) => dispatch(createElement(access, name)),
     deleteTrackedItem: item => dispatch(deleteTrackedItem(item)),
     addTrackEntries: entries => dispatch(addTrackEntries(entries)),
     deleteTrackEntries: entries => dispatch(deleteTrackEntries(entries)),
