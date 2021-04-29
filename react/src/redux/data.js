@@ -106,6 +106,27 @@ export const createElement = (access, name) => async dispatch => {
     }
 }
 
+export const deleteElement = (access, item) => async dispatch => {
+    const response = await fetch(
+        baseAPIUrl + 'items/' + item.id,
+        {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8',
+                'Authorization': `Bearer ${access}`
+            },
+        }
+    );
+    if (response.status === 401) {
+        throw new AccessTokenExpiredError();
+    }
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(response.status + ': ' + JSON.stringify(error));
+    }
+    dispatch(deleteTrackedItem(item))
+}
+
 // reducers
 
 const initialState = {

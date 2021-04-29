@@ -3,11 +3,11 @@ import React, {
 } from 'react';
 import {connect} from 'react-redux';
 import {
-    addTrackEntry, deleteElement, bulkUpdateTrackEntries,
+    addTrackEntry, bulkUpdateTrackEntries,
 } from './asyncOperations';
 import App from './App';
 import {refreshAccess} from './redux/auth'
-import {fetchAndPopulateData, createElement, deleteTrackedItem, addTrackEntries, deleteTrackEntries} from './redux/data'
+import {fetchAndPopulateData, createElement, deleteElement, addTrackEntries, deleteTrackEntries} from './redux/data'
 import jwtDecode from 'jwt-decode'
 
 
@@ -38,10 +38,7 @@ class AppContainer extends Component {
     }
 
     onElementDelete = (item) => {
-        this.actRefreshingTokenIfNecessary(deleteElement)(item.id)
-            .then(() => {
-                this.props.deleteTrackedItem(item)
-            });
+        this.actRefreshingTokenIfNecessary(this.props.deleteElement)(item)
     }
 
     onTrackEntryAddition = (timeBucket, itemId) => {
@@ -79,7 +76,7 @@ const mapDispatchToProps = dispatch => ({
     refreshAccess: refresh => dispatch(refreshAccess(refresh)),
     fetchAndPopulateData: (access) => dispatch(fetchAndPopulateData(access)),
     createElement: (access, name) => dispatch(createElement(access, name)),
-    deleteTrackedItem: item => dispatch(deleteTrackedItem(item)),
+    deleteElement: (access, item) => dispatch(deleteElement(access, item)),
     addTrackEntries: entries => dispatch(addTrackEntries(entries)),
     deleteTrackEntries: entries => dispatch(deleteTrackEntries(entries)),
 })

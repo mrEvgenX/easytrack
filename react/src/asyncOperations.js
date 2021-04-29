@@ -32,27 +32,6 @@ export async function createNewUser(login, password) {
 }
 
 
-export async function deleteElement(accessToken, itemId) {
-    const response = await fetch(
-        baseAPIUrl + 'items/' + itemId,
-        {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json;charset=utf-8',
-                'Authorization': `Bearer ${accessToken}`
-            },
-        }
-    );
-    if (response.status === 401) {
-        throw new AccessTokenExpiredError();
-    }
-    if (!response.ok) {
-        const error = await response.json();
-        throw new Error(response.status + ': ' + JSON.stringify(error));
-    }
-}
-
-
 export async function addTrackEntry(accessToken, timeBucket, itemId) {
     const response = await fetch(
         baseAPIUrl + 'entries',
