@@ -2,12 +2,9 @@ import React, {
     Component
 } from 'react';
 import {connect} from 'react-redux';
-import {
-    addTrackEntry, bulkUpdateTrackEntries,
-} from './asyncOperations';
 import App from './App';
 import {refreshAccess} from './redux/auth'
-import {fetchAndPopulateData, createElement, deleteElement, addTrackEntries, deleteTrackEntries} from './redux/data'
+import {fetchAndPopulateData, createElement, deleteElement, addTrackEntry, bulkUpdateTrackEntries} from './redux/data'
 import jwtDecode from 'jwt-decode'
 
 
@@ -42,18 +39,11 @@ class AppContainer extends Component {
     }
 
     onTrackEntryAddition = (timeBucket, itemId) => {
-        this.actRefreshingTokenIfNecessary(addTrackEntry)(timeBucket, itemId)
-            .then(data => {
-                this.props.addTrackEntries([data])
-            });
+        this.actRefreshingTokenIfNecessary(this.props.addTrackEntry)(timeBucket, itemId)
     }
 
     applyEntriesChanging = (trackEntriesToAdd, trackEntriesToRemove) => {
-        this.actRefreshingTokenIfNecessary(bulkUpdateTrackEntries)(trackEntriesToAdd, trackEntriesToRemove)
-            .then(() => {
-                this.props.addTrackEntries(trackEntriesToAdd)
-                this.props.deleteTrackEntries(trackEntriesToRemove)
-            })
+        this.actRefreshingTokenIfNecessary(this.props.bulkUpdateTrackEntries)(trackEntriesToAdd, trackEntriesToRemove)
     }
 
     render() {
@@ -77,8 +67,8 @@ const mapDispatchToProps = dispatch => ({
     fetchAndPopulateData: (access) => dispatch(fetchAndPopulateData(access)),
     createElement: (access, name) => dispatch(createElement(access, name)),
     deleteElement: (access, item) => dispatch(deleteElement(access, item)),
-    addTrackEntries: entries => dispatch(addTrackEntries(entries)),
-    deleteTrackEntries: entries => dispatch(deleteTrackEntries(entries)),
+    addTrackEntry: (access, timeBucket, itemId) => dispatch(addTrackEntry(access, timeBucket, itemId)),
+    bulkUpdateTrackEntries: (accessToken, add, remove) => dispatch(bulkUpdateTrackEntries(accessToken, add, remove)),
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(AppContainer)

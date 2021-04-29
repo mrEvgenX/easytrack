@@ -25,10 +25,10 @@ export default function App(props) {
         applyEntriesChanging,
     } = props
     const isAuthenticated = useSelector(state => state.auth.refresh != null)
-    
+
     useEffect(() => {
         if (isAuthenticated) {
-            populateStateIfNecessary();
+            populateStateIfNecessary()
         }
     }, [populateStateIfNecessary, isAuthenticated]);
 

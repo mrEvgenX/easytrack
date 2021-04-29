@@ -1,4 +1,4 @@
-import { RegistrationFormValidationError, UserAlreadyExists, EmailNotVerified, AccessTokenExpiredError } from './exceptions';
+import { RegistrationFormValidationError, UserAlreadyExists, EmailNotVerified } from './exceptions';
 
 const baseAPIUrl = '/api/v1/';
 
@@ -29,55 +29,6 @@ export async function createNewUser(login, password) {
         throw new RegistrationFormValidationError('Form not valid');
     }
     return data;
-}
-
-
-export async function addTrackEntry(accessToken, timeBucket, itemId) {
-    const response = await fetch(
-        baseAPIUrl + 'entries',
-        {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json;charset=utf-8',
-                'Authorization': `Bearer ${accessToken}`
-            },
-            body: JSON.stringify({
-                timeBucket,
-                item: itemId
-            })
-        }
-    )
-    if (response.status === 401) {
-        throw new AccessTokenExpiredError();
-    }
-    if (!response.ok) {
-        const error = await response.json();
-        throw new Error(response.status + ': ' + JSON.stringify(error));
-    }
-    return await response.json();
-}
-
-
-export async function bulkUpdateTrackEntries(accessToken, add, remove) {
-    const response = await fetch(
-        baseAPIUrl + 'entries/bulk', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json;charset=utf-8',
-            'Authorization': `Bearer ${accessToken}`
-        },
-        body: JSON.stringify({
-            add, remove
-        })
-    }
-    );
-    if (response.status === 401) {
-        throw new AccessTokenExpiredError();
-    }
-    if (!response.ok) {
-        const error = await response.json()
-        throw new Error(response.status + ': ' + JSON.stringify(error));
-    }
 }
 
 

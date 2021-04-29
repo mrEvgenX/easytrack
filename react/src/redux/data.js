@@ -54,9 +54,7 @@ export const deleteTrackEntries = entries => ({
 // operations
 
 export const fetchAndPopulateData = (access) => async dispatch => {
-    console.log('fetchAndPopulateData')
     try {
-        console.log('fetchAndPopulateData')
         const responses = await Promise.all(
             [baseAPIUrl + 'items', baseAPIUrl + 'entries'].map(
                 url => fetch(
@@ -78,7 +76,7 @@ export const fetchAndPopulateData = (access) => async dispatch => {
         const [trackedItems, trackEntries] = await Promise.all(responses.map(response => response.json()))
         dispatch(populateData(trackedItems, trackEntries))
     } catch (error) {
-        //
+        console.log(error)
     }
 }
 
@@ -125,6 +123,56 @@ export const deleteElement = (access, item) => async dispatch => {
         throw new Error(response.status + ': ' + JSON.stringify(error));
     }
     dispatch(deleteTrackedItem(item))
+}
+
+export const addTrackEntry = (accessToken, timeBucket, itemId) => async dispatch => {
+    const response = await fetch(
+        baseAPIUrl + 'entries',
+        {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8',
+                'Authorization': `Bearer ${accessToken}`
+            },
+            body: JSON.stringify({
+                timeBucket,
+                item: itemId
+            })
+        }
+    )
+    if (response.status === 401) {
+        throw new AccessTokenExpiredError();
+    }
+    const data = await response.json();
+    if (!response.ok) {
+        throw new Error(response.status + ': ' + JSON.stringify(data));
+    }
+    dispatch(addTrackEntries([data]))
+}
+
+
+export const bulkUpdateTrackEntries = (accessToken, add, remove) => async dispatch => {
+    const response = await fetch(
+        baseAPIUrl + 'entries/bulk', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8',
+            'Authorization': `Bearer ${accessToken}`
+        },
+        body: JSON.stringify({
+            add, remove
+        })
+    }
+    );
+    if (response.status === 401) {
+        throw new AccessTokenExpiredError();
+    }
+    if (!response.ok) {
+        const error = await response.json()
+        throw new Error(response.status + ': ' + JSON.stringify(error));
+    }
+    dispatch(addTrackEntries(add))
+    dispatch(deleteTrackEntries(remove))
 }
 
 // reducers
