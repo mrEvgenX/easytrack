@@ -16,9 +16,8 @@ const Login = () => {
         await dispatch(authenticate(username, password))
         if (authError != null) {
             dispatch(clearData())
-            return true
+            throw new Error(authError);
         }
-        return false
     }
 
     if (isAuthenticated) {

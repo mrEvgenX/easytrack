@@ -27,7 +27,10 @@ export default class Login extends Component {
         } else {
             this.setState({requiredFieldsNotFilled: false });
             onLogin(this.state.login, this.state.password)
-                .then(loginSuccessfull => this.setState({ authenticationAttemptFailed: !loginSuccessfull }));
+                .catch(error => {
+                    console.log(error)
+                    this.setState({ authenticationAttemptFailed: true })
+                });
         }
     }
 

@@ -4,6 +4,7 @@ import { Redirect } from 'react-router-dom'
 import { createNewUser } from '../asyncOperations'
 import { UserAlreadyExists, RegistrationFormValidationError, EmailNotVerified } from '../exceptions'
 import './SignInSignUpForm.css'
+import Cookies from 'js-cookie'
 
 
 export const OneMoreStep = () => {
@@ -76,7 +77,7 @@ class Register extends Component {
             registrationSucceeded: false
         }
         try {
-            await createNewUser(login, password);
+            await createNewUser(login, password, Cookies.get('csrftoken'));
             result.registrationSucceeded = true;
         } catch(error) {
             if (error instanceof RegistrationFormValidationError) {

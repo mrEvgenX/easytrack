@@ -3,13 +3,14 @@ import { RegistrationFormValidationError, UserAlreadyExists, EmailNotVerified } 
 const baseAPIUrl = '/api/v1/';
 
 
-export async function createNewUser(login, password) {
+export async function createNewUser(login, password, csrftoken) {
     const response = await fetch(
         baseAPIUrl + 'auth/register',
         {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json;charset=utf-8',
+                'X-CSRFToken': csrftoken,
             },
             body: JSON.stringify({
                 email: login,
@@ -18,15 +19,19 @@ export async function createNewUser(login, password) {
         }
     )
     const data = await response.json();
-    if (!response.ok && response.status === 400) {
-        if ('detail' in data) {
-            if (data.detail.includes('already exists')) {
-                throw new UserAlreadyExists(data.detail);
-            } else if (data.detail.includes('address is not verified')) {
-                throw new EmailNotVerified(data.detail);
+    if (!response.ok) {
+        if (response.status === 400) {
+            if ('detail' in data) {
+                if (data.detail.includes('already exists')) {
+                    throw new UserAlreadyExists(data.detail);
+                } else if (data.detail.includes('address is not verified')) {
+                    throw new EmailNotVerified(data.detail);
+                }
             }
+            throw new RegistrationFormValidationError('Form not valid');
+        } else {
+            throw new Error(response.status + ': ' + JSON.stringify(data));
         }
-        throw new RegistrationFormValidationError('Form not valid');
     }
     return data;
 }
