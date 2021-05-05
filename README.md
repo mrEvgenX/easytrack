@@ -59,6 +59,10 @@ Logging settings:
 
 - DJANGO_LOG_FILE=/var/log/easytrack/easytrack.log
 
+Telegram bot integration settings:
+
+- DJANGO_TELEGRAM_BOT_TOKEN=token
+
 Finally:
 
 - docker-compose up -d

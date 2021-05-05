@@ -169,6 +169,12 @@ LOGGING = {
         'core': {
             'handlers': ['main'],
             'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO')
+        },
+        'telegram': {
+            'handlers': ['main'],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'DEBUG')
         }
     },
 }
+
+TELEGRAM_BOT_TOKEN = os.getenv('DJANGO_TELEGRAM_BOT_TOKEN')

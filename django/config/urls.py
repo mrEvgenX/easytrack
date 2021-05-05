@@ -18,11 +18,13 @@ from django.conf import settings
 from django.urls import path, include
 import core.urls
 import user.urls
+import telegram.urls
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/auth/', include(user.urls, namespace='api.auth')),
+    path('api/v1/telegram/', include(telegram.urls, namespace='api.telegram')),
     path('api/v1/', include(core.urls, namespace='api')),
 ]
 

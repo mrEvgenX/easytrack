@@ -28,3 +28,5 @@ EMAIL_USE_TLS = False
 INTERNAL_IPS = [
     '127.0.0.1',
 ]
+
+TELEGRAM_BOT_TOKEN='token'

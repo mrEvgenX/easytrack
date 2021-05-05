@@ -18,6 +18,9 @@ from .tokens import account_activation_token
 import logging
 
 
+log = logging.getLogger('core')
+
+
 class UserAlreadyExistsError(APIException):
     status_code = 400
     default_detail = 'User with this email is already exists.'
@@ -52,7 +55,7 @@ class RegistrationView(generics.CreateAPIView):
             msg.attach_alternative(html_content, "text/html")
             msg.send()
         except SMTPDataError as e:
-            logging.exception('Error during email sending')
+            log.exception('Error during email sending')
             if 'Email address is not verified' in e.args[1].decode('utf-8'):
                 # Отправить письмо админу c заявкой на активацию аккаунта
                 to = os.getenv('DJANGO_ADMIN_EMAIL', 'admin@localhost')

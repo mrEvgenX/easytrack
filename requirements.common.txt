@@ -4,3 +4,4 @@ djangorestframework==3.11.0
 unidecode==1.1.1
 djangorestframework-simplejwt==4.6.0
 psycopg2-binary==2.8.5
+requests
