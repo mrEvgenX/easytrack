@@ -12,6 +12,7 @@ import Login from './containers/Login'
 import Register, {OneMoreStep, AwaitActivationByAdmin} from './containers/Register'
 import WelcomeBlock from './components/WelcomeBlock'
 import Main from './containers/Main'
+import Settings from './containers/Settings'
 import EmailConfirmation from './components/EmailConfirmation'
 import NotFoundPage from './components/NotFoudPage'
 
@@ -48,6 +49,7 @@ export default function App(props) {
                             applyEntriesChanging={applyEntriesChanging} />
                     }
                     />
+                    <Route exact path="/settings" component={Settings} />
                     <Route exact path="/welcome" component={WelcomeBlock} />
                     <Route exact path="/login" component={Login} />
                     <Route exact path="/register" component={Register} />

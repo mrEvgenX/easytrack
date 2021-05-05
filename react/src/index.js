@@ -9,11 +9,13 @@ import thunk from 'redux-thunk'
 import {Provider} from 'react-redux'
 import {authReducer} from './redux/auth'
 import {dataReducer} from './redux/data'
+import {passwordReducer} from './redux/password'
 
 const store = createStore(
   combineReducers({
     auth: authReducer,
     data: dataReducer,
+    password: passwordReducer,
   }),
   {},
   applyMiddleware(thunk, logger)

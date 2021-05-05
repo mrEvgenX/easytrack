@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 
 export default function HeaderMenu(props) {
     const { isActive, onLogout } = props;
-    const handleClick = (e) => {
+    const handleLogout = (e) => {
         e.preventDefault();
         onLogout()
     }
@@ -15,7 +15,8 @@ export default function HeaderMenu(props) {
                 <Link className="navbar-item" to="/statistics">Статистика</Link>
             </div>
             <div className="navbar-end">
-                <a href="/" className='navbar-item' onClick={handleClick}>Выход</a>
+                <Link className="navbar-item" to="/settings">Настройки</Link>
+                <a href="/" className='navbar-item' onClick={handleLogout}>Выход</a>
             </div>
         </div>
     );
