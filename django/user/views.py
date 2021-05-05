@@ -13,7 +13,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.exceptions import APIException
-from .serializers import CreateUserSerializer
+from .serializers import CreateUserSerializer, ChangePasswordSerializer
 from .tokens import account_activation_token
 import logging
 
@@ -65,6 +65,21 @@ class RegistrationView(generics.CreateAPIView):
                 raise EmailNotVerifiedInAWSSESError()
             else:
                 raise
+
+
+class ChangePasswordView(generics.GenericAPIView):
+    serializer_class = ChangePasswordSerializer
+
+    def post(self, request):
+        user = request.user
+        serializer = self.get_serializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            new_password = serializer.validated_data['new_password']
+            user.set_password(new_password)
+            user.save()
+            return Response(status=204)
+        else:
+            return Response(serializer.errors, status=400)
 
 
 class ConfirmationView(APIView):

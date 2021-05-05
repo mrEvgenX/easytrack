@@ -1,7 +1,7 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 from django.contrib.auth.models import User
-from .views import RegistrationView, ConfirmationView, TokenObtainPairLoginCaseInsensitiveView
+from .views import RegistrationView, ChangePasswordView, ConfirmationView, TokenObtainPairLoginCaseInsensitiveView
 
 
 app_name = 'user'
@@ -9,5 +9,6 @@ urlpatterns = [
     path('token/obtain', TokenObtainPairLoginCaseInsensitiveView.as_view(), name='obtain_token'),
     path('token/refresh', TokenRefreshView.as_view(), name='refresh_token'),
     path('register', RegistrationView.as_view(), name='register'),
+    path('password/change', ChangePasswordView.as_view(), name='change_password'),
     path('confirm/<user_id>/<token>', ConfirmationView.as_view(), name='confirm'),
 ]
