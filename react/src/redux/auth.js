@@ -126,6 +126,8 @@ export const authReducer = (state = initialState, action) => {
             localStorage.setItem('accessToken', payload)
             return {...state, access: payload, refreshing: false}
         case SHOW_TOKEN_REFRESH_ERROR:
+            localStorage.removeItem('refreshToken')
+            localStorage.removeItem('accessToken')
             return {...state, refreshing: false, error: payload}
         default:
             return state

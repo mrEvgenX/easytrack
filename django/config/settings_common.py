@@ -36,6 +36,7 @@ ALLOWED_HOSTS = [
 INSTALLED_APPS = [
     'core',
     'user',
+    'telegram',
     'rest_framework',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -139,6 +140,20 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, '../static')
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    },
+    'user_to_telegram_code': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'TIMEOUT': 3600,
+    },
+    'telegram_code_to_user': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'TIMEOUT': 3600,
+    }
+}
 
 EMAIL_HOST = os.getenv('DJANGO_EMAIL_HOST')
 EMAIL_HOST_USER = os.getenv('DJANGO_EMAIL_HOST_USER')
