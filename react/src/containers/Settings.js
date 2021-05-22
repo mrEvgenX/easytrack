@@ -1,7 +1,57 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import { Redirect } from 'react-router-dom'
 import {useSelector, useDispatch} from 'react-redux'
 import {changePassword} from '../redux/password'
+import TelegramConnection from '../components/settings/TelegramConnection'
+import PasswordChangingForm from '../components/settings/PasswordChangingForm'
+
+
+const obtainTelegramConnectionData = async (access) => {
+    const baseAPIUrl = '/api/v1/';
+    const telegramConnectionStatusResponse = await fetch(
+        baseAPIUrl + 'telegram/connection/status', {
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8',
+            'Authorization': `Bearer ${access}`
+        }
+    })
+    let {
+        connected: connectedStatus,
+        telegram_username: username,
+        telegram_connection_link: connectionLink
+    } = await telegramConnectionStatusResponse.json()
+    if (!connectedStatus && connectionLink == null) {
+        console.log('Need to request telegram connection link')
+        const telegramGenerateLinkResponse = await fetch(
+            baseAPIUrl + 'telegram/connection/generate_link', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8',
+                'Authorization': `Bearer ${access}`
+            }
+        })
+        let telegramGenerateLinkData = await telegramGenerateLinkResponse.json()
+        connectionLink = telegramGenerateLinkData.result
+    }
+    return {
+        connectedStatus,
+        username,
+        connectionLink,
+    }
+}
+
+
+const sendTestTelegramMessage = (access) => {
+    const baseAPIUrl = '/api/v1/';
+    return fetch(
+        baseAPIUrl + 'telegram/test_message/send', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8',
+            'Authorization': `Bearer ${access}`
+        }
+    })
+}
 
 
 const Settings = () => {
@@ -10,57 +60,50 @@ const Settings = () => {
     const passwordChangingInProgress = useSelector(state => state.password.changePassword.inProgress)
     const passwordChangingErrorOccurred = useSelector(state => state.password.changePassword.error != null)
     const dispatch = useDispatch()
-    const [oldPassword, setOldPassword] = useState('')
-    const [newPassword, setNewPassword] = useState('')
-    const [newPasswordRepeat, setNewPasswordRepeat] = useState('')
+    const [obtainingTelegramConnectionData, setObtainingTelegramConnectionData] = useState(false)
+    const [telegramConnected, setTelegramConnectedStatus] = useState()
+    const [telegramUsername, setTelegramUsername] = useState()
+    const [telegramConnectionLink, setTelegramConnectionLink] = useState()
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            setObtainingTelegramConnectionData(true)
+            obtainTelegramConnectionData(access)
+                .then(({connectedStatus, username, connectionLink}) => {
+                    setTelegramConnectedStatus(connectedStatus)
+                    setTelegramUsername(username)
+                    setTelegramConnectionLink(connectionLink)
+                })
+                .catch(error => {
+                    console.log(error)
+                })
+                .finally(() => {
+                    setObtainingTelegramConnectionData(false)
+                })
+        }
+    }, [isAuthenticated, access])
 
     if (!isAuthenticated) {
         return <Redirect to="/welcome" />;
     }
 
-    const onSubmit = (e) => {
-        e.preventDefault()
+    const doPasswordChanging = (oldPassword, newPassword, newPasswordRepeat) => {
         dispatch(changePassword(access, oldPassword, newPassword, newPasswordRepeat))
-            .then(() => {
-                // TODO Почему-то не работает
-                if (!passwordChangingErrorOccurred) {
-                    setOldPassword('')
-                    setNewPassword('')
-                    setNewPasswordRepeat('')
-                }
-
-            })
     }
 
     return (<>
         <div className="container">
             <h2 className="title is-2">Настройки</h2>
-            <h4 className="title is-4">Смена пароля</h4>
-            <form onSubmit={onSubmit}>
-                <div className="field">
-                    <p className="control">
-                        <input className="input" type="password" placeholder="Текущий пароль" value={oldPassword} onChange={(e) => setOldPassword(e.target.value)} />
-                    </p>
-                </div>
-                <div className="field">
-                    <p className="control">
-                        <input className="input" type="password" placeholder="Новый пароль" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
-                    </p>
-                </div>
-                <div className="field">
-                    <p className="control">
-                        <input className="input" type="password" placeholder="Новый пароль еще раз" value={newPasswordRepeat} onChange={(e) => setNewPasswordRepeat(e.target.value)} />
-                    </p>
-                </div>
-                <div className="field">
-                    <p className="control">
-                        <input className="button is-primary" type="submit" value="Сменить пароль" />
-                    </p>
-                </div>
-                {passwordChangingInProgress? <p className="content">Пожалуйста, подождите</p> : null }
-                {/* TODO сделать информативные подсказки о том, что именно не так */}
-                {passwordChangingErrorOccurred? <p className="content">Случилась непредвиденная ошибка</p> : null }
-            </form>
+            <PasswordChangingForm
+                onSubmit={doPasswordChanging}
+                passwordChangingInProgress={passwordChangingInProgress}
+                passwordChangingErrorOccurred={passwordChangingErrorOccurred} />
+            <TelegramConnection
+                loading={obtainingTelegramConnectionData}
+                connected={telegramConnected}
+                telegramUsername={telegramUsername}
+                telegramConnectionLink={telegramConnectionLink}
+                sendTestTelegramMessage={() => sendTestTelegramMessage(access)} />
         </div>
     </>)
 }
