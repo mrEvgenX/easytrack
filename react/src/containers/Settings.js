@@ -54,6 +54,19 @@ const sendTestTelegramMessage = (access) => {
 }
 
 
+const detachTelegramAccount = (access) => {
+    const baseAPIUrl = '/api/v1/';
+    return fetch(
+        baseAPIUrl + 'telegram/connection/detach', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8',
+            'Authorization': `Bearer ${access}`
+        }
+    })
+}
+
+
 const Settings = () => {
     const isAuthenticated = useSelector(state => state.auth.refresh != null)
     const access = useSelector(state => state.auth.access)
@@ -103,7 +116,22 @@ const Settings = () => {
                 connected={telegramConnected}
                 telegramUsername={telegramUsername}
                 telegramConnectionLink={telegramConnectionLink}
-                sendTestTelegramMessage={() => sendTestTelegramMessage(access)} />
+                sendTestTelegramMessage={() => sendTestTelegramMessage(access)}
+                detachTelegramAccount={() => {
+                    return new Promise((resolve, reject) => {
+                        detachTelegramAccount(access)
+                            .then(() => {
+                                setTelegramConnectedStatus(null)
+                                setTelegramUsername(null)
+                                setTelegramConnectionLink(null)
+                                resolve()
+                            })
+                            .catch(error => {
+                                console.log(error)
+                                reject()
+                            })
+                    })
+                }} />
         </div>
     </>)
 }

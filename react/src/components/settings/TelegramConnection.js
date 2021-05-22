@@ -2,7 +2,7 @@ import React, {useState} from 'react'
 import TelegramDetachConfirmationModal from './TelegramDetachConfirmationModal'
 
 
-const TelegramConnection = ({loading, connected, telegramUsername, telegramConnectionLink, sendTestTelegramMessage}) => {
+const TelegramConnection = ({loading, connected, telegramUsername, telegramConnectionLink, sendTestTelegramMessage, detachTelegramAccount}) => {
     const [telegramDetachConfirmationModalVisible, setTelegramDetachConfirmationModalVisible] = useState()
     const [sendingTestMessage, setSengingTestMessage] = useState(false)
 
@@ -32,7 +32,15 @@ const TelegramConnection = ({loading, connected, telegramUsername, telegramConne
                         Профиль привязан к телеграм-аккаунту @{telegramUsername}. На него можно настроить напоминания о своих целях.
                     </p>
                     <button className="button is-danger" onClick={toggleTelegramDetachConfirmationModal}>Отменить привязку</button>
-                    <TelegramDetachConfirmationModal isVisible={telegramDetachConfirmationModalVisible} toggleVisibility={toggleTelegramDetachConfirmationModal}/>
+                    <TelegramDetachConfirmationModal
+                        isVisible={telegramDetachConfirmationModalVisible}
+                        toggleVisibility={() => {
+                            toggleTelegramDetachConfirmationModal()
+                                .then(() => {
+                                    setTelegramDetachConfirmationModalVisible(false)
+                                })
+                        }}
+                        detachTelegramAccount={detachTelegramAccount}/>
                     <button className="button is-info" onClick={handleTestMessageSending} disabled={sendingTestMessage}>{sendingTestMessage? "Отправляется...": "Послать тестовое сообщение"}</button>
                 </>
                 :
