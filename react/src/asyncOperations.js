@@ -52,3 +52,114 @@ export async function getConfirmationStatus(userId, token) {
     const data = await response.json();
     return data;
 }
+
+
+export async function obtainTelegramConnectionData(access) {
+    const telegramConnectionStatusResponse = await fetch(
+        baseAPIUrl + 'telegram/connection/status', {
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8',
+            'Authorization': `Bearer ${access}`
+        }
+    })
+    let {
+        connected: connectedStatus,
+        telegram_username: username,
+        telegram_connection_link: connectionLink
+    } = await telegramConnectionStatusResponse.json()
+    if (!connectedStatus && connectionLink == null) {
+        console.log('Need to request telegram connection link')
+        const telegramGenerateLinkResponse = await fetch(
+            baseAPIUrl + 'telegram/connection/generate_link', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8',
+                'Authorization': `Bearer ${access}`
+            }
+        })
+        let telegramGenerateLinkData = await telegramGenerateLinkResponse.json()
+        connectionLink = telegramGenerateLinkData.result
+    }
+    return {
+        connectedStatus,
+        username,
+        connectionLink,
+    }
+}
+
+
+export function sendTestTelegramMessage(access) {
+    return fetch(
+        baseAPIUrl + 'telegram/test_message/send', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8',
+            'Authorization': `Bearer ${access}`
+        }
+    })
+}
+
+
+export function detachTelegramAccount(access) {
+    return fetch(
+        baseAPIUrl + 'telegram/connection/detach', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8',
+            'Authorization': `Bearer ${access}`
+        }
+    })
+}
+
+
+export async function getNotificationTime(access, itemId) {
+    const response = await fetch(
+        `${baseAPIUrl}telegram/notifications/${itemId}`, {
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8',
+            'Authorization': `Bearer ${access}`
+        }
+    }
+    );
+    if (!response.ok) {
+        const error = await response.json()
+        throw new Error(response.status + ': ' + JSON.stringify(error));
+    }
+    const data = await response.json();
+    return data;
+}
+
+
+export async function deleteNotificationTime(access, itemId) {
+    const response = await fetch(
+        `${baseAPIUrl}telegram/notifications/${itemId}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8',
+            'Authorization': `Bearer ${access}`
+        }
+    }
+    );
+    if (!response.ok) {
+        const error = await response.json()
+        throw new Error(response.status + ': ' + JSON.stringify(error));
+    }
+}
+
+
+export async function setNotificationTime(access, itemId, notificationTime) {
+    const response = await fetch(
+        `${baseAPIUrl}telegram/notifications`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8',
+            'Authorization': `Bearer ${access}`
+        },
+        body: JSON.stringify({ item_id: itemId, notification_time: notificationTime })
+    }
+    );
+    if (!response.ok) {
+        const error = await response.json()
+        throw new Error(response.status + ': ' + JSON.stringify(error));
+    }
+}

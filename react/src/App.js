@@ -24,7 +24,14 @@ export default function App(props) {
         onTrackEntryAddition,
         onElementDelete,
         applyEntriesChanging,
+        obtainTelegramConnectionData,
+        sendTestTelegramMessage,
+        detachTelegramAccount,
+        getNotificationTime,
+        deleteNotificationTime,
+        setNotificationTime
     } = props
+    console.log('App', obtainTelegramConnectionData)
     const isAuthenticated = useSelector(state => state.auth.refresh != null)
 
     useEffect(() => {
@@ -42,14 +49,23 @@ export default function App(props) {
                         () => <Main
                             onElementCreation={onElementCreation}
                             onTrackEntryAddition={onTrackEntryAddition}
-                            onElementDelete={onElementDelete} />
+                            onElementDelete={onElementDelete}
+                            obtainTelegramConnectionData={obtainTelegramConnectionData}
+                            getNotificationTime={getNotificationTime}
+                            deleteNotificationTime={deleteNotificationTime}
+                            setNotificationTime={setNotificationTime} />
                     } />
                     <Route exact path="/statistics" render={
                         () => <ItemsListStat
                             applyEntriesChanging={applyEntriesChanging} />
                     }
                     />
-                    <Route exact path="/settings" component={Settings} />
+                    <Route exact path="/settings" render={
+                        () => <Settings
+                            obtainTelegramConnectionData={obtainTelegramConnectionData}
+                            sendTestTelegramMessage={sendTestTelegramMessage}
+                            detachTelegramAccount={detachTelegramAccount} />
+                    } />
                     <Route exact path="/welcome" component={WelcomeBlock} />
                     <Route exact path="/login" component={Login} />
                     <Route exact path="/register" component={Register} />

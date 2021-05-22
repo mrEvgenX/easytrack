@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useState, useEffect} from 'react'
 import { Redirect } from 'react-router-dom'
 import {useSelector} from 'react-redux'
 import itemSettingsPopup from '../components/ItemSettingsPopup'
@@ -12,12 +12,35 @@ const Main = props => {
     const {
         onElementCreation,
         onTrackEntryAddition,
-        onElementDelete
+        onElementDelete,
+        obtainTelegramConnectionData,
+        getNotificationTime,
+        deleteNotificationTime,
+        setNotificationTime
     } = props;
+    console.log('Main', obtainTelegramConnectionData)
     const trackedItems = useSelector(state => state.data.trackedItems)
     const trackEntries = useSelector(state => state.data.trackEntries)
     const isAuthenticated = useSelector(state => state.auth.refresh != null)
-  
+    const [obtainingTelegramConnectionData, setObtainingTelegramConnectionData] = useState(false)
+    const [telegramConnected, setTelegramConnectedStatus] = useState()
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            setObtainingTelegramConnectionData(true)
+            obtainTelegramConnectionData()
+                .then(({connectedStatus}) => {
+                    setTelegramConnectedStatus(connectedStatus)
+                })
+                .catch(error => {
+                    console.log(error)
+                })
+                .finally(() => {
+                    setObtainingTelegramConnectionData(false)
+                })
+        }
+    }, [isAuthenticated, obtainTelegramConnectionData])
+
     if (!isAuthenticated) {
         return <Redirect to="/welcome" />;
     }
@@ -42,7 +65,14 @@ const Main = props => {
         <ItemsList onElementCreation={onElementCreation}>
             {itemsToBeDisplayed.map(item =>
                 <Item key={item.id} item={item} onTrack={onTrackEntryAddition} onDelete={onElementDelete} checkedToday={item.checkedToday}>
-                    {itemSettingsPopup(item)}
+                    {itemSettingsPopup(
+                        item,
+                        telegramConnected,
+                        obtainingTelegramConnectionData,
+                        getNotificationTime,
+                        deleteNotificationTime,
+                        setNotificationTime
+                    )}
                 </Item>
             )}
         </ItemsList>

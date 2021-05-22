@@ -5,6 +5,10 @@ import {connect} from 'react-redux';
 import App from './App';
 import {refreshAccess} from './redux/auth'
 import {fetchAndPopulateData, createElement, deleteElement, addTrackEntry, bulkUpdateTrackEntries} from './redux/data'
+import {
+    obtainTelegramConnectionData, sendTestTelegramMessage, detachTelegramAccount, 
+    getNotificationTime, deleteNotificationTime, setNotificationTime
+} from './asyncOperations'
 import jwtDecode from 'jwt-decode'
 
 
@@ -46,6 +50,31 @@ class AppContainer extends Component {
         this.actRefreshingTokenIfNecessary(this.props.bulkUpdateTrackEntries)(trackEntriesToAdd, trackEntriesToRemove)
     }
 
+    obtainTelegramConnectionData = async () => {
+        return await this.actRefreshingTokenIfNecessary(obtainTelegramConnectionData)()
+    }
+
+    sendTestTelegramMessage = () => {
+        this.actRefreshingTokenIfNecessary(sendTestTelegramMessage)()
+    }
+
+    detachTelegramAccount = () => {
+        this.actRefreshingTokenIfNecessary(detachTelegramAccount)()
+    }
+
+    getNotificationTime = async (itemId) => {
+        return await this.actRefreshingTokenIfNecessary(getNotificationTime)(itemId)
+    }
+
+    deleteNotificationTime = async (itemId) => {
+        return await this.actRefreshingTokenIfNecessary(deleteNotificationTime)(itemId)
+    }
+
+    setNotificationTime = async (itemId, notificationTime) => {
+        return await this.actRefreshingTokenIfNecessary(setNotificationTime)(itemId, notificationTime)
+    }
+
+
     render() {
         return <App
             populateStateIfNecessary={this.populateStateIfNecessary}
@@ -53,6 +82,12 @@ class AppContainer extends Component {
             onTrackEntryAddition={this.onTrackEntryAddition}
             onElementDelete={this.onElementDelete}
             applyEntriesChanging={this.applyEntriesChanging}
+            obtainTelegramConnectionData={this.obtainTelegramConnectionData}
+            sendTestTelegramMessage={this.sendTestTelegramMessage}
+            detachTelegramAccount={this.detachTelegramAccount}
+            getNotificationTime={this.getNotificationTime}
+            deleteNotificationTime={this.deleteNotificationTime}
+            setNotificationTime={this.setNotificationTime}
             />;
     }
 
