@@ -17,3 +17,8 @@ class TelegramMessageSerializer(serializers.Serializer):
 class TelegramUpdateSerializer(serializers.Serializer):
     update_id = serializers.IntegerField()
     message = TelegramMessageSerializer()
+
+
+class TelegramNotificationSettingSerializer(serializers.Serializer):
+    item_id = serializers.IntegerField()
+    notification_time = serializers.TimeField()

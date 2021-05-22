@@ -4,7 +4,9 @@ from .views import (
     generate_telegram_connection_link,
     get_telegram_connection_status,
     send_test_message,
-    detach_telegram_account
+    detach_telegram_account,
+    NotificationSetting,
+    NotificationSettingCreate
 )
 
 
@@ -15,4 +17,6 @@ urlpatterns = [
     path('connection/status', get_telegram_connection_status, name='get_telegram_connection_status'),
     path('connection/detach', detach_telegram_account, name='detach_telegram_account'),
     path('test_message/send', send_test_message, name='send_test_message'),
+    path('notifications/<int:pk>', NotificationSetting.as_view(), name='notification_detail'),
+    path('notifications', NotificationSettingCreate.as_view(), name='notifications_list'),
 ]
