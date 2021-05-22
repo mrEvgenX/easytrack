@@ -152,6 +152,10 @@ CACHES = {
     'telegram_code_to_user': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
         'TIMEOUT': 3600,
+    },
+    'notifications': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'TIMEOUT': 300,
     }
 }
 
@@ -186,6 +190,10 @@ LOGGING = {
             'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO')
         },
         'telegram': {
+            'handlers': ['main'],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'DEBUG')
+        },
+        'timer_mule': {
             'handlers': ['main'],
             'level': os.getenv('DJANGO_LOG_LEVEL', 'DEBUG')
         }

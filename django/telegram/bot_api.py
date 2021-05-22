@@ -9,10 +9,13 @@ class TelegramClient:
     def __init__(self, token):
         self.token = token
 
-    def send_message(self, chat_id, text):
+    def send_message(self, chat_id, text, disable_web_page_preview=None):
+        payload = {"chat_id": chat_id, "text": text}
+        if disable_web_page_preview:
+            payload['disable_web_page_preview'] = disable_web_page_preview
         r = requests.post(
             'https://api.telegram.org/bot{}/sendMessage'.format(self.token),
-            json={"chat_id": chat_id, "text": text},
+            json=payload,
         )
         data = r.json()
         if r.status_code == 200 and data['ok']:
