@@ -44,15 +44,16 @@ class TelegramBotDispatcher:
             return {}
         incoming_message = update['message']
         chat_id = incoming_message['chat']['id']
-        username = incoming_message['chat']['username']
+        telegram_username = incoming_message['chat']['username']
         text = incoming_message['text']
         try:
             existing_telegram_profile = TelegramProfile.objects.get(chat_id=chat_id)
             username = existing_telegram_profile.user.username
         except TelegramProfile.DoesNotExist:
             existing_telegram_profile = None
+            username = None
         if text == '/start':
-            if existing_telegram_profile:
+            if username:
                 return self.send_message(
                     chat_id,
                     'Данный телеграм-аккаунт уже привязан к профилю Easy Track с логином {}.\n'.format(username)
@@ -64,16 +65,16 @@ class TelegramBotDispatcher:
                 'Для этого, пожалуйста, Easy Track перейдите в [настройки профиля](https://easytrackhabit.ru/settings) и следуйте дальнейшим инструкциям.'
             )
         elif text.startwith('/start '):
-            if existing_telegram_profile:
+            if username:
                 return self.send_message(
                     chat_id,
                     'Данный телеграм-аккаунт уже привязан к профилю Easy Track с логином {}.\n'.format(username)
                 )
             attachment_code = text[7:]
             user_id = self._get_user_id_by_attachment_code(attachment_code)
-            if username:
+            if user_id:
                 user = User.objects.get(pk=user_id)  # TODO make it correctly
-                TelegramProfile(user=user, chat_id=chat_id, telegram_username=username).save()
+                TelegramProfile(user=user, chat_id=chat_id, telegram_username=telegram_username).save()
                 username = user.username
                 self._clear_attachment_code_info(user.pk, attachment_code)
                 return self.send_message(
@@ -91,18 +92,29 @@ class TelegramBotDispatcher:
                     chat_id,
                     'Данный телеграм-аккаунт не привязан ни к какому профилю Easy Track.'
                 )
-            username = existing_telegram_profile.user.username
             existing_telegram_profile.delete()
             return self.send_message(
                 chat_id,
                 'Привязка данного телеграм-аккаунта к профилю Easy Track с логином {} успешно отменена.'.format(username)
             )
         elif text == '/help':
+            message_lines = []
+            if username:
+                message_lines += [
+                    'Данный телеграм-аккаунт привязан к профилю Easy Track с логином {}.'.format(username),
+                    'Чтобы отменить привязку отправьте мне сообщение с текстом /detach.',
+                    'Также это можно сделать на странице сервиса в [настройках профиля Easy Track](https://easytrackhabit.ru/settings).'
+                ]
+            else:
+                message_lines.append(
+                    'Данный телеграм-аккаунт не привязан ни к какому профилю Easy Track.'
+                )
+            message_lines += [
+                'О том, что я умею, я научусь сообщать позже.',
+            ]
             return self.send_message(
                 chat_id,
-                'Данный телеграм-аккаунт привязан к профилю Easy Track с логином {}.'
-                'Чтобы отменить привязку отправьте мне сообщение с текстом /detach.\n'
-                'Также это можно сделать на странице сервиса в [настройках профиля Easy Track](https://easytrackhabit.ru/settings).'
+                '\n'.join(message_lines)
             )
         return self.send_message(
             chat_id,

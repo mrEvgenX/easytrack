@@ -79,6 +79,22 @@ def generate_telegram_connection_link(request):
     return Response({'result': 'https://t.me/easytrackhabit_bot?start={}'.format(attachment_code)})
 
 
+@api_view(['POST'])
+def detach_telegram_account(request):
+    try:
+        telegram_profile = TelegramProfile.objects.get(user=request.user)
+        chat_id = telegram_profile.chat_id
+        username = request.user.username
+        telegram_profile.delete()
+        client.send_message(
+            chat_id,
+            'Привязка данного телеграм-аккаунта к профилю Easy Track с логином {} успешно отменена.'.format(username)
+        )
+        return Response()
+    except TelegramProfile.DoesNotExist:
+        return Response(status=400)
+
+
 # TODO user rate limiter
 @api_view(['POST'])
 def send_test_message(request):
