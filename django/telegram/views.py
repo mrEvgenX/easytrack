@@ -36,7 +36,7 @@ def telegram_webhook(request, token):
     if telegram_update_serializer.is_valid():
         telegram_update = telegram_update_serializer.validated_data
         log.info('Deserialized telegram update data %s', telegram_update)
-        result = tgdp.dispatch(client, telegram_update)
+        result = tgdp.dispatch(telegram_update)
         return Response(result)
     else:
         log.error('Bad request data %s', telegram_update_serializer.errors)

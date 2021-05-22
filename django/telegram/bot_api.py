@@ -64,7 +64,7 @@ class TelegramBotDispatcher:
                 'Но для этого нужно привязать данный телеграм-аккаунт. '
                 'Для этого, пожалуйста, Easy Track перейдите в [настройки профиля](https://easytrackhabit.ru/settings) и следуйте дальнейшим инструкциям.'
             )
-        elif text.startwith('/start '):
+        elif text.startswith('/start '):
             if username:
                 return self.send_message(
                     chat_id,
