@@ -14,7 +14,7 @@ class AuthTests(TestCase):
     def test_register(self):
         response = self.client.post(
             reverse('api.auth:register'), 
-            {'email': 'UsEr1@Example.com', 'password': 'user'}
+            {'email': 'UsEr1@Example.com', 'password': 'Lqk396-Mpjc7D'}
         )
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.json(), {'email': 'user1@example.com'})

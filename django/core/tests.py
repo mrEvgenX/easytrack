@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from .models import Folder, Item, Entry
 from .serializers import FolderSerializer, ItemSerializer, EntrySerializer
-from .views import ListCreateFolders, DestroyFolder, ListCreateItems, RetrieveUpdateDestroyItem, EntryBulkCreateDelete
+from .views import ListCreateItems, RetrieveUpdateDestroyItem, EntryBulkCreateDelete
 
 
 class SerializerTests(TestCase):
@@ -53,54 +53,54 @@ class SerializerTests(TestCase):
         self.assertEqual(serializer.data, {'timeBucket': '2020-01-01', 'item': item.id})
 
 
-class CoreFoldersTests(TestCase):
-    
-    def setUp(self):
-        self.factory = RequestFactory()
-        self.user1 = User.objects.create(username='user1@example.com')
-        self.user2 = User.objects.create(username='user2@example.com')
-
-    def test_list_folders(self):
-        request = self.factory.get('/api/v1/folders')
-        request.user = self.user1
-        response = ListCreateFolders.as_view()(request)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data, [])  # TODO
-
-    def test_create_folder(self):
-        request = self.factory.post(
-            '/api/v1/folders', data={'name': 'Папка'}, content_type='application/json'
-        )
-        request._dont_enforce_csrf_checks = True
-        request.user = self.user1
-        response = ListCreateFolders.as_view()(request)
-        self.assertEqual(response.status_code, 201)
-        self.assertEqual(response.data, {'slug': 'papka', 'name': 'Папка'})
-
-    def test_delete_folder(self):
-        Folder.objects.create(owner=self.user1, slug='folder1', name='Folder1')
-        Folder.objects.create(owner=self.user2, slug='folder2', name='Folder2')
-        request = self.factory.delete(
-            '/api/v1/folders/folder', content_type='application/json'
-        )
-        request._dont_enforce_csrf_checks = True
-        request.user = self.user1
-        response = DestroyFolder.as_view()(request, slug='folder1')
-        self.assertEqual(response.status_code, 204, response.data)
-        self.assertEqual(response.data, None)
-        self.assertEqual(Folder.objects.count(), 1)
-
-    def test_delete_someones_other_folder(self):
-        Folder.objects.create(owner=self.user1, slug='folder1', name='Folder1')
-        Folder.objects.create(owner=self.user2, slug='folder2', name='Folder2')
-        request = self.factory.delete(
-            '/api/v1/folders/folder', content_type='application/json'
-        )
-        request._dont_enforce_csrf_checks = True
-        request.user = self.user2
-        response = DestroyFolder.as_view()(request, slug='folder1')
-        self.assertEqual(response.status_code, 404, response.data)
-        self.assertEqual(Folder.objects.count(), 2)
+# class CoreFoldersTests(TestCase):
+#
+#     def setUp(self):
+#         self.factory = RequestFactory()
+#         self.user1 = User.objects.create(username='user1@example.com')
+#         self.user2 = User.objects.create(username='user2@example.com')
+#
+#     def test_list_folders(self):
+#         request = self.factory.get('/api/v1/folders')
+#         request.user = self.user1
+#         response = ListCreateFolders.as_view()(request)
+#         self.assertEqual(response.status_code, 200)
+#         self.assertEqual(response.data, [])  # TODO
+#
+#     def test_create_folder(self):
+#         request = self.factory.post(
+#             '/api/v1/folders', data={'name': 'Папка'}, content_type='application/json'
+#         )
+#         request._dont_enforce_csrf_checks = True
+#         request.user = self.user1
+#         response = ListCreateFolders.as_view()(request)
+#         self.assertEqual(response.status_code, 201)
+#         self.assertEqual(response.data, {'slug': 'papka', 'name': 'Папка'})
+#
+#     def test_delete_folder(self):
+#         Folder.objects.create(owner=self.user1, slug='folder1', name='Folder1')
+#         Folder.objects.create(owner=self.user2, slug='folder2', name='Folder2')
+#         request = self.factory.delete(
+#             '/api/v1/folders/folder', content_type='application/json'
+#         )
+#         request._dont_enforce_csrf_checks = True
+#         request.user = self.user1
+#         response = DestroyFolder.as_view()(request, slug='folder1')
+#         self.assertEqual(response.status_code, 204, response.data)
+#         self.assertEqual(response.data, None)
+#         self.assertEqual(Folder.objects.count(), 1)
+#
+#     def test_delete_someones_other_folder(self):
+#         Folder.objects.create(owner=self.user1, slug='folder1', name='Folder1')
+#         Folder.objects.create(owner=self.user2, slug='folder2', name='Folder2')
+#         request = self.factory.delete(
+#             '/api/v1/folders/folder', content_type='application/json'
+#         )
+#         request._dont_enforce_csrf_checks = True
+#         request.user = self.user2
+#         response = DestroyFolder.as_view()(request, slug='folder1')
+#         self.assertEqual(response.status_code, 404, response.data)
+#         self.assertEqual(Folder.objects.count(), 2)
 
 
 class CoreItemsTests(TestCase):
