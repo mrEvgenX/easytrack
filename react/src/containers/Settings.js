@@ -34,7 +34,7 @@ const Settings = props => {
                     setObtainingTelegramConnectionData(false)
                 })
         }
-    }, [isAuthenticated, access])
+    }, [isAuthenticated, access, obtainTelegramConnectionData])
 
     if (!isAuthenticated) {
         return <Redirect to="/welcome" />;
