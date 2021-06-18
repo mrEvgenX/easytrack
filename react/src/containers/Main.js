@@ -18,7 +18,6 @@ const Main = props => {
         deleteNotificationTime,
         setNotificationTime
     } = props;
-    console.log('Main', obtainTelegramConnectionData)
     const trackedItems = useSelector(state => state.data.trackedItems)
     const trackEntries = useSelector(state => state.data.trackEntries)
     const isAuthenticated = useSelector(state => state.auth.refresh != null)

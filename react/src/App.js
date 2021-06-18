@@ -31,7 +31,6 @@ export default function App(props) {
         deleteNotificationTime,
         setNotificationTime
     } = props
-    console.log('App', obtainTelegramConnectionData)
     const isAuthenticated = useSelector(state => state.auth.refresh != null)
 
     useEffect(() => {
